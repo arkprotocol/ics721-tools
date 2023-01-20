@@ -141,16 +141,19 @@ IRISnet:
 git clone https://github.com/irisnet/irishub
 cd irishub
 # make sure correct version is checked out for testnet
-git checkout v1.1.1
+git checkout feature/gon
 make install
 # check uptickd CLI is working:
-iris version # 8.0.0-rc.1
+iris version # 1.4.1-26-g0ac92bcb
+
+
 # config
 iris config chain-id iris-1
 iris config node http://34.145.1.166:26657
 iris config broadcast-mode block
 # show and check config
 iris config
+
 ```
 
 Uptick:
@@ -161,7 +164,7 @@ cd uptick/
 git checkout v0.2.4
 make install
 # check uptickd CLI is working:
-uptickd version # 8.0.0-rc.1
+uptickd version # HEAD-3d1e40d0d42b420ac02c624a2d6e8225c0b5991b
 # config
 uptickd config chain-id uptick_7000-1
 uptickd config node http://52.74.190.214:26657
@@ -216,9 +219,17 @@ For Juno use same mnemonic and follow same steps as above. Faucets can be reques
 - discord invite: https://discord.gg/juno
 - faucet channel: https://discord.com/channels/816256689078403103/842073995059003422
 
-Use same mnemonic for recovering wallets for IRISnet and Uptick:
+Use same mnemonic for recovering wallets for Juno, IRISnet and Uptick:
 
 ```sh
+# ---- Juno
+# test_creator: juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h
+junod keys add test_creator --recover # you will be prompted for entering your mnemonic
+# test_minter: juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md
+junod keys add test_minter --recover
+# test relayer: juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
+junod keys add test_relayer --recover
+
 # ---- IRISnet
 # test_creator: iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6
 iris keys add test_creator --recover # you will be prompted for entering your mnemonic
@@ -236,7 +247,7 @@ uptickd keys add test_minter --recover
 uptickd keys add test_relayer --recover
 ```
 
-Now get some test NYAN and UPTICK tokens:
+Now get some test JUNOX (Juno tokens are called JUNOX on testnet), NYAN and UPTICK tokens:
 - join IRISnet discord: https://discord.gg/ZYNhsmjbmu
 - go to faucet channel: https://discord.com/channels/806356514973548614/820953811434471494
 
@@ -257,6 +268,9 @@ In faucet channel enter:
 $faucet uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw # replace with test creator wallet address
 # Uptick allows only 1 request per day, so wait another day, or send funds from creator wallet
 $faucet uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747 # replace with test minter wallet address
+
+Juno faucet 
+https://test.juno.tools/request-tokens/
 ```
 
 Now check whether above 3 wallets has funds using CLI:
@@ -345,10 +359,19 @@ Hermes:
 
 ```sh
 # restore relayer wallets for hermes
-hermes --config config.toml keys add --chain elgafar-1 --mnemonic-file ./relayer-mnemonic
-hermes --config config.toml keys add --chain uni-5 --mnemonic-file ./relayer-mnemonic
-hermes --config config.toml keys add --chain uptick_7000-1 --mnemonic-file ./relayer-mnemonic
-hermes --config config.toml keys add --chain iris-1 --mnemonic-file ./relayer-mnemonic
+hermes --config config.toml keys add --chain elgafar-1 --mnemonic-file ./relayer-mnemonic # stars1lc492y067qn2txqzhya7uecj8hn02sdc2dutaf
+hermes --config config.toml keys add --chain uni-5 --mnemonic-file ./relayer-mnemonic # juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
+hermes --config config.toml keys add --chain uptick_7000-1 --mnemonic-file ./relayer-mnemonic # uptick150htnyf53qsq3z5kmpzwnrp9zq3gmkgdz8hn5f
+hermes --config config.toml keys add --chain iris-1 --mnemonic-file ./relayer-mnemonic # iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
+```
+
+Starting hermes
+
+```sh
+hermes --config config.toml start # from the directory the config is located
+
+# wait a until hermes is running; this can take a while
+# 2023-01-20T12:59:56.811226Z  INFO ThreadId(01) Hermes has started
 ```
 
 # Commands for Testing
@@ -362,7 +385,7 @@ Here's a list of commands that is required:
 - IBC (interchain) transfer
 - Relay channels
 
-CLIs has a `--help` flag. So you can always use `starsd keys --help` or `uptickd keys add --help`.
+CLIs has a `--help` flag. So you can always use `starsd keys --help` or `uptickd keys add --help` for subcommands.
 
 ## Create and Recover Keys (Wallets)
 
@@ -521,7 +544,7 @@ Example:
 ```sh
 # ========================== wasm module ==========================
 # - send nft from juno to stargaze
-junod tx wasm execute juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"send_nft": { "contract": "juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwNiIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9Cg=="}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
+junod tx wasm execute juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"send_nft": { "contract": "juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
 # - query and check NFT is locked/owned by ICS721 contract
 junod query wasm contract-state smart juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"all_nft_info":{"token_id": "1"}}'
 # - relay
