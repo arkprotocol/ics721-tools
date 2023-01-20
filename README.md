@@ -505,13 +505,14 @@ iris query nft token ark ark1
 Syntax:
 ```sh
 # ========================== wasm module ==========================
-starsd tx wasm execute stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"send_nft": { "contract": "ICS721_CONTRACT", "token_id": "TOKEN_ID", "msg": "BASE64_ENCODED_JSON_MSG_FOR_ICS721"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b block --yes
+starsd tx wasm execute CW721_COLLECTION_ADDR '{"send_nft": { "contract": "ICS721_CONTRACT", "token_id": "TOKEN_ID", "msg": "BASE64_ENCODED_JSON_MSG_FOR_ICS721"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b block --yes
 # ========================== nft module ==========================
 iris tx nft-transfer transfer nft-transfer SOURCE_CHANNEL_ID TARGET_RECIPIENT DENOM_ID NFT_ID --from SIGNER_WALLET_OR_KEY_NAME -b block --fees 50uiris -y
 ```
 
 NOTE: BASE64_ENCODED_JSON_MSG_FOR_ICS721 must be:
 ```json
+// for timeout use highest block height for example
 { "receiver": "RECEIVER_WALLET_ADDRESS_ON_TARGET_CHAIN", "channel_id": "SOURCE_ICS721_CHANNEL", "timeout": { "block": { "revision": 1, "height": 3999999 } } }
 ```
 
@@ -536,3 +537,6 @@ iris tx nft-transfer transfer nft-transfer channel-13 juno1f0zfmahd9c43nmpljx3he
 # - relay
 
 ```
+
+# FAQ
+
