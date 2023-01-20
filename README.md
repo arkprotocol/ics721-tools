@@ -347,7 +347,7 @@ Hermes:
 # restore relayer wallets for hermes
 hermes --config config.toml keys add --chain elgafar-1 --mnemonic-file ./relayer-mnemonic
 hermes --config config.toml keys add --chain uni-5 --mnemonic-file ./relayer-mnemonic
-hermes --config config.toml keys add --chain osmo-test-4 --mnemonic-file ./relayer-mnemonic
+hermes --config config.toml keys add --chain uptick_7000-1 --mnemonic-file ./relayer-mnemonic
 hermes --config config.toml keys add --chain iris-1 --mnemonic-file ./relayer-mnemonic
 ```
 
