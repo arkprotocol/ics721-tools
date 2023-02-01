@@ -265,6 +265,7 @@ list = [
   ['*', 'channel-119'], # channel to nft-transfer on iris (nft-transfer)
   ['*', 'channel-120'], # channel to nft-transfer on uptick (nft-transfer)
   ['*', 'channel-130'], # channel to ICS721 on Juno (wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu)
+  ['*', 'channel-132'], # channel to nft-transfers on iris
 ]
 
 [[chains]]
@@ -321,6 +322,7 @@ policy = 'allow'
 list = [
   ['*', 'channel-7'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
   ['*', 'channel-13'], # channel to ICS721 on Juno (wasm.juno1mq7p6l5z3xl96c2fgn3ln2mxl0tq6tffp8ge4s3nsegz6chxuswqkkacv0)
+  ['*', 'channel-15'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
 ]
 
 [[chains]]

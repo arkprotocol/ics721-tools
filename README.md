@@ -476,7 +476,7 @@ Example:
 # create channel between 2 ICS721 contracts
 # port id is: wasm.ICS_CONTRACT_ADDRESS, VERSION is defined in ICS721 contract
 # - create channel with NEW connection
-hermes --config config.toml create channel --a-chain uni-5 --b-chain elgafar-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 --new-client-connection --channel-version ICS721-1 --yes
+hermes --config config.toml create channel --a-chain uni-5 --b-chain elgafar-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 --new-client-connection --channel-version ics721-1 --yes
 
 # - query using CLI, search using port id for finding channel and counter part channel
 starsd query ibc channel channels --limit 100 # also use --page for pagination
@@ -485,7 +485,7 @@ hermes --config config.toml query channels --chain uni-5
 
 # ========================== nft module ==========================
 # - create channel between nft module and ICS721
-hermes --config config.toml create channel --a-chain uni-5 --b-chain iris-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port nft-transfer --new-client-connection --channel-version ICS721-1 --yes
+hermes --config config.toml create channel --a-chain uni-5 --b-chain iris-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port nft-transfer --new-client-connection --channel-version ics721-1 --yes
 ```
 
 ## Mint an NFT
@@ -558,7 +558,9 @@ starsd query wasm contract-state smart stars1fxdn4dmkfk0v87d5s3n3hr2g5huhkmde6n4
 # - transfer to nft module
 iris tx nft-transfer transfer nft-transfer channel-13 juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md ark ark1 --from test_minter -b block --fees 50uiris -y
 # - relay
+hermes --config config.toml clear packets --chain iris-1 --channel channel-13 --port wasm.juno1mq7p6l5z3xl96c2fgn3ln2mxl0tq6tffp8ge4s3nsegz6chxuswqkkacv0
 
+hermes --config config.toml clear packets --chain uni-5 --channel channel-509 --port nft-transfer
 ```
 
 # FAQ
