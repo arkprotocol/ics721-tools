@@ -269,7 +269,7 @@ list = [
 ]
 
 [[chains]]
-id = 'uni-5'
+id = 'uni-6'
 rpc_addr = 'https://rpc.uni.junonetwork.io/'
 grpc_addr = 'http://juno-testnet-grpc.polkachu.com:12690'
 websocket_addr = 'wss://rpc.uni.junonetwork.io/websocket'
@@ -351,3 +351,20 @@ policy = 'allow'
 list = [
   ['*', 'channel-3'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
 ]
+
+[[chains]]
+id = 'gon-flixnet-1'
+rpc_addr = 'http://65.21.93.56:26657'
+grpc_addr = 'http://65.21.93.56:9090'
+websocket_addr = 'ws://65.21.93.56:26657/websocket'
+rpc_timeout = '10s'
+account_prefix = 'omniflix'
+key_name = 'relay-key-1'
+store_prefix = 'ibc'
+max_gas = 2000000
+gas_price = { price = 0.001, denom = 'uflix' }
+gas_multiplier = 1.1
+clock_drift = '5s'
+trusting_period = '14days'
+trust_threshold = { numerator = '1', denominator = '3' }
+address_type = { derivation = 'cosmos'}

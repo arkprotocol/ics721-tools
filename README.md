@@ -76,6 +76,12 @@ Uptick:
 - minter: uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747
 - relayer: uptick1nlrntuydkq7dte8fenlu3e4zenmqhkluhl6hay
 
+Omniflixhub:
+- creator: omniflix192meglgpmt5pdz45wv6qgd5apfuxy9u5mtx694
+- minter: omniflix1f0zfmahd9c43nmpljx3hel6h5d9vl7gzcjxgt0
+- relayer: omniflix1lc492y067qn2txqzhya7uecj8hn02sdcr060px
+
+
 ### Contracts
 
 Stargaze:
@@ -83,8 +89,8 @@ Stargaze:
 - ICS721: code id `804`, address `stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82`
 
 Juno:
-- CW721: code id `4232`, ark test collection address `juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd`
-- ICS721: code id `4233`, address `juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu`
+- CW721: code id `116`, ark test collection address `juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02`
+- ICS721: code id `117`, address `juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye`
 
 ## Install CLIs
 
@@ -129,8 +135,8 @@ make install
 # check uptickd CLI is working:
 junod version # v10.0.0
 # config
-junod config chain-id uni-5
-junod config node https://juno-testnet-rpc.polkachu.com:443
+junod config chain-id uni-6
+junod config node https://rpc.uni.junonetwork.io:443
 junod config broadcast-mode block
 # show and check config
 junod config
@@ -173,6 +179,24 @@ uptickd config broadcast-mode block
 uptickd config
 ```
 
+Onmiflixhub
+```sh
+git clone https://github.com/Omniflix/omniflixhub.git
+cd omniflixhub
+git checkout v0.8.0
+go mod tidy
+make install
+# check omniflixhubd CLI is working:
+omniflixhubd version # 0.8.0
+# config
+omniflixhubd config chain-id gon-flixnet-1
+omniflixhubd config node http://65.21.93.56:26657
+omniflixhubd config broadcast-mode block
+# show and check config
+omniflixhubd config
+
+```
+
 ## Create Wallet
 
 Create two wallets: one for creator and one for minter:
@@ -192,7 +216,7 @@ starsd keys add test_relayer
 # mnemonic: scale alter grace come maze rug school math faint lawsuit auction wheat tribe hand cricket garbage boil utility eager dutch strategy grocery convince bone
 
 ```
-
+## faucets 
 Now get some test STARS tokens:
 - join Stargaze discord: https://discord.gg/stargaze
 - go to faucet channel: https://discord.com/channels/755548171941445642/940653213022031912
@@ -319,10 +343,10 @@ starsd query wasm contract-state smart stars1rngd33njs2cjzpneejx4q5z3cagxl57a858
 
 # same for juno
 # - upload
-junod tx wasm store ./CW721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes # code id 4232
+junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes # code id 116
 # - instantiate
-junod tx wasm instantiate 4232 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md"}' --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from test_creator --yes --admin juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h # adress juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd
-junod query wasm contract-state smart juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"num_tokens":{}}' # count: 0
+junod tx wasm instantiate 116 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md"}' --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from test_creator --yes --admin juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h # adress juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02
+junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"num_tokens":{}}' # count: 0
 
 ```
 
@@ -334,7 +358,7 @@ cd ICS721
 git checkout 3af19e421a95aec5291a0cabbe796c58698ac97f # latest PR44
 ./ts-relayer-tests/build.sh
 cp ./artifacts/cw_ICS721_bridge.wasm cw_ICS721_bridge_pr44.wasm
-starsd tx wasm store ./cw_ICS721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
+starsd tx wasm store ./cw_ics721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
 # find contract's code_id in output: {"height":"2965732", ... {"key":"code_id","value":"804"} ...}
 # instantiate based on instantiate msg: https://github.com/public-awesome/ICS721/blob/3af19e421a95aec5291a0cabbe796c58698ac97f/contracts/cw-ICS721-bridge/src/msg.rs#L17
 starsd tx wasm instantiate 804 '{"CW721_base_code_id":803}' --label ark-test-ICS721-pr44 --gas auto --gas-adjustment 1.3 -b block --from test_creator --yes --admin stars192meglgpmt5pdz45wv6qgd5apfuxy9u5jfq7e6
@@ -344,10 +368,10 @@ starsd query wasm contract-state smart stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3w
 
 # juno
 # - upload
-junod tx wasm store ./cw_ICS721_bridge_pr44.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes # code id 4233
+junod tx wasm store ./cw_ICS721_bridge_pr44.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes # code id 117
 # - instantiate
-junod tx wasm instantiate 4233 '{"CW721_base_code_id":4232}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from test_creator --yes --admin juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h # address juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu
-junod query wasm contract-state smart juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu '{"nft_contract":{"class_id":""}}' # data: null
+junod tx wasm instantiate 117 '{"cw721_base_code_id":117}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from test_creator --yes --admin juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h # address juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye
+junod query wasm contract-state smart juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye '{"nft_contract":{"class_id":""}}' # data: null
 
 ```
 
@@ -360,9 +384,10 @@ Hermes:
 ```sh
 # restore relayer wallets for hermes
 hermes --config config.toml keys add --chain elgafar-1 --mnemonic-file ./relayer-mnemonic # stars1lc492y067qn2txqzhya7uecj8hn02sdc2dutaf
-hermes --config config.toml keys add --chain uni-5 --mnemonic-file ./relayer-mnemonic # juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
+hermes --config config.toml keys add --chain uni-6 --mnemonic-file ./relayer-mnemonic # juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
 hermes --config config.toml keys add --chain uptick_7000-1 --mnemonic-file ./relayer-mnemonic # uptick150htnyf53qsq3z5kmpzwnrp9zq3gmkgdz8hn5f
 hermes --config config.toml keys add --chain iris-1 --mnemonic-file ./relayer-mnemonic # iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
+hermes --config config.toml keys add --chain gon-flixnet-1 --mnemonic-file ./relayer-mnemonic # iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 ```
 
 Starting hermes
@@ -428,11 +453,11 @@ Example:
 # ========================== wasm module ==========================
 # uploading CW721 contract
 # - search in output for code_id! this is needed for instantiation!
-starsd tx wasm store ./CW721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
+starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
 # upload ICS721 contract
 # - search in output for code_id! this is needed for instantiation!
 # - in case of 'out of gas in location' error use '--gas-prices' option:
-junod tx wasm store ./CW721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
+junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --output json --from test_creator --yes
 
 # instantiate CW721, only required for wasm module
 # - search in output for CW721's contract_address! Needed for execution and query on CW721 collection contract.
@@ -476,16 +501,16 @@ Example:
 # create channel between 2 ICS721 contracts
 # port id is: wasm.ICS_CONTRACT_ADDRESS, VERSION is defined in ICS721 contract
 # - create channel with NEW connection
-hermes --config config.toml create channel --a-chain uni-5 --b-chain elgafar-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 --new-client-connection --channel-version ics721-1 --yes
+hermes --config config.toml create channel --a-chain uni-6 --b-chain elgafar-1 --a-port wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye --b-port wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 --new-client-connection --channel-version ics721-1 --yes
 
 # - query using CLI, search using port id for finding channel and counter part channel
 starsd query ibc channel channels --limit 100 # also use --page for pagination
 # - query using hermes
-hermes --config config.toml query channels --chain uni-5
+hermes --config config.toml query channels --chain uni-6
 
 # ========================== nft module ==========================
 # - create channel between nft module and ICS721
-hermes --config config.toml create channel --a-chain uni-5 --b-chain iris-1 --a-port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu --b-port nft-transfer --new-client-connection --channel-version ics721-1 --yes
+hermes --config config.toml create channel --a-chain uni-6 --b-chain iris-1 --a-port wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye --b-port nft-transfer --new-client-connection --channel-version ics721-1 --yes
 ```
 
 ## Mint an NFT
@@ -508,13 +533,13 @@ Example:
 starsd tx wasm execute stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"mint": {"token_id":"20", "owner":"stars1f0zfmahd9c43nmpljx3hel6h5d9vl7gz3sqvhq"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b sync --yes --output json
 
 # - junod with --gas-prices option
-junod tx wasm execute juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd  '{"mint": {"token_id": "1", "owner": "juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md", "token_uri": "https://arkprotocol.io/"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes --output json
+junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02  '{"mint": {"token_id": "1", "owner": "juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md", "token_uri": "https://arkprotocol.io/"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes --output json
 
 # query
 # - number of tokens
 starsd query wasm contract-state smart stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"num_tokens":{}}'
 # - token info and owner
-junod query wasm contract-state smart juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"all_nft_info":{"token_id": "1"}}'
+junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"all_nft_info":{"token_id": "1"}}'
 # ========================== nft module ==========================
 iris tx nft mint ark ark1 --uri=foo.bar --recipient=iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q --from=test_creator -y --fees 20uiris
 # - query all nfts
@@ -544,13 +569,13 @@ Example:
 ```sh
 # ========================== wasm module ==========================
 # - send nft from juno to stargaze
-junod tx wasm execute juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"send_nft": { "contract": "juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
+junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"send_nft": { "contract": "juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
 # - query and check NFT is locked/owned by ICS721 contract
-junod query wasm contract-state smart juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd '{"all_nft_info":{"token_id": "1"}}'
+junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"all_nft_info":{"token_id": "1"}}'
 # - relay
-hermes --config config.toml clear packets --chain uni-5 --channel channel-508 --port wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu
+hermes --config config.toml clear packets --chain uni-6 --channel channel-508 --port wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye
 # - query for CW721 contract on target ICS721
-starsd query wasm contract-state smart stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 '{"nft_contract": {"class_id" : "wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82/channel-130/juno10frug7v4zafqmj2xpgspnfglh3ftnzctn7fa9cw0ft3grzm2y4hs3jn3sd"}}'
+starsd query wasm contract-state smart stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 '{"nft_contract": {"class_id" : "wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82/channel-130/juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02"}}'
 # - query on cw271 whether it has been transferred on target chain
 starsd query wasm contract-state smart stars1fxdn4dmkfk0v87d5s3n3hr2g5huhkmde6n4ye9ywwsc0he8ywgys673k7d '{"all_nft_info":{"token_id": "1"}}'
 
@@ -560,7 +585,7 @@ iris tx nft-transfer transfer nft-transfer channel-13 juno1f0zfmahd9c43nmpljx3he
 # - relay
 hermes --config config.toml clear packets --chain iris-1 --channel channel-13 --port wasm.juno1mq7p6l5z3xl96c2fgn3ln2mxl0tq6tffp8ge4s3nsegz6chxuswqkkacv0
 
-hermes --config config.toml clear packets --chain uni-5 --channel channel-509 --port nft-transfer
+hermes --config config.toml clear packets --chain uni-6 --channel channel-509 --port nft-transfer
 ```
 
 # FAQ
