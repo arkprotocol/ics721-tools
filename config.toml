@@ -262,11 +262,11 @@ address_type = { derivation = 'cosmos' }
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-119'], # channel to nft-transfer on iris (nft-transfer)
-  ['*', 'channel-120'], # channel to nft-transfer on uptick (nft-transfer)
-  ['*', 'channel-130'], # channel to ICS721 on Juno (wasm.juno103kuy4uxqh68ukjevapnh52ysvm6wyxuclagc4vxlrz9l2y6myrqf8mmsu)
-  ['*', 'channel-132'], # channel to nft-transfers on iris-1
+  ['*', 'channel-119'], # channel to nft-transfer on iris (nft-transfer) channel-7
+  ['*', 'channel-132'], # channel to nft-transfers on iris-1 channel-15
+  ['*', 'channel-134'], # channel to nft-transfer on uptick (nft-transfer) channel-4
   ['*', 'channel-156'], # wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 to nft-tranfer on gon-flixnet-1 channel-7
+  ['*', 'channel-157'], # channel to ICS721 on uni-6 (wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye) channel-26
 ]
 
 [[chains]]
@@ -293,11 +293,10 @@ address_type = { derivation = 'cosmos' }
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-16'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
-  ['*', 'channel-19'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
   ['*', 'channel-22'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on iris-1 channel-34
   ['*', 'channel-23'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on uptick_7000-1 channel-10
   ['*', 'channel-24'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on gon-flixnet-1 channel-6
+  ['*', 'channel-26'], # channel to ICS721 on elgafar-1 (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-157
 ]
 
 [[chains]]
@@ -324,8 +323,8 @@ address_type = { derivation = 'cosmos' }
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-7'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
-  ['*', 'channel-15'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-7'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-119
+  ['*', 'channel-15'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-132
   ['*', 'channel-34'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-22
   ['*', 'channel-35'], # to gon-flixnet-1 nft-transfer channel-8
   ['*', 'channel-36'], # to uptick_7000-1 nft-transfer channel-13
@@ -355,7 +354,7 @@ address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-3'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-4'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-134
   ['*', 'channel-10'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-23
   ['*', 'channel-13'], # to iris-1 nft-transfer channel-36
   ['*', 'channel-12'], # to gon-flixnet-1 nft-transfer channel-9
