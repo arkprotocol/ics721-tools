@@ -583,7 +583,7 @@ Example:
 ```sh
 # ========================== wasm module ==========================
 # mint
-# - starsd
+# - starsd, in case NFT has already been minted an 'token_id already claimed' error is, in this case check below and query for number of tokens
 starsd tx wasm execute stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"mint": {"token_id":"20", "owner":"stars1f0zfmahd9c43nmpljx3hel6h5d9vl7gz3sqvhq"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b sync --yes --output json
 
 # - junod with --gas-prices option
@@ -622,8 +622,8 @@ Example:
 
 ```sh
 # ========================== wasm module ==========================
-# - send nft from juno to stargaze
-junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"send_nft": { "contract": "juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
+# - send nft with token-id 1 from juno to stargaze via channel-508
+junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"send_nft": { "contract": "juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9Cg=="}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
 # - query and check NFT is locked/owned by ICS721 contract
 junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"all_nft_info":{"token_id": "1"}}'
 # - relay
