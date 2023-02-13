@@ -99,12 +99,14 @@ Read this for detailed installation:
 - https://docs.junonetwork.io/validators/getting-setup
 - https://www.irisnet.org/docs/get-started/install.html
 - https://docs.uptick.network/quickstart/installation.html
+- https://github.com/omniflix/omniflixhub#installation
 
 Make sure checking out the correct cli version for using on testnet:
 - Stargaze: 8.0.0-rc.1
 - Juno: v10.0.0 or higher
 - IRISnet: v1.1.1
 - Uptick: v0.2.4
+- OmniFlix: v0.9.0-gon-rc5
 
 Stargaze:
 ```sh
@@ -179,15 +181,15 @@ uptickd config broadcast-mode block
 uptickd config
 ```
 
-Onmiflixhub
+Omniflixhub
 ```sh
 git clone https://github.com/Omniflix/omniflixhub.git
 cd omniflixhub
-git checkout v0.8.0
+git checkout v0.9.0-gon-rc5
 go mod tidy
 make install
 # check omniflixhubd CLI is working:
-omniflixhubd version # 0.8.0
+omniflixhubd version # 0.9.0-gon-rc5
 # config
 omniflixhubd config chain-id gon-flixnet-1
 omniflixhubd config node http://65.21.93.56:26657
@@ -243,7 +245,8 @@ For Juno use same mnemonic and follow same steps as above. Faucets can be reques
 - discord invite: https://discord.gg/juno
 - faucet channel: https://discord.com/channels/816256689078403103/842073995059003422
 
-Use same mnemonic for recovering wallets for Juno, IRISnet and Uptick:
+
+Use same mnemonic for recovering wallets for Juno, IRISnet, Uptick and OmniFlix:
 
 ```sh
 # ---- Juno
@@ -269,6 +272,14 @@ uptickd keys add test_creator --recover # you will be prompted for entering your
 uptickd keys add test_minter --recover
 # test relayer: uptick1nlrntuydkq7dte8fenlu3e4zenmqhkluhl6hay
 uptickd keys add test_relayer --recover
+
+# ---- OmniFlix
+# test_creator: omniflix192meglgpmt5pdz45wv6qgd5apfuxy9u5mtx694
+omniflixhubd keys add test_creator --recover # you will be prompted for entering your mnemonic
+# test_minter: omniflix1f0zfmahd9c43nmpljx3hel6h5d9vl7gzcjxgt0
+omniflixhubd keys add test_minter --recover
+# test relayer: omniflix1lc492y067qn2txqzhya7uecj8hn02sdcr060px
+omniflixhubd keys add test_relayer --recover
 ```
 
 Now get some test JUNOX (Juno tokens are called JUNOX on testnet), NYAN and UPTICK tokens:
@@ -318,6 +329,22 @@ uptickd tx bank send uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw uptick1nlrntu
 ```
 
 NOTE: 5000000000000000000 auptick is 5 UPTICK!
+
+OmniFlix faucet
+   - Claim flix tokens on gon-flixnet-1
+   ```
+    # url
+    https://faucet.gon-flixnet.omniflix.io/?address=<omniflix-account-address>
+    
+    # using curl
+    curl -s https://faucet.gon-flixnet.omniflix.io/?address=omniflix1.... # replace with your omniflix account address
+   ```
+   - Check balance 
+    ```sh
+    omniflixhubd q bank balances omniflix1... # replace with your omniflix account
+    ``` 
+
+NOTE: 20000000uflix is 20 FLIX    
 
 
 ## Build and Upload Contracts
