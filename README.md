@@ -199,14 +199,16 @@ omniflixhubd config
 
 ```
 
-## Create Wallet
+## Create Wallets and Fund Wallet Using Faucet
 
-Create two wallets: one for creator and one for minter:
+### Stargaze
+
+Create 3 wallets: creator, minter and relayer wallet
 
 ```sh
 starsd keys add test_creator
 # test_creator wallet: stars192meglgpmt5pdz45wv6qgd5apfuxy9u5jfq7e6
-# backup in output your mnemonic phrase, for testing same mnemonic will used on other chain!
+# backup in output your mnemonic phrase, for testing same mnemonic is used for other chains as well!
 # mnemonic for test_creator: stay filter slight agree priority urban act manual brown long journey dumb glory roast actual dumb claim fabric solution subject soft trip close rubber
 
 starsd keys add test_minter
@@ -218,8 +220,8 @@ starsd keys add test_relayer
 # mnemonic: scale alter grace come maze rug school math faint lawsuit auction wheat tribe hand cricket garbage boil utility eager dutch strategy grocery convince bone
 
 ```
-## faucets 
-Now get some test STARS tokens:
+
+Now fund these wallets and get some test STARS tokens:
 - join Stargaze discord: https://discord.gg/stargaze
 - go to faucet channel: https://discord.com/channels/755548171941445642/940653213022031912
 
@@ -230,7 +232,7 @@ $request stars1f0zfmahd9c43nmpljx3hel6h5d9vl7gz3sqvhq # replace with test minter
 $request stars1lc492y067qn2txqzhya7uecj8hn02sdc2dutaf # replace with test relayer wallet address
 ```
 
-Now check whether above 3 wallets has funds using CLI:
+Verify whether above 3 wallets has funds using CLI:
 
 ```sh
 starsd query bank balances stars192meglgpmt5pdz45wv6qgd5apfuxy9u5jfq7e6 # output amount is 10000000000 ustars
@@ -240,49 +242,50 @@ starsd query bank balances stars1lc492y067qn2txqzhya7uecj8hn02sdc2dutaf # output
 
 NOTE: 10000000000 ustars is 10'000 STARS!
 
+### Juno
+
 For Juno use same mnemonic and follow same steps as above. Faucets can be requested either via site or faucet channel on discord:
-- site: https://test.juno.tools/request-tokens/
-- discord invite: https://discord.gg/juno
-- faucet channel: https://discord.com/channels/816256689078403103/842073995059003422
 
+- use site: https://test.juno.tools/request-tokens/
+- alternative use discord
+  - invite: https://discord.gg/juno
+  - faucet channel: https://discord.com/channels/816256689078403103/842073995059003422
 
-Use same mnemonic for recovering wallets for Juno, IRISnet, Uptick and OmniFlix:
+Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-# ---- Juno
 # test_creator: juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h
 junod keys add test_creator --recover # you will be prompted for entering your mnemonic
 # test_minter: juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md
 junod keys add test_minter --recover
 # test relayer: juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
 junod keys add test_relayer --recover
+```
 
-# ---- IRISnet
+Now get some test JUNOX (Juno tokens are called JUNOX on testnet): https://test.juno.tools/request-tokens/
+
+Check whether above 3 wallets has funds using CLI:
+
+```sh
+junod query bank balances juno192meglgpmt5pdz45wv6qgd5apfuxy9u5s85c4h # output amount is 5000000000000000000 auptick
+junod query bank balances juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md
+junod query bank balances juno1lc492y067qn2txqzhya7uecj8hn02sdcgrgd3y
+```
+
+### IRISnet
+
+Use same mnemonic for recovering wallets and follow same steps as described above:
+
+```sh
 # test_creator: iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6
 iris keys add test_creator --recover # you will be prompted for entering your mnemonic
 # test_minter: iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q
 iris keys add test_minter --recover
 # test relayer: iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 iris keys add test_relayer --recover
-
-# ---- Uptick
-# test_creator: uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw
-uptickd keys add test_creator --recover # you will be prompted for entering your mnemonic
-# test_minter: uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747
-uptickd keys add test_minter --recover
-# test relayer: uptick1nlrntuydkq7dte8fenlu3e4zenmqhkluhl6hay
-uptickd keys add test_relayer --recover
-
-# ---- OmniFlix
-# test_creator: omniflix192meglgpmt5pdz45wv6qgd5apfuxy9u5mtx694
-omniflixhubd keys add test_creator --recover # you will be prompted for entering your mnemonic
-# test_minter: omniflix1f0zfmahd9c43nmpljx3hel6h5d9vl7gzcjxgt0
-omniflixhubd keys add test_minter --recover
-# test relayer: omniflix1lc492y067qn2txqzhya7uecj8hn02sdcr060px
-omniflixhubd keys add test_relayer --recover
 ```
 
-Now get some test JUNOX (Juno tokens are called JUNOX on testnet), NYAN and UPTICK tokens:
+Get some test NYAN tokens:
 - join IRISnet discord: https://discord.gg/ZYNhsmjbmu
 - go to faucet channel: https://discord.com/channels/806356514973548614/820953811434471494
 
@@ -294,6 +297,29 @@ $faucet iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q # replace with test minter wa
 $faucet iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 ```
 
+Check whether above 3 wallets has funds using CLI:
+
+```sh
+iris query bank balances iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 --node http://34.145.1.166:26657
+# note: 100000000unyan is 100 NYAN!
+iris query bank balances iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q --node http://34.145.1.166:26657
+iris query bank balances iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f --node http://34.145.1.166:26657
+# optional: transfer funds to relayer wallet
+iris tx bank send iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f 50000000unyan -y --node http://34.145.1.166:26657 --chain-id nyancat-9 --fees 400unyan
+```
+
+### Uptick
+
+Use same mnemonic for recovering wallets and follow same steps as described above:
+
+```sh
+# test_creator: uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw
+uptickd keys add test_creator --recover # you will be prompted for entering your mnemonic
+# test_minter: uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747
+uptickd keys add test_minter --recover
+# test relayer: uptick1nlrntuydkq7dte8fenlu3e4zenmqhkluhl6hay
+uptickd keys add test_relayer --recover
+```
 
 - join Uptick discord: https://discord.gg/MVU8h6tXAF
 - go to faucet channel: https://discord.com/channels/781005936260939818/953652276508119060
@@ -304,22 +330,11 @@ $faucet uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw # replace with test creato
 # Uptick allows only 1 request per day, so wait another day, or send funds from creator wallet
 $faucet uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747 # replace with test minter wallet address
 
-Juno faucet 
-https://test.juno.tools/request-tokens/
 ```
 
-Now check whether above 3 wallets has funds using CLI:
+Check whether above 3 wallets has funds using CLI:
 
 ```sh
-# --- iris
-iris query bank balances iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 --node http://34.145.1.166:26657
-# note: 100000000unyan is 100 NYAN!
-iris query bank balances iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q --node http://34.145.1.166:26657
-iris query bank balances iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f --node http://34.145.1.166:26657
-# optional: transfer funds to relayer wallet
-iris tx bank send iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f 50000000unyan -y --node http://34.145.1.166:26657 --chain-id nyancat-9 --fees 400unyan
-
-# --- uptick
 uptickd query bank balances uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw # output amount is 5000000000000000000 auptick
 uptickd query bank balances uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747
 uptickd query bank balances uptick1nlrntuydkq7dte8fenlu3e4zenmqhkluhl6hay
@@ -330,22 +345,34 @@ uptickd tx bank send uptick15j5hrlxkvv7meew85s9w9rnmamnll2hsdatzdw uptick1nlrntu
 
 NOTE: 5000000000000000000 auptick is 5 UPTICK!
 
+### OmniFlix
+
+Use same mnemonic for recovering wallets and follow same steps as described above:
+
+```sh
+# test_creator: omniflix192meglgpmt5pdz45wv6qgd5apfuxy9u5mtx694
+omniflixhubd keys add test_creator --recover # you will be prompted for entering your mnemonic
+# test_minter: omniflix1f0zfmahd9c43nmpljx3hel6h5d9vl7gzcjxgt0
+omniflixhubd keys add test_minter --recover
+# test relayer: omniflix1lc492y067qn2txqzhya7uecj8hn02sdcr060px
+omniflixhubd keys add test_relayer --recover
+```
+
 OmniFlix faucet
    - Claim flix tokens on gon-flixnet-1
    ```
     # url
     https://faucet.gon-flixnet.omniflix.io/?address=<omniflix-account-address>
-    
+
     # using curl
     curl -s https://faucet.gon-flixnet.omniflix.io/?address=omniflix1.... # replace with your omniflix account address
    ```
-   - Check balance 
+   - Check balance
     ```sh
     omniflixhubd q bank balances omniflix1... # replace with your omniflix account
-    ``` 
+    ```
 
-NOTE: 20000000uflix is 20 FLIX    
-
+NOTE: 20000000uflix is 20 FLIX
 
 ## Build and Upload Contracts
 
