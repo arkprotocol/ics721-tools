@@ -292,8 +292,11 @@ address_type = { derivation = 'cosmos' }
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-508'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
-  ['*', 'channel-509'], # channel to nft-transfer on iris (nft-transfer)
+  ['*', 'channel-16'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-19'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-22'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on iris-1 channel-34
+  ['*', 'channel-23'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on uptick_7000-1 channel-10
+  ['*', 'channel-24'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on gon-flixnet-1 channel-6
 ]
 
 [[chains]]
@@ -321,8 +324,8 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   ['*', 'channel-7'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
-  ['*', 'channel-13'], # channel to ICS721 on Juno (wasm.juno1mq7p6l5z3xl96c2fgn3ln2mxl0tq6tffp8ge4s3nsegz6chxuswqkkacv0)
   ['*', 'channel-15'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-34'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-22
 ]
 
 [[chains]]
@@ -350,6 +353,7 @@ address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.
 policy = 'allow'
 list = [
   ['*', 'channel-3'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82)
+  ['*', 'channel-10'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-23
 ]
 
 [[chains]]
@@ -368,3 +372,9 @@ clock_drift = '5s'
 trusting_period = '14days'
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos'}
+
+[chains.packet_filter]
+policy = 'allow'
+list = [
+  ['*', 'channel-6'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-24
+]
