@@ -300,12 +300,12 @@ $faucet iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 Check whether above 3 wallets has funds using CLI:
 
 ```sh
-iris query bank balances iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 --node http://34.145.1.166:26657
+iris query bank balances iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6
 # note: 100000000unyan is 100 NYAN!
-iris query bank balances iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q --node http://34.145.1.166:26657
-iris query bank balances iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f --node http://34.145.1.166:26657
+iris query bank balances iaa1f0zfmahd9c43nmpljx3hel6h5d9vl7gzswhq7q
+iris query bank balances iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 # optional: transfer funds to relayer wallet
-iris tx bank send iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f 50000000unyan -y --node http://34.145.1.166:26657 --chain-id nyancat-9 --fees 400unyan
+iris tx bank send iaa192meglgpmt5pdz45wv6qgd5apfuxy9u5nhhjs6 iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f 50000000unyan -y --fees 400unyan
 ```
 
 ### Uptick
