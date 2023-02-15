@@ -10,11 +10,14 @@ Official Links:
 - [Discord](https://discord.gg/fVv6Mf9Wr8)
 
 In case of support:
-- best way is joining our discord (invite above) and go to [ibc-ics-support channel](https://discord.com/channels/974384596684791828/1040388398382321795)
-- regarding this document use [discussions on GitHub](https://github.com/arkprotocol/ics721-demo/discussions)
+- best way is joining our discord (invite above) and go to [ibc-ics-support](https://discord.com/channels/974384596684791828/1040388398382321795) channel
+- regarding this document use [GitHub discussions](https://github.com/arkprotocol/ics721-demo/discussions)
 - in case of changes please file an [issue on GitHub](https://github.com/arkprotocol/ics721-demo/issues)
 
-Higly recommended: Do you wonder why it is possible by transferring 2 NFTs to the same target chain, may end up into two different collections? Well, then you should read our ["Building Multi-Chain NFT Utilities" blog](https://arkprotocol.substack.com/p/nfts-and-utilities-going-multi-chain). In the second part of this post, it explains in detail how ICS721 works.
+Higly recommended: Do you wonder why it is possible by transferring 2 NFTs to the same target chain, may end up into two different collections? Well, then you should read our ["Building Multi-Chain NFT Utilities"](https://arkprotocol.substack.com/p/nfts-and-utilities-going-multi-chain) blog. In the second part of this post, it explains in detail how ICS721 works:
+
+![Building Multi-Chain NFT Utilities](https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa0c571f0-9a1f-4747-9786-d63c0f29685f_1600x913.jpeg)
+
 
 # How-To Send NFTs to Another Chain Using ICS721
 
