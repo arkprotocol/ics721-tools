@@ -23,11 +23,6 @@ Higly recommended: Do you wonder why it is possible by transferring 2 NFTs to th
 
 This is quick how-to for testing ICS721 on these 4 testnets: Stargaze, Juno, IRISnet and Uptick. Stargaze and Juno support CosmWasm. Both are using the ICS721 contract, while IRISnet and Uptick are using the NFT module for interchain NFT transfers.
 
-Make sure you have [set this up](setup-clis.md):
-
-- installing CLIs (command line interfaces) to interact with contracts on different chains
-- installing Hermes relayer to handle messages (packets) between chains
-
 You will be able to use CLIs for transferring an NFT from a source chain to a target chain. For ICS721 testing it requires setting up a wallet for:
 
 - test admin: owning ICS721 and CW721 (collection) contract
@@ -36,9 +31,14 @@ You will be able to use CLIs for transferring an NFT from a source chain to a ta
 
 Relayers interact and execute transactions on each chains for sending packets. In this case a relayer also needs a keyring (wallet) for each chain.
 
-All CLIs have the same key commands. There are certain specifics on each CLI - but not needed here.p
+All CLIs have the same key commands. There are certain specifics on each CLI - and will be outlined here.
 
 # Setup
+
+Make sure you have followed this [readme setup guide](setup-clis.md):
+
+- installing CLIs (command line interfaces) to interact with contracts on different chains
+- installing Hermes relayer to handle messages (packets) between chains
 
 For quick testing all environment variables are defined in [ics721-demo.env](ics721-demo.env). Call this command for setting these variables in your shell: `source ./ics721-demo.env`. It contains:
 
@@ -51,9 +51,9 @@ For quick testing all environment variables are defined in [ics721-demo.env](ics
 Below is a list of CLI commands you may need for testing:
 
 - Create and recover keys (wallets)
-- Upload and instantiate collection (CW721, nft module) and ICS721 contracts
+- Upload and instantiate CW721 and ICS721 contracts
 - Create an IBC channel
-- Mint an NFT
+- Mint an NFT either on CW721 contract or NFT module
 - IBC (interchain) transfer
 - Relay channels
 
@@ -61,9 +61,17 @@ CLIs has a `--help` flag. So you can always use `starsd keys --help` or `uptickd
 
 ## Build and Upload Contracts
 
+In this section CW721 and ICS721 contracts are build from source and uploaded. The build part can be skipped by using the binaries provided here:
+
+- [cw721_base_v0.16.0.wasm](cw721_base_v0.16.0.wasm)
+- [cw721_metadata_onchain.wasm](cw721_metadata_onchain.wasm)
+- [cw_ics721_bridge_pr44.wasm](cw_ics721_bridge_pr44.wasm)
+
 ### CW721 Contract
 
-For chains with wasm module, like Stargaze, collection contract (CW721) can be build and uploaded:
+For chains with wasm module (like Stargaze, Juno, Osmosis and Terra), collection contract (CW721) can be build and uploaded:
+
+Build contract:
 
 ```sh
 git clone https://github.com/CosmWasm/cw-nfts
@@ -73,12 +81,17 @@ git checkout v0.16.0
 ./scripts/build.sh
 # optional renaming
 mv CW721_base.wasm CW721_base_v0.16.0.wasm
+```
+
+Upload and instantiate contract:
+
+```sh
 # upload/store on chain
-starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b block --output json --from $KEY_CREATOR_NAME --yes
-# find stored contract's code_id in output: {"height":"2964307", ... {\"key\":\"code_id\",\"value\":\"803\"}]} ...}
+starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b block --output json --from $KEY_CREATOR_NAME --yes # find stored contract's code_id in output: {"height":"2964307", ... {\"key\":\"code_id\",\"value\":\"803\"}]} ...}
+
 # instantiate collection based on instantiate msg: https://github.com/CosmWasm/cw-nfts/blob/v0.16/contracts/CW721-base/src/msg.rs#L6-L16
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $STARGAZE_WALLET_MINTER;starsd tx wasm instantiate 803 "$INSTANTIATE_MSG" --label ark-test-01 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --admin $STARGAZE_WALLET_CREATOR # address defined in $STARGAZE_CONTRACT_CW721
-# find instantiated contract in output: raw_log: '[{"events"... {"key":"_contract_address","value":"stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es"} ...]
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $STARGAZE_WALLET_MINTER;starsd tx wasm instantiate 803 "$INSTANTIATE_MSG" --label ark-test-01 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --admin $STARGAZE_WALLET_CREATOR # address defined in $STARGAZE_CONTRACT_CW721, find instantiated contract in output: raw_log: '[{"events"... {"key":"_contract_address","value":"stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es"} ...]
+
 # test collection and query for number of NFTs (result count should be 0)
 starsd query wasm contract-state smart $STARGAZE_CONTRACT_CW721 '{"num_tokens":{}}'
 
@@ -100,7 +113,9 @@ osmosisd query wasm contract-state smart $OSMOSIS_CONTRACT_CW721 '{"num_tokens":
 
 ### ICS721 Contract
 
-A binary (build based on pull request 44) from git repo is stored here in `./cw_ICS721_bridge_pr44.wasm`. Or build and upload ICS721 contract from git repo manually:
+A binary (build based on pull request 44) from git repo is stored here in `./cw_ICS721_bridge_pr44.wasm`.
+
+Build and upload ICS721 contract from git repo manually:
 
 ```sh
 git clone https://github.com/public-awesome/ICS721/
@@ -110,14 +125,14 @@ git checkout 3af19e421a95aec5291a0cabbe796c58698ac97f # latest PR44
 cp ./artifacts/cw_ICS721_bridge.wasm cw_ICS721_bridge_pr44.wasm
 ```
 
-Upload contract:
+Upload and instantiate contract:
 
 ```sh
-starsd tx wasm store ./cw_ics721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b block --output json --from $KEY_CREATOR_NAME --yes
-# find contract's code_id in output: {"height":"2965732", ... {"key":"code_id","value":"804"} ...}
+# upload contract
+starsd tx wasm store ./cw_ics721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b block --output json --from $KEY_CREATOR_NAME --yes # find contract's code_id in output: {"height":"2965732", ... {"key":"code_id","value":"804"} ...}
+
 # instantiate based on instantiate msg: https://github.com/public-awesome/ICS721/blob/3af19e421a95aec5291a0cabbe796c58698ac97f/contracts/cw-ICS721-bridge/src/msg.rs#L17
-starsd tx wasm instantiate 804 '{"cw721_base_code_id":803}' --label ark-test-ICS721-pr44 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --admin $STARGAZE_WALLET_CREATOR
-# find instantiated contract in output: raw_log: '[{"events"... {"key":"_contract_address","value":"stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82"} ...]
+starsd tx wasm instantiate 804 '{"cw721_base_code_id":803}' --label ark-test-ICS721-pr44 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --admin $STARGAZE_WALLET_CREATOR # find instantiated contract in output: raw_log: '[{"events"... {"key":"_contract_address","value":"stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82"} ...]
 
 # test query on ICS721
 starsd query wasm contract-state smart $STARGAZE_CONTRACT_ICS721 '{"nft_contract":{"class_id":"DUMMY"}}' # data: null
