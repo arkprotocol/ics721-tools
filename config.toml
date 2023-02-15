@@ -255,18 +255,20 @@ max_msg_num = 30
 max_tx_size = 2097152
 clock_drift = '5s'
 max_block_time = '30s'
-trusting_period = '7days'
+trusting_period = '1209599s' # 14 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos' }
 
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-119'], # channel to nft-transfer on iris (nft-transfer) channel-7
-  ['*', 'channel-132'], # channel to nft-transfers on iris-1 channel-15
-  ['*', 'channel-134'], # channel to nft-transfer on uptick (nft-transfer) channel-4
-  ['*', 'channel-156'], # wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 to nft-tranfer on gon-flixnet-1 channel-7
-  ['*', 'channel-157'], # channel to ICS721 on uni-6 (wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye) channel-26
+  # Stargaze ICS721 channels 
+  ['*', 'channel-159'], # counterparty: ics721 on Juno, channel-34
+  ['*', 'channel-163'], # counterparty: nft module on IRISnet, channel-44
+  ['*', 'channel-164'], # counterparty: nft module on Omniflix, channel-10
+  ['*', 'channel-165'], # counterparty: nft module on Uptick, channel-13
+  ['*', 'channel-166'], # counterparty: ics721 on Osmosis, channel-2472
+
 ]
 
 [[chains]]
@@ -286,17 +288,51 @@ max_msg_num = 30
 max_tx_size = 2097152
 clock_drift = '5s'
 max_block_time = '30s'
-trusting_period = '7days'
+trusting_period = '2419199s' # 28 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos' }
 
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-22'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on iris-1 channel-34
-  ['*', 'channel-23'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on uptick_7000-1 channel-10
-  ['*', 'channel-24'], # wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye to nft-tranfer on gon-flixnet-1 channel-6
-  ['*', 'channel-26'], # channel to ICS721 on elgafar-1 (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-157
+  # Juno ICS721 channels
+  ['*', 'channel-34'], # counterparty: ics721 on Stargaze, channel-159
+  ['*', 'channel-35'], # counterparty: ics721 on Osmosis, channel-2474
+  ['*', 'channel-36'], # counterparty: nft module on Uptick, channel-14
+  ['*', 'channel-37'], # counterparty: nft module on OmniFlix, channel-11
+  ['*', 'channel-38'], # counterparty: nft module on IRISnet, channel-45
+]
+
+[[chains]]
+id = 'osmo-test-4'
+rpc_addr = 'https://rpc.testnet.osmosis.zone:443'
+grpc_addr = 'http://grpc-test.osmosis.zone:443'
+websocket_addr = 'ws://rpc.testnet.osmosis.zone:443/websocket'
+rpc_timeout = '10s'
+account_prefix = 'osmo'
+key_name = 'test-relayer'
+store_prefix = 'ibc'
+default_gas = 5000000
+max_gas = 15000000
+gas_price = { price = 0.0026, denom = 'uosmo' }
+gas_multiplier = 1.1
+max_msg_num = 20
+max_tx_size = 2097152
+clock_drift = '5s'
+max_block_time = '10s'
+trusting_period = '1209599s' # 18 days (unbonding period) minus 1 sec
+trust_threshold = { numerator = '1', denominator = '3' }
+address_type = { derivation = 'cosmos' }
+
+[chains.packet_filter]
+policy = 'allow'
+list = [
+  # Osmosis ICS721 channels
+  ['*', 'channel-2472'], # counterparty: ics721 on Stargaze, channel-166
+  ['*', 'channel-2474'], # counterparty: ics721 on Juno, channel-35
+  ['*', 'channel-2476'], # counterparty: nft module on IRISnet, channel-46
+  ['*', 'channel-2477'], # counterparty: nft module on OmniFlix, channel-12
+  ['*', 'channel-2478'], # counterparty: nft module on Uptick, channel-15
 ]
 
 [[chains]]
@@ -314,20 +350,21 @@ gas_price = { price = 100, denom = 'uiris' }
 gas_multiplier = 1.5
 max_msg_num = 30
 max_tx_size = 2097152
-clock_drift = '5s'
+clock_drift = '10s'
 max_block_time = '10s'
-trusting_period = '14days'
+trusting_period = '1814399s' # 21 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos' }
 
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-7'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-119
-  ['*', 'channel-15'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-132
-  ['*', 'channel-34'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-22
-  ['*', 'channel-35'], # to gon-flixnet-1 nft-transfer channel-8
-  ['*', 'channel-36'], # to uptick_7000-1 nft-transfer channel-13
+  # IRISnet ICS721 channels
+  ['*', 'channel-44'], # counterparty: ics721 on Stargaze, channel-163
+  ['*', 'channel-45'], # counterparty: ics721 on Juno, channel-38
+  ['*', 'channel-46'], # counterparty: ics721 on Osmosis, channel-2476
+  ['*', 'channel-47'], # counterparty: nft module on Uptick, channel-16
+  ['*', 'channel-48'], # counterparty: nft module on OmniFlix, channel-14
 ]
 
 [[chains]]
@@ -347,17 +384,20 @@ max_msg_num = 30
 max_tx_size = 2097152
 clock_drift = '5s'
 max_block_time = '10s'
-trusting_period = '1814399s'
+trusting_period = '1814399s' # 21 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.crypto.v1.ethsecp256k1.PubKey' } }
 
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-4'], # channel to ICS721 on Stargaze (wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82) channel-134
-  ['*', 'channel-10'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-23
-  ['*', 'channel-13'], # to iris-1 nft-transfer channel-36
-  ['*', 'channel-12'], # to gon-flixnet-1 nft-transfer channel-9
+  # Uptick ICS721 channels
+  ['*', 'channel-13'], # counterparty: ics721 on Stargaze, channel-165
+  ['*', 'channel-14'], # counterparty: ics721 on Juno, channel-36
+  ['*', 'channel-15'], # counterparty: ics721 on Osmosis, channel-2478
+  ['*', 'channel-16'], # counterparty: nft module on IRISnet, channel-47
+  ['*', 'channel-17'], # counterparty: nft module on Omniflix, channel-13
+
 ]
 
 [[chains]]
@@ -373,15 +413,17 @@ max_gas = 2000000
 gas_price = { price = 0.001, denom = 'uflix' }
 gas_multiplier = 1.1
 clock_drift = '5s'
-trusting_period = '14days'
+trusting_period = '1814399s' # 21 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos'}
 
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  ['*', 'channel-6'], # to ICS721 on uni-6 wasm.juno1tu78n53x26egjjadshq5dnynghuza7kxs5m9k9clau6807jtrrmqzc88ye channel-24
-  ['*', 'channel-7'], # to ICS721 on elgafar-1 wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 channel-156
-  ['*', 'channel-8'], # to iris-1 nft-transfer channel-35
-  ['*', 'channel-9'], # to uptick_7000-1 nft-transfer channel-12
+  # Omniflix ICS721 channels
+  ['*', 'channel-10'], # counterparty: ics721 on Stargaze, channel-164
+  ['*', 'channel-11'], # counterparty: ics721 on Juno, channel-37
+  ['*', 'channel-12'], # counterparty: ics721 on Osmosis, channel-2477
+  ['*', 'channel-13'], # counterparty: nft module on Uptick, channel-17
+  ['*', 'channel-14'], # counterparty: nft module on IRISnet, channel-48
 ]

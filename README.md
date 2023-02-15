@@ -203,9 +203,9 @@ junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto 
 
 # instantiate CW721, only required for wasm module
 # - search in output for CW721's contract_address! Needed for execution and query on CW721 collection contract.
-starsd tx wasm instantiate 803 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"stars1f0zfmahd9c43nmpljx3hel6h5d9vl7gz3sqvhq"}' --label ark-test-01 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --no-admin
+starsd tx wasm instantiate 803 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"$STARGAZE_WALLET_MINTER"}' --label ark-test-01 --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --no-admin
 
-junod tx wasm instantiate 4232 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md"}' --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --no-admin
+junod tx wasm instantiate 4232 '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"$JUNO_WALLET_MINTER"}' --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --no-admin
 
 # instantiate ICS721 contract
 junod tx wasm instantiate 4233 '{"CW721_base_code_id":4232}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --from $KEY_CREATOR_NAME --yes --no-admin
@@ -215,9 +215,9 @@ junod tx wasm instantiate 4233 '{"CW721_base_code_id":4232}' --label ark-test-IC
 # -- list all collection addresses for given code id
 starsd query wasm list-contract-by-code 803
 # -- metadata like admin, creator, label for given contract
-starsd query wasm contract stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es
+starsd query wasm contract $STARGAZE_CONTRACT_CW721
 # -- contract info like name and symbol
-starsd query wasm contract-state smart stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"contract_info": {}}'
+starsd query wasm contract-state smart $STARGAZE_CONTRACT_CW721 '{"contract_info": {}}'
 
 # ========================== nft module ==========================
 # - instantiate/issue collection
@@ -243,16 +243,18 @@ Example:
 # create channel between 2 ICS721 contracts
 # port id is: wasm.ICS_CONTRACT_ADDRESS, VERSION is defined in ICS721 contract
 # - create channel with NEW connection
-hermes --config config.toml create channel --a-chain uni-6 --b-chain elgafar-1 --a-port wasm.juno1agyzqtp8f5u2347sg48qav7l3zm4m0awpprzly5pvzdhd9a2pkqsu98aeh --b-port wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 --new-client-connection --channel-version ics721-1 --yes
+hermes --config config.toml create channel --a-chain $STARGAZE_CHAIN_ID --b-chain $JUNO_CHAIN_ID --a-port $STARGAZE_ICS721_PORT --b-port $JUNO_ICS721_PORT --new-client-connection --channel-version $ICS721_VERSION --yes
+# - create channel with existing connection, NOTE: connection is between 2 defined chains, it can be used for creating channels to other chains
+hermes --config config.toml create channel --a-chain $STARGAZE_CHAIN_ID --a-port $STARGAZE_ICS721_PORT --b-port $OSMOSIS_ICS721_PORT --a-connection connection-112 --channel-version $ICS721_VERSION --yes
 
 # - query using CLI, search using port id for finding channel and counter part channel
 starsd query ibc channel channels --limit 100 # also use --page for pagination
 # - query using hermes
-hermes --config config.toml query channels --chain uni-6
+hermes --config config.toml query channels --chain $JUNO_CHAIN_ID
 
 # ========================== nft module ==========================
 # - create channel between nft module and ICS721
-hermes --config config.toml create channel --a-chain $JUNO_CHAIN_ID --b-chain $IRIS_CHAIN_ID --a-port $JUNO_CONTRACT_ICS721_PORT --b-port $IRIS_CONTRACT_ICS721_PORT --new-client-connection --channel-version $ICS721_VERSION --yes
+hermes --config config.toml create channel --a-chain $JUNO_CHAIN_ID --b-chain $IRIS_CHAIN_ID --a-port $JUNO_ICS721_PORT --b-port $IRIS_ICS721_PORT --new-client-connection --channel-version $ICS721_VERSION --yes
 ```
 
 ## Mint an NFT
@@ -272,16 +274,16 @@ Example:
 # ========================== wasm module ==========================
 # mint
 # - starsd, in case NFT has already been minted an 'token_id already claimed' error is, in this case check below and query for number of tokens
-starsd tx wasm execute stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"mint": {"token_id":"20", "owner":"stars1f0zfmahd9c43nmpljx3hel6h5d9vl7gz3sqvhq"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b sync --yes --output json
+starsd tx wasm execute $STARGAZE_CONTRACT_CW721 '{"mint": {"token_id":"20", "owner":"$STARGAZE_WALLET_MINTER"}}' --from test_minter --gas auto --gas-adjustment 1.3 -b sync --yes --output json
 
 # - junod with --gas-prices option
-junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02  '{"mint": {"token_id": "1", "owner": "juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md", "token_uri": "https://arkprotocol.io/"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes --output json
+junod tx wasm execute $JUNO_CONTRACT_CW721  '{"mint": {"token_id": "1", "owner": "$JUNO_WALLET_MINTER", "token_uri": "https://arkprotocol.io/"}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes --output json
 
 # query
 # - number of tokens
-starsd query wasm contract-state smart stars1rngd33njs2cjzpneejx4q5z3cagxl57a85838xmc0uy82wrg7dssdvy9es '{"num_tokens":{}}'
+starsd query wasm contract-state smart $STARGAZE_CONTRACT_CW721 '{"num_tokens":{}}'
 # - token info and owner
-junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"all_nft_info":{"token_id": "1"}}'
+junod query wasm contract-state smart $JUNO_CONTRACT_CW721 '{"all_nft_info":{"token_id": "1"}}'
 # ========================== nft module ==========================
 iris tx nft mint ark ark1 --uri=foo.bar --recipient $IRISNET_WALLET_MINTER --from $KEY_CREATOR_NAME -y --fees 20uiris
 # - query all nfts
@@ -311,23 +313,23 @@ Example:
 ```sh
 # ========================== wasm module ==========================
 # - send nft with token-id 1 from juno to stargaze via channel-508
-junod tx wasm execute juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"send_nft": { "contract": "juno1agyzqtp8f5u2347sg48qav7l3zm4m0awpprzly5pvzdhd9a2pkqsu98aeh", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9Cg=="}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
+junod tx wasm execute $JUNO_CONTRACT_CW721 '{"send_nft": { "contract": "$JUNO_CONTRACT_ICS721", "token_id": "1", "msg": "eyAicmVjZWl2ZXIiOiAic3RhcnMxZjB6Zm1haGQ5YzQzbm1wbGp4M2hlbDZoNWQ5dmw3Z3ozc3F2aHEiLCAiY2hhbm5lbF9pZCI6ICJjaGFubmVsLTUwOCIsICJ0aW1lb3V0IjogeyAiYmxvY2siOiB7ICJyZXZpc2lvbiI6IDEsICJoZWlnaHQiOiAzOTk5OTk5IH0gfSB9Cg=="}}' --from test_minter --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b block --yes
 # - query and check NFT is locked/owned by ICS721 contract
-junod query wasm contract-state smart juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02 '{"all_nft_info":{"token_id": "1"}}'
+junod query wasm contract-state smart $JUNO_CONTRACT_CW721 '{"all_nft_info":{"token_id": "1"}}'
 # - relay
-hermes --config config.toml clear packets --chain uni-6 --channel channel-508 --port wasm.juno1agyzqtp8f5u2347sg48qav7l3zm4m0awpprzly5pvzdhd9a2pkqsu98aeh
+hermes --config config.toml clear packets --chain $JUNO_CHAIN_ID --channel channel-508 --port $JUNO_ICS721_PORT
 # - query for CW721 contract on target ICS721
-starsd query wasm contract-state smart stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82 '{"nft_contract": {"class_id" : "wasm.stars16teejyjpa4qpcha54eulxv9l3n5vv9ujw3wc263ctuqahxx5k3as52my82/channel-130/juno16gfchrhfrds40dtda32a75c7hs5hvylq577cqm7kmnj9g006w20qewek02"}}'
+starsd query wasm contract-state smart $STARGAZE_CONTRACT_ICS721 '{"nft_contract": {"class_id" : "$STARGAZE_ICS721_PORT/channel-130/$JUNO_CONTRACT_CW721"}}'
 # - query on cw271 whether it has been transferred on target chain
-starsd query wasm contract-state smart stars1fxdn4dmkfk0v87d5s3n3hr2g5huhkmde6n4ye9ywwsc0he8ywgys673k7d '{"all_nft_info":{"token_id": "1"}}'
+starsd query wasm contract-state smart STARGAZE_COLLECTION_ADDRESS '{"all_nft_info":{"token_id": "1"}}'
 
 # ========================== nft module ==========================
 # - transfer to nft module
-iris tx nft-transfer transfer nft-transfer channel-13 juno1f0zfmahd9c43nmpljx3hel6h5d9vl7gzn752md ark ark1 --from test_minter -b block --fees 50uiris -y
+iris tx nft-transfer transfer nft-transfer channel-13 $JUNO_WALLET_MINTER ark ark1 --from test_minter -b block --fees 50uiris -y
 # - relay
-hermes --config config.toml clear packets --chain iris-1 --channel channel-13 --port wasm.juno1mq7p6l5z3xl96c2fgn3ln2mxl0tq6tffp8ge4s3nsegz6chxuswqkkacv0
+hermes --config config.toml clear packets --chain $IRISNET_CHAIN_ID --channel channel-13 --port $JUNO_ICS721_PORT
 
-hermes --config config.toml clear packets --chain uni-6 --channel channel-509 --port nft-transfer
+hermes --config config.toml clear packets --chain $JUNO_CHAIN_ID --channel channel-509 --port $IRISNET_ICS721_PORT
 ```
 
 # FAQ
