@@ -337,12 +337,12 @@ Hermes:
 
 ```sh
 # restore relayer wallets for hermes
-hermes --config config.toml keys add --chain $STARGAZE_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $STARGAZE_WALLET_RELAYER
-hermes --config config.toml keys add --chain $JUNO_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --chain $OSMOSIS_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --chain $UPTICK_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $UPTICK_WALLET_RELAYER
-hermes --config config.toml keys add --chain $IRISNET_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $IRISNET_WALLET_RELAYER
-hermes --config config.toml keys add --chain $OMNIFLIX_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $OMNIFLIX_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $STARGAZE_KEY_NAME --chain $STARGAZE_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $STARGAZE_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $JUNO_KEY_NAME --chain $JUNO_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $OSMOSIS_KEY_NAME --chain $OSMOSIS_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $IRISNET_KEY_NAME --chain $IRISNET_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $IRISNET_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $UPTICK_KEY_NAME --chain $UPTICK_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $UPTICK_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $OMNIFLIX_KEY_NAME --chain $OMNIFLIX_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $OMNIFLIX_WALLET_RELAYER
 ```
 
 Starting hermes

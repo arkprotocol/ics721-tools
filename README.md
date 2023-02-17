@@ -35,7 +35,7 @@ All CLIs have the same key commands. There are certain specifics on each CLI - a
 
 # Setup
 
-Make sure you have followed this [readme setup guide](setup-clis.md):
+Make sure you have followed this [readme setup guide](setup.md):
 
 - installing CLIs (command line interfaces) to interact with contracts on different chains
 - installing Hermes relayer to handle messages (packets) between chains
