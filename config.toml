@@ -262,12 +262,12 @@ address_type = { derivation = 'cosmos' }
 [chains.packet_filter]
 policy = 'allow'
 list = [
-  # Stargaze ICS721 channels 
-  ['*', 'channel-159'], # counterparty: ics721 on Juno, channel-34
-  ['*', 'channel-163'], # counterparty: nft module on IRISnet, channel-44
-  ['*', 'channel-164'], # counterparty: nft module on Omniflix, channel-10
-  ['*', 'channel-165'], # counterparty: nft module on Uptick, channel-13
-  ['*', 'channel-166'], # counterparty: ics721 on Osmosis, channel-2472
+  # Stargaze ICS721 channels
+  ['*', 'channel-176'], # counterparty: ics721 on Juno, channel-50
+  ['*', 'channel-177'], # counterparty: nft module on IRISnet, channel-56
+  ['*', 'channel-178'], # counterparty: nft module on Omniflix, channel-17
+  ['*', 'channel-179'], # counterparty: nft module on Uptick, channel-21
+  ['*', 'channel-180'], # counterparty: ics721 on Osmosis, channel-2562
 
 ]
 
@@ -296,11 +296,11 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # Juno ICS721 channels
-  ['*', 'channel-34'], # counterparty: ics721 on Stargaze, channel-159
-  ['*', 'channel-35'], # counterparty: ics721 on Osmosis, channel-2474
-  ['*', 'channel-36'], # counterparty: nft module on Uptick, channel-14
-  ['*', 'channel-37'], # counterparty: nft module on OmniFlix, channel-11
-  ['*', 'channel-38'], # counterparty: nft module on IRISnet, channel-45
+  ['*', 'channel-50'], # counterparty: ics721 on Stargaze, channel-176
+  ['*', 'channel-52'], # counterparty: ics721 on Osmosis, channel-2564
+  ['*', 'channel-53'], # counterparty: nft module on Uptick, channel-22
+  ['*', 'channel-54'], # counterparty: nft module on OmniFlix, channel-18
+  ['*', 'channel-55'], # counterparty: nft module on IRISnet, channel-57
 ]
 
 [[chains]]
@@ -328,11 +328,11 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # Osmosis ICS721 channels
-  ['*', 'channel-2472'], # counterparty: ics721 on Stargaze, channel-166
-  ['*', 'channel-2474'], # counterparty: ics721 on Juno, channel-35
-  ['*', 'channel-2476'], # counterparty: nft module on IRISnet, channel-46
-  ['*', 'channel-2477'], # counterparty: nft module on OmniFlix, channel-12
-  ['*', 'channel-2478'], # counterparty: nft module on Uptick, channel-15
+  ['*', 'channel-2562'], # counterparty: ics721 on Stargaze, channel-180
+  ['*', 'channel-2564'], # counterparty: ics721 on Juno, channel-52
+  ['*', 'channel-2567'], # counterparty: nft module on IRISnet, channel-58
+  ['*', 'channel-2571'], # counterparty: nft module on OmniFlix, channel-21
+  ['*', 'channel-2568'], # counterparty: nft module on Uptick, channel-23
 ]
 
 [[chains]]
@@ -360,11 +360,11 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # IRISnet ICS721 channels
-  ['*', 'channel-44'], # counterparty: ics721 on Stargaze, channel-163
-  ['*', 'channel-45'], # counterparty: ics721 on Juno, channel-38
-  ['*', 'channel-46'], # counterparty: ics721 on Osmosis, channel-2476
-  ['*', 'channel-47'], # counterparty: nft module on Uptick, channel-16
-  ['*', 'channel-48'], # counterparty: nft module on OmniFlix, channel-14
+  ['*', 'channel-56'], # counterparty: ics721 on Stargaze, channel-177
+  ['*', 'channel-57'], # counterparty: ics721 on Juno, channel-55
+  ['*', 'channel-58'], # counterparty: ics721 on Osmosis, channel-2567
+  ['*', 'channel-59'], # counterparty: nft module on Uptick, channel-24
+  ['*', 'channel-60'], # counterparty: nft module on OmniFlix, channel-19
 ]
 
 [[chains]]
@@ -392,11 +392,11 @@ address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.
 policy = 'allow'
 list = [
   # Uptick ICS721 channels
-  ['*', 'channel-13'], # counterparty: ics721 on Stargaze, channel-165
-  ['*', 'channel-14'], # counterparty: ics721 on Juno, channel-36
-  ['*', 'channel-15'], # counterparty: ics721 on Osmosis, channel-2478
-  ['*', 'channel-16'], # counterparty: nft module on IRISnet, channel-47
-  ['*', 'channel-17'], # counterparty: nft module on Omniflix, channel-13
+  ['*', 'channel-21'], # counterparty: ics721 on Stargaze, channel-179
+  ['*', 'channel-22'], # counterparty: ics721 on Juno, channel-53
+  ['*', 'channel-23'], # counterparty: ics721 on Osmosis, channel-2568
+  ['*', 'channel-24'], # counterparty: nft module on IRISnet, channel-59
+  ['*', 'channel-25'], # counterparty: nft module on Omniflix, channel-20
 
 ]
 
@@ -421,9 +421,9 @@ address_type = { derivation = 'cosmos'}
 policy = 'allow'
 list = [
   # Omniflix ICS721 channels
-  ['*', 'channel-10'], # counterparty: ics721 on Stargaze, channel-164
-  ['*', 'channel-11'], # counterparty: ics721 on Juno, channel-37
-  ['*', 'channel-12'], # counterparty: ics721 on Osmosis, channel-2477
-  ['*', 'channel-13'], # counterparty: nft module on Uptick, channel-17
-  ['*', 'channel-14'], # counterparty: nft module on IRISnet, channel-48
+  ['*', 'channel-17'], # counterparty: ics721 on Stargaze, channel-178
+  ['*', 'channel-18'], # counterparty: ics721 on Juno, channel-54
+  ['*', 'channel-21'], # counterparty: ics721 on Osmosis, channel-2571
+  ['*', 'channel-20'], # counterparty: nft module on Uptick, channel-25
+  ['*', 'channel-19'], # counterparty: nft module on IRISnet, channel-60
 ]
