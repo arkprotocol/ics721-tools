@@ -7,6 +7,7 @@ Here's a quick guide for setting up CLIs for these chains (chain - `cli name`):
 - IRISnet - `iris`
 - Uptick - `uptickd`
 - OmniFlix - `omniflixhubd`
+- Teritori - `teritorid`
 
 For quick testing all environment variables are defined in [ics721-demo.env](ics721-demo.env). Call this command for setting these variables in your shell: `source ./ics721-demo.env`. It contains:
 
@@ -23,6 +24,9 @@ Read this for detailed installation:
 - https://www.irisnet.org/docs/get-started/install.html
 - https://docs.uptick.network/quickstart/installation.html
 - https://github.com/omniflix/omniflixhub#installation
+- https://teritori.gitbook.io/teritori-whitepaper/join-teritori-testnet#step-3.-get-cosmos-sdk-and-build-teritorid
+- https://docs.kujira.app/validators/run-a-node
+- https://docs.terra.money/develop/terrad/install-terrad
 
 Make sure checking out the correct cli version for using on testnet:
 - Stargaze: 8.0.0-rc.1
@@ -43,8 +47,8 @@ make install
 # check CLI is working:
 starsd version # HEAD-3d1e40d0d42b420ac02c624a2d6e8225c0b5991b
 # config
-starsd config chain-id $STARGAZE_CHAIN_ID
-starsd config node $STARGAZE_CHAIN_NODE
+starsd config chain-id $GON_STARGAZE_CHAIN_ID
+starsd config node $GON_STARGAZE_CHAIN_NODE
 starsd config broadcast-mode block
 # show and check config
 starsd config
@@ -61,8 +65,8 @@ make install
 # check CLI is working:
 junod version # v10.0.0
 # config
-junod config chain-id $JUNO_CHAIN_ID
-junod config node $JUNO_CHAIN_NODE
+junod config chain-id $GON_JUNO_CHAIN_ID
+junod config node $GON_JUNO_CHAIN_NODE
 junod config broadcast-mode block
 # show and check config
 junod config
@@ -79,8 +83,8 @@ make install
 # check CLI is working:
 osmosisd version # v13.0.0-rc5-testnet
 # config
-osmosisd config chain-id $OSMOSIS_CHAIN_ID
-osmosisd config node $OSMOSIS_CHAIN_NODE
+osmosisd config chain-id $GON_OSMOSIS_CHAIN_ID
+osmosisd config node $GON_OSMOSIS_CHAIN_NODE
 osmosisd config broadcast-mode block
 # show and check config
 osmosisd config
@@ -98,8 +102,8 @@ iris version # 1.4.1-26-g0ac92bcb
 
 
 # config
-iris config chain-id $IRISNET_CHAIN_ID
-iris config node $IRISNET_CHAIN_NODE
+iris config chain-id $GON_IRISNET_CHAIN_ID
+iris config node $GON_IRISNET_CHAIN_NODE
 iris config broadcast-mode block
 # show and check config
 iris config
@@ -116,8 +120,8 @@ make install
 # check CLI is working:
 uptickd version # HEAD-3d1e40d0d42b420ac02c624a2d6e8225c0b5991b
 # config
-uptickd config chain-id $UPTICK_CHAIN_ID
-uptickd config node $UPTICK_CHAIN_NODE
+uptickd config chain-id $GON_UPTICK_CHAIN_ID
+uptickd config node $GON_UPTICK_CHAIN_NODE
 uptickd config broadcast-mode block
 # show and check config
 uptickd config
@@ -133,11 +137,61 @@ make install
 # check omniflixhubd CLI is working:
 omniflixhubd version # 0.9.0-gon-rc5
 # config
-omniflixhubd config chain-id $OMNIFLIX_CHAIN_ID
-omniflixhubd config node $OMNIFLIX_CHAIN_NODE
+omniflixhubd config chain-id $GON_OMNIFLIX_CHAIN_ID
+omniflixhubd config node $GON_OMNIFLIX_CHAIN_NODE
 omniflixhubd config broadcast-mode block
 # show and check config
 omniflixhubd config
+
+```
+
+Teritori
+```sh
+git clone https://github.com/TERITORI/teritori-chain.git
+cd  teritori-chain/
+git checkout teritori-testnet-v3
+make install
+# check CLI is working:
+teritorid version
+# config
+teritorid config chain-id $GON_TERITORI_CHAIN_ID
+teritorid config node $GON_TERITORI_CHAIN_NODE
+teritorid config broadcast-mode block
+# show and check config
+teritorid config
+```
+
+Kujira
+```sh
+git clone https://github.com/Team-Kujira/core kujira-core
+cd kujira-core
+git checkout v0.6.4
+make install
+# check CLI is working:
+kujirad version
+# config
+kujirad config chain-id $GON_KUJIRA_CHAIN_ID
+kujirad config node $GON_KUJIRA_CHAIN_NODE
+kujirad config broadcast-mode block
+# show and check config
+kujirad config
+
+```
+
+Terra
+```sh
+git clone https://github.com/terra-money/core terra-core
+cd terra-core
+git checkout v2.2.0
+make install
+# check CLI is working:
+terrad version
+# config, since terrad has no config command, client.toml needs to be edited directly!
+sed -i 's/chain-id = ".*"/chain-id = "pisco-1"/' ~/.terra/config/client.toml
+sed -i 's/node = ".*"/node = "http:\/\/localhost:26657"/' ~/.terra/config/client.toml
+sed -i 's/broadcast-mode = ".*"/broadcast-mode = "block"/' ~/.terra/config/client.toml
+# show and check config
+tail ~/.terra/config/client.toml
 
 ```
 
@@ -149,14 +203,14 @@ Create 3 wallets: creator, minter and relayer wallet
 
 ```sh
 # create new wallets
-starsd keys add $KEY_CREATOR_NAME # backup in output your mnemonic phrase, for ease of testing same mnemonic may be used for other chains as well!
-starsd keys add test_minter
-starsd keys add test_relayer
+starsd keys add $GON_KEY_CREATOR_NAME # backup in output your mnemonic phrase, for ease of testing same mnemonic may be used for other chains as well!
+starsd keys add $GON_KEY_MINTER_NAME
+starsd keys add $GON_KEY_RELAYER_NAME
 
 # recover wallet using mnemonic
-echo $KEY_CREATOR_MNEMONIC|starsd keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|starsd keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|starsd keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|starsd keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|starsd keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|starsd keys add $GON_KEY_RELAYER_NAME --recover
 
 ```
 
@@ -166,17 +220,17 @@ Now fund these wallets and get some test STARS tokens:
 
 In faucet channel enter:
 ```sh
-$request STARGAZE_WALLET_CREATOR # replace with test creator wallet address
-$request STARGAZE_WALLET_MINTER # replace with test minter wallet address
-$request STARGAZE_WALLET_RELAYER # replace with test relayer wallet address
+$request GON_STARGAZE_WALLET_CREATOR # replace with test creator wallet address
+$request GON_STARGAZE_WALLET_MINTER # replace with test minter wallet address
+$request GON_STARGAZE_WALLET_RELAYER # replace with test relayer wallet address
 ```
 
 Verify whether above 3 wallets has funds using CLI:
 
 ```sh
-starsd query bank balances $STARGAZE_WALLET_CREATOR # output amount is 10000000000 ustars
-starsd query bank balances $STARGAZE_WALLET_MINTER # output amount is 10000000000 ustars
-starsd query bank balances $STARGAZE_WALLET_RELAYER # output amount is 10000000000 ustars
+starsd query bank balances $GON_STARGAZE_WALLET_CREATOR # output amount is 10000000000 ustars
+starsd query bank balances $GON_STARGAZE_WALLET_MINTER # output amount is 10000000000 ustars
+starsd query bank balances $GON_STARGAZE_WALLET_RELAYER # output amount is 10000000000 ustars
 ```
 
 NOTE: 10000000000 ustars is 10'000 STARS!
@@ -194,9 +248,9 @@ Use same mnemonic for recovering wallets and follow same steps as described abov
 
 ```sh
 # recover wallet using mnemonic
-echo $KEY_CREATOR_MNEMONIC|junod keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|junod keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|junod keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|junod keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|junod keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|junod keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test JUNOX (Juno tokens are called JUNOX on testnet): https://test.juno.tools/request-tokens/
@@ -204,9 +258,9 @@ Now get some test JUNOX (Juno tokens are called JUNOX on testnet): https://test.
 Check whether above 3 wallets has funds using CLI:
 
 ```sh
-junod query bank balances $JUNO_WALLET_CREATOR
-junod query bank balances $JUNO_WALLET_MINTER
-junod query bank balances $JUNO_WALLET_RELAYER
+junod query bank balances $GON_JUNO_WALLET_CREATOR
+junod query bank balances $GON_JUNO_WALLET_MINTER
+junod query bank balances $GON_JUNO_WALLET_RELAYER
 ```
 
 ## Osmosis
@@ -215,9 +269,9 @@ Use same mnemonic for recovering wallets and follow same steps as described abov
 
 ```sh
 # recover wallet using mnemonic
-echo $KEY_CREATOR_MNEMONIC|osmosisd keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|osmosisd keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|osmosisd keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|osmosisd keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|osmosisd keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|osmosisd keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test OSMO:
@@ -230,9 +284,9 @@ Now get some test OSMO:
 Check whether above 3 wallets has funds using CLI:
 
 ```sh
-osmosisd query bank balances $OSMOSIS_WALLET_CREATOR
-osmosisd query bank balances $OSMOSIS_WALLET_MINTER
-osmosisd query bank balances $OSMOSIS_WALLET_RELAYER
+osmosisd query bank balances $GON_OSMOSIS_WALLET_CREATOR
+osmosisd query bank balances $GON_OSMOSIS_WALLET_MINTER
+osmosisd query bank balances $GON_OSMOSIS_WALLET_RELAYER
 ```
 
 ## IRISnet
@@ -240,9 +294,9 @@ osmosisd query bank balances $OSMOSIS_WALLET_RELAYER
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $KEY_CREATOR_MNEMONIC|iris keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|iris keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|iris keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|iris keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|iris keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|iris keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Get some test NYAN tokens:
@@ -260,11 +314,11 @@ $faucet iaa1lc492y067qn2txqzhya7uecj8hn02sdctnt85f
 Check whether above 3 wallets has funds using CLI:
 
 ```sh
-iris query bank balances $IRISNET_WALLET_CREATOR
-iris query bank balances $IRISNET_WALLET_MINTER
-iris query bank balances $IRISNET_WALLET_RELAYER
+iris query bank balances $GON_IRISNET_WALLET_CREATOR
+iris query bank balances $GON_IRISNET_WALLET_MINTER
+iris query bank balances $GON_IRISNET_WALLET_RELAYER
 # optional: transfer funds to relayer wallet
-iris tx bank send $IRISNET_WALLET_CREATOR $IRISNET_WALLET_RELAYER 5000000uiris -y --fees 20uiris # send 5 IRIS tokens
+iris tx bank send $GON_IRISNET_WALLET_CREATOR $GON_IRISNET_WALLET_RELAYER 5000000uiris -y --fees 20uiris # send 5 IRIS tokens
 ```
 
 NOTE: 1,000,000uiris is 1 IRIS!
@@ -274,9 +328,10 @@ NOTE: 1,000,000uiris is 1 IRIS!
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $KEY_CREATOR_MNEMONIC|uptickd keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|uptickd keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|uptickd keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|uptickd keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|uptickd keys add $GON_KEY_MINTER_NAME --recover
+# Hermes uses default HD Path 118 as defined by Cosmos Hub
+echo $GON_KEY_RELAYER_MNEMONIC|uptickd keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
 ```
 
 - join Uptick discord: https://discord.gg/MVU8h6tXAF
@@ -293,12 +348,12 @@ $faucet uptick1hz93x4fyetrrteaucsazaxl2q2jfmjp6gx2747 # replace with test minter
 Check whether above 3 wallets has funds using CLI:
 
 ```sh
-uptickd query bank balances $UPTICK_WALLET_CREATOR
-uptickd query bank balances $UPTICK_WALLET_MINTER
-uptickd query bank balances $UPTICK_WALLET_RELAYER
+uptickd query bank balances $GON_UPTICK_WALLET_CREATOR
+uptickd query bank balances $GON_UPTICK_WALLET_MINTER
+uptickd query bank balances $GON_UPTICK_WALLET_RELAYER
 # optional: transfer funds to minter and relayer wallet
-uptickd tx bank send $UPTICK_WALLET_CREATOR $UPTICK_WALLET_MINTER 2500000000000000000auptick -y
-uptickd tx bank send $UPTICK_WALLET_CREATOR $UPTICK_WALLET_RELAYER 1000000000000000000auptick -y
+uptickd tx bank send $GON_UPTICK_WALLET_CREATOR $GON_UPTICK_WALLET_MINTER 2500000000000000000auptick -y
+uptickd tx bank send $GON_UPTICK_WALLET_CREATOR $GON_UPTICK_WALLET_RELAYER 1000000000000000000auptick -y
 ```
 
 NOTE: 1,000,000,000,000,000,000 auptick is 1 UPTICK!
@@ -308,26 +363,96 @@ NOTE: 1,000,000,000,000,000,000 auptick is 1 UPTICK!
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $KEY_CREATOR_MNEMONIC|omniflixhubd keys add $KEY_CREATOR_NAME --recover
-echo $KEY_MINTER_MNEMONIC|omniflixhubd keys add $KEY_MINTER_NAME --recover
-echo $KEY_RELAYER_MNEMONIC|omniflixhubd keys add $KEY_RELAYER_NAME --recover
+echo $GON_KEY_CREATOR_MNEMONIC|omniflixhubd keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|omniflixhubd keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|omniflixhubd keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 OmniFlix faucet
-   - Claim flix tokens on $OMNIFLIX_CHAIN_ID
+   - Claim flix tokens on $GON_OMNIFLIX_CHAIN_ID
    ```
     # url
     https://faucet.gon-flixnet.omniflix.io/?address=<omniflix-account-address>
 
     # using curl
-    curl -s https://faucet.gon-flixnet.omniflix.io/?address=$OMNIFLIX_WALLET_RELAYER # replace with env key defined in ./ics721-demo.env
+    curl -s https://faucet.gon-flixnet.omniflix.io/?address=$GON_OMNIFLIX_WALLET_RELAYER # replace with env key defined in ./ics721-demo.env
    ```
    - Check balance
     ```sh
-    omniflixhubd q bank balances $OMNIFLIX_WALLET_RELAYER # replace with your omniflix account
+    omniflixhubd q bank balances $GON_OMNIFLIX_WALLET_CREATOR # replace with your omniflix account
+    omniflixhubd q bank balances $GON_OMNIFLIX_WALLET_MINTER # replace with your omniflix account
+    omniflixhubd q bank balances $GON_OMNIFLIX_WALLET_RELAYER # replace with your omniflix account
     ```
 
 NOTE: 1,000,000uflix is 1 FLIX
+
+## Teritori
+
+```sh
+# recover wallet using mnemonic
+echo $GON_KEY_CREATOR_MNEMONIC|teritorid keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|teritorid keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|teritorid keys add $GON_KEY_RELAYER_NAME --recover
+```
+
+Now get some test TORI:
+- discord
+  - invite: https://discord.gg/teritori
+  - faucet channel: https://discord.com/channels/972545424357474334/991387449295122492
+
+
+Check whether above 3 wallets has funds using CLI:
+
+```sh
+teritorid query bank balances $GON_TERITORI_WALLET_CREATOR
+teritorid query bank balances $GON_TERITORI_WALLET_MINTER
+teritorid query bank balances $GON_TERITORI_WALLET_RELAYER
+```
+
+## Kujira
+
+```sh
+# recover wallet using mnemonic
+echo $GON_KEY_CREATOR_MNEMONIC|kujirad keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|kujirad keys add $GON_KEY_MINTER_NAME --recover
+echo $GON_KEY_RELAYER_MNEMONIC|kujirad keys add $GON_KEY_RELAYER_NAME --recover
+```
+
+Now get some test KUJI:
+- discord
+  - invite: https://discord.gg/teamkujira
+  - faucet channel: https://discord.com/channels/970650215801569330/1009931570263629854
+
+
+Check whether above 3 wallets has funds using CLI:
+
+```sh
+kujirad query bank balances $GON_KUJIRA_WALLET_CREATOR
+kujirad query bank balances $GON_KUJIRA_WALLET_MINTER
+kujirad query bank balances $GON_KUJIRA_WALLET_RELAYER
+```
+
+## Terra
+
+```sh
+# recover wallet using mnemonic
+echo $GON_KEY_CREATOR_MNEMONIC|terrad keys add $GON_KEY_CREATOR_NAME --recover
+echo $GON_KEY_MINTER_MNEMONIC|terrad keys add $GON_KEY_MINTER_NAME --recover
+# Hermes uses default HD Path 118 as defined by Cosmos Hub
+echo $GON_KEY_RELAYER_MNEMONIC|terrad keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
+```
+
+Now get some test LUNA:
+- https://faucet.terra.money/
+
+
+Check whether above 3 wallets has funds using CLI:
+
+```sh
+terrad query bank balances $GON_TERRA_WALLET_CREATOR
+terrad query bank balances $GON_TERRA_WALLET_MINTER
+terrad query bank balances $GON_TERRA_WALLET_RELAYER
+```
 
 # Relayer Setup
 
@@ -337,12 +462,15 @@ Hermes:
 
 ```sh
 # restore relayer wallets for hermes
-hermes --config config.toml keys add --key-name $STARGAZE_KEY_NAME --chain $STARGAZE_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $STARGAZE_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $JUNO_KEY_NAME --chain $JUNO_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $OSMOSIS_KEY_NAME --chain $OSMOSIS_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $IRISNET_KEY_NAME --chain $IRISNET_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $IRISNET_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $UPTICK_KEY_NAME --chain $UPTICK_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $UPTICK_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $OMNIFLIX_KEY_NAME --chain $OMNIFLIX_CHAIN_ID --mnemonic-file ./relayer-mnemonic # $OMNIFLIX_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_STARGAZE_KEY_NAME --chain $GON_STARGAZE_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_STARGAZE_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_JUNO_KEY_NAME --chain $GON_JUNO_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_OSMOSIS_KEY_NAME --chain $GON_OSMOSIS_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_IRISNET_KEY_NAME --chain $GON_IRISNET_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_IRISNET_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_UPTICK_KEY_NAME --chain $GON_UPTICK_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_UPTICK_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_OMNIFLIX_KEY_NAME --chain $GON_OMNIFLIX_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_OMNIFLIX_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_TERITORI_KEY_NAME --chain $GON_TERITORI_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_TERITORI_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_KUJIRA_KEY_NAME --chain $GON_KUJIRA_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_KUJIRA_WALLET_RELAYER
+hermes --config config.toml keys add --key-name $GON_TERRA_KEY_NAME --chain $GON_TERRA_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_TERRA_WALLET_RELAYER
 ```
 
 Starting hermes
