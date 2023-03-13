@@ -13,6 +13,7 @@ function create_collection() {
             --symbol) SYMBOL="$2"; shift ;;
             --uri) URI="$2"; shift ;;
             --label) LABEL="$2"; shift ;; # WASM
+            --code-id) CODE_ID="${2}"; shift ;;
             --collection) COLLECTION="$2"; shift ;; # NFT module
             --description) DESCRIPTION="$2"; shift ;; # NFT module
             --description=*) DESCRIPTION="${1:14}" ;; # NFT module
@@ -43,6 +44,11 @@ function create_collection() {
 
     if [ "$ICS721_MODULE" == wasm ]
     then
+        if [ -z "$CODE_ID" ]
+        then
+            echo "--code-id is required" >&2
+            return 1
+        fi
         if [ -z $LABEL ]
         then
             echo "--label is required on all contracts!" >&2
@@ -56,7 +62,7 @@ function create_collection() {
         # instantiate
         echo "====> $CHAIN: creating collection (symbol: $SYMBOL, label: $LABEL, minter: $FROM)  <====" >&2
         printf -v INSTANTIATE_MSG '{"name":"%s", "symbol":"%s", "minter":"%s"}' "$NAME" "$SYMBOL" $FROM
-        printf -v CMD "$CLI tx wasm instantiate $CODE_ID_CW721 \'$INSTANTIATE_MSG\'\
+        printf -v CMD "$CLI tx wasm instantiate $CODE_ID \'$INSTANTIATE_MSG\'\
             --from $FROM --label $LABEL\
             %s\
             --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT\
