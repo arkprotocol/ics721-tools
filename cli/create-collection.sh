@@ -7,13 +7,13 @@ source ./query-tx.sh
 function create_collection() {
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --chain) CHAIN=""${2^^}""; shift ;; # uppercase
+            --chain) CHAIN=""${2,,}""; shift ;; # uppercase
             --name) NAME="$2"; shift ;;
             --data) DATA="$2"; shift ;;
             --symbol) SYMBOL="$2"; shift ;;
             --uri) URI="$2"; shift ;;
             --label) LABEL="$2"; shift ;; # WASM
-            --collection) COLLECTION_ID="$2"; shift ;; # NFT module
+            --collection) COLLECTION="$2"; shift ;; # NFT module
             --description) DESCRIPTION="$2"; shift ;; # NFT module
             --description=*) DESCRIPTION="${1:14}" ;; # NFT module
             --from) FROM="$2"; shift ;;
@@ -38,13 +38,23 @@ function create_collection() {
     if [ -z $FROM ]
     then
         echo "--from is required" >&2
-        echo xxxxxx
         return 1
     fi
 
     if [ "$ICS721_MODULE" == wasm ]
     then
+        if [ -z $LABEL ]
+        then
+            echo "--label is required on all contracts!" >&2
+            return 1
+        fi
+        if [ -z $SYMBOL ]
+        then
+            echo "--symbol is required!" >&2
+            return 1
+        fi
         # instantiate
+        echo "====> $CHAIN: creating collection (symbol: $SYMBOL, label: $LABEL, minter: $FROM)  <====" >&2
         printf -v INSTANTIATE_MSG '{"name":"%s", "symbol":"%s", "minter":"%s"}' "$NAME" "$SYMBOL" $FROM
         printf -v CMD "$CLI tx wasm instantiate $CODE_ID_CW721 \'$INSTANTIATE_MSG\'\
             --from $FROM --label $LABEL\
@@ -54,6 +64,12 @@ function create_collection() {
             "$( [ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
 
         CMD_OUTPUT=`execute_cli "$CMD"`
+        EXIT_CODE=$?
+        if [ $EXIT_CODE != 0 ]
+        then
+            echo "$QUERY_OUTPUT" >&2
+            return "$EXIT_CODE" >&2
+        fi
         TXHASH=`echo $CMD_OUTPUT | jq -r '.data.txhash'`
         if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
         then
@@ -70,23 +86,24 @@ function create_collection() {
             echo "$QUERY_OUTPUT" >&2
             return "$EXIT_CODE"
         fi
-        COLLECTION_ID=`echo $QUERY_OUTPUT|jq -r '.data.logs[0].events[0].attributes[0].value'`
-        # $CLI query wasm contract-state smart $COLLECTION_ID '{"contract_info": {}}' --output json | jq
+        COLLECTION=`echo $QUERY_OUTPUT|jq -r '.data.logs[0].events[0].attributes[0].value'`
+        # $CLI query wasm contract-state smart $COLLECTION '{"contract_info": {}}' --output json | jq
         # return contract
         INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
-        RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION_ID\"}"`
+        RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION\"}"`
         echo $RESULT | jq
         return 0
     else
         if [ "$ICS721_MODULE" = nft ]
         then
-            if [ -z "$COLLECTION_ID" ]
+            if [ -z "$COLLECTION" ]
             then
                 echo "--collection is required" >&2
                 return 1
             fi
 
-            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION_ID\
+            echo "====> $CHAIN: creating collection $COLLECTION, from: $FROM  <====" >&2
+            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION\
                 %s\
                 %s\
                 %s\
@@ -102,6 +119,12 @@ function create_collection() {
                 "$( [ ! -z "$URI" ] && echo "--uri \"$URI\"" || echo "")"\
                 "$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")"
             CMD_OUTPUT=`execute_cli "$CMD"`
+            EXIT_CODE=$?
+            if [ $EXIT_CODE != 0 ]
+            then
+                echo "$QUERY_OUTPUT" >&2
+                return "$EXIT_CODE" >&2
+            fi
             TXHASH=`echo $CMD_OUTPUT | jq -r '.data.txhash'`
             if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
             then
@@ -119,18 +142,19 @@ function create_collection() {
                 return "$EXIT_CODE" >&2
             fi
             INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
-            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION_ID\"}"`
+            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION\"}"`
             echo $RESULT | jq
             return 0
         elif [ "$ICS721_MODULE" = collection ]
         then
-            if [ -z "$COLLECTION_ID" ]
+            if [ -z "$COLLECTION" ]
             then
                 echo "--collection is required" >&2
                 return 1
             fi
 
-            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION_ID\
+            echo "====> $CHAIN: creating collection $COLLECTION, from: $FROM  <====" >&2
+            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION\
                 %s\
                 %s\
                 --mint-restricted=true --update-restricted=true\
@@ -141,6 +165,12 @@ function create_collection() {
                 "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"
 
             CMD_OUTPUT=`execute_cli "$CMD"`
+            EXIT_CODE=$?
+            if [ $EXIT_CODE != 0 ]
+            then
+                echo "$QUERY_OUTPUT" >&2
+                return "$EXIT_CODE" >&2
+            fi
             TXHASH=`echo $CMD_OUTPUT | jq -r '.data.txhash'`
             if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
             then
@@ -158,7 +188,7 @@ function create_collection() {
                 return $EXIT_CODE >&2
             fi
             INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
-            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION_ID\"}"`
+            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION\"}"`
             echo $RESULT | jq
             return 0
         else
@@ -172,6 +202,7 @@ function create_collection() {
                 echo "--name is required" >&2
                 return 1
             fi
+            echo "====> $CHAIN: creating collection (symbol: $SYMBOL, name: $NAME, from: $FROM)  <====" >&2
             printf -v CMD "$CLI tx $ICS721_MODULE create \"$SYMBOL\" --name \"$NAME\"\
                 %s\
                 %s\
@@ -184,6 +215,12 @@ function create_collection() {
                 "$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")" # --description not documented in CLI...
 
             CMD_OUTPUT=`execute_cli "$CMD"`
+            EXIT_CODE=$?
+            if [ $EXIT_CODE != 0 ]
+            then
+                echo "$QUERY_OUTPUT" >&2
+                return "$EXIT_CODE" >&2
+            fi
             TXHASH=`echo $CMD_OUTPUT | jq -r '.data.txhash'`
             if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
             then
@@ -200,9 +237,9 @@ function create_collection() {
                 echo "$QUERY_OUTPUT" >&2
                 return "$EXIT_CODE"
             fi
-            COLLECTION_ID=`jq --argjson j "$QUERY_OUTPUT" -r -n '$j.data.tx.body.messages[0].id'`
+            COLLECTION=`jq --argjson j "$QUERY_OUTPUT" -r -n '$j.data.tx.body.messages[0].id'`
             INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
-            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION_ID\"}"`
+            RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION\"}"`
             echo $RESULT | jq
             return 0
         fi
