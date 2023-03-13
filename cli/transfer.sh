@@ -120,7 +120,6 @@ function transfer_ics721() {
     fi
 
     # query tx for making sure it succeeds!
-    echo "====> waiting for transfer to finish <====" >&2
     ark query chain tx --cli "$CLI" --tx "$TXHASH" --max-call-limit "$MAX_CALL_LIMIT"
     # return in case of error
     EXIT_CODE=$?
@@ -130,8 +129,8 @@ function transfer_ics721() {
 
     if [ "$RELAY" = "true" ]; then
         echo "====> relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
-        echo "hermes --config relayer/config.toml clear packets --chain $CHAIN --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
-        hermes --config relayer/config.toml clear packets --chain "$CHAIN" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
+        echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
+        hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
     fi
 
     # ====== check receival on target chain
@@ -156,15 +155,15 @@ function transfer_ics721() {
         --chain %s\
         --dest-port %s\
         --dest-channel %s\
-        --source-class-id %s"\
+        --source-class-id %s\
+        --sleep 1\
+        --max-call-limit %s"\
         "$TARGET_CHAIN"\
         "$TARGET_PORT"\
         "$TARGET_CHANNEL"\
-        "$SOURCE_CLASS_ID"
-    QUERY_TARGET_COLLECTION_OUTPUT=`call_until_success\
-        --cmd "$QUERY_TARGET_COLLECTION_CMD"\
-        --max-call-limit "$MAX_CALL_LIMIT"\
-        --sleep 1`
+        "$SOURCE_CLASS_ID"\
+        "$MAX_CALL_LIMIT"
+    QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
@@ -174,7 +173,7 @@ function transfer_ics721() {
     TARGET_COLLECTION=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.collection'`
     TARGET_CLASS_ID=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.class_id'`
     if [[ ! ${TARGET_COLLECTION+x} ]] || [[ ${TARGET_COLLECTION} = null ]];then
-        echo "No collection found: $TARGET_COLLECTION" >&2
+        echo "No collection found: $TARGET_COLLECTION, output: $QUERY_TARGET_COLLECTION_OUTPUT" >&2
         return 1
     fi
     # make sure token is owned by recipient on target chain

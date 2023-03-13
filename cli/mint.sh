@@ -80,7 +80,6 @@ function mint() {
         fi
 
         # query tx for making sure it succeeds!
-        echo "====> waiting for tx $TXHASH to finish <====" >&2
         QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]
@@ -136,7 +135,6 @@ function mint() {
             fi
 
             # query tx for making sure it succeeds!
-            echo "====> waiting for tx $TXHASH to finish <====" >&2
             QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
@@ -187,7 +185,6 @@ function mint() {
             fi
 
             # query tx for making sure it succeeds!
-            echo "====> waiting for tx $TXHASH to finish <====" >&2
             QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]

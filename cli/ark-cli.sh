@@ -39,17 +39,7 @@ function ark() {
         ics721)
             case $COMMAND in
                 transfer)
-                    SUB_COMMAND="$1"
-                    shift
-                    case $SUB_COMMAND in
-                        token)
-                            ARK_FUN="transfer_ics721"
-                            ;;
-                        *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
-                            return 1
-                            ;;
-                    esac
+                    ARK_FUN="transfer_ics721"
                     ;;
                 query)
                     SUB_COMMAND="$1"

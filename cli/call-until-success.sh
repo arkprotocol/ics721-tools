@@ -25,7 +25,7 @@ function call_until_success() {
 
     CALL_COUNT="$MAX_CALL_LIMIT"
 
-    printf "\nWaiting for cmd to finish" >&2
+    printf "\n====> executing until success" >&2
     until ERROR=$($CMD 2>&1 >/dev/null)
     do
         CALL_COUNT=$(($CALL_COUNT - 1))
@@ -40,10 +40,10 @@ function call_until_success() {
             return 1
         fi
     done
-    printf "\n" >&2
+    printf "<====\n" >&2
 
     # add functions if not yet defined
-    [[ ! $(type -t execute_cli) == function ]] && source ./cli-cmd.sh
+    [[ ! $(type -t execute_cli) == function ]] && source ./cli-cmd.sh >&2
 
     QUERY_OUTPUT=`execute_cli "$CMD"`
     EXIT_CODE=$?
