@@ -73,12 +73,14 @@ function transfer_ics721() {
     then
         # ======== wasm module
         # ====== send token to ICS721 contract
+        TIMESTAMP=`date -d "+1 day" +%s%N` # time in nano seconds
         printf -v RAW_MSG '{
             "receiver": "%s",
             "channel_id": "%s",
-            "timeout": { "block": { "revision": 6, "height": 3999999 } } }'\
+            "timeout": { "timestamp": "%s" } }'\
             "$RECIPIENT"\
-            "$SOURCE_CHANNEL"
+            "$SOURCE_CHANNEL"\
+            "$TIMESTAMP"
         echo "base64 encoding message for transfer to ICS721 contract: $RAW_MSG" >&2
         # Base64 encode msg
         MSG=`echo "$RAW_MSG" | base64 | xargs | sed 's/ //g'` # xargs concats multiple lines into one (with spaces), sed removes spaces
