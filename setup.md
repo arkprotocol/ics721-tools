@@ -208,9 +208,9 @@ starsd keys add $GON_KEY_MINTER_NAME
 starsd keys add $GON_KEY_RELAYER_NAME
 
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|starsd keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|starsd keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|starsd keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|starsd keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|starsd keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|starsd keys add $GON_KEY_RELAYER_NAME --recover
 
 ```
 
@@ -248,9 +248,9 @@ Use same mnemonic for recovering wallets and follow same steps as described abov
 
 ```sh
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|junod keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|junod keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|junod keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|junod keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|junod keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|junod keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test JUNOX (Juno tokens are called JUNOX on testnet): https://test.juno.tools/request-tokens/
@@ -269,9 +269,9 @@ Use same mnemonic for recovering wallets and follow same steps as described abov
 
 ```sh
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|osmosisd keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|osmosisd keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|osmosisd keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|osmosisd keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|osmosisd keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|osmosisd keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test OSMO:
@@ -294,9 +294,9 @@ osmosisd query bank balances $GON_OSMOSIS_WALLET_RELAYER
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $GON_KEY_CREATOR_MNEMONIC|iris keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|iris keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|iris keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|iris keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|iris keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|iris keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Get some test NYAN tokens:
@@ -328,10 +328,10 @@ NOTE: 1,000,000uiris is 1 IRIS!
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $GON_KEY_CREATOR_MNEMONIC|uptickd keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|uptickd keys add $GON_KEY_MINTER_NAME --recover
+cat ./creator.mnemonic|uptickd keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|uptickd keys add $GON_KEY_MINTER_NAME --recover
 # Hermes uses default HD Path 118 as defined by Cosmos Hub
-echo $GON_KEY_RELAYER_MNEMONIC|uptickd keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
+cat ./relayer.mnemonic|uptickd keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
 ```
 
 - join Uptick discord: https://discord.gg/MVU8h6tXAF
@@ -363,9 +363,9 @@ NOTE: 1,000,000,000,000,000,000 auptick is 1 UPTICK!
 Use same mnemonic for recovering wallets and follow same steps as described above:
 
 ```sh
-echo $GON_KEY_CREATOR_MNEMONIC|omniflixhubd keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|omniflixhubd keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|omniflixhubd keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|omniflixhubd keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|omniflixhubd keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|omniflixhubd keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 OmniFlix faucet
@@ -390,9 +390,9 @@ NOTE: 1,000,000uflix is 1 FLIX
 
 ```sh
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|teritorid keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|teritorid keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|teritorid keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|teritorid keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|teritorid keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|teritorid keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test TORI:
@@ -413,9 +413,9 @@ teritorid query bank balances $GON_TERITORI_WALLET_RELAYER
 
 ```sh
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|kujirad keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|kujirad keys add $GON_KEY_MINTER_NAME --recover
-echo $GON_KEY_RELAYER_MNEMONIC|kujirad keys add $GON_KEY_RELAYER_NAME --recover
+cat ./creator.mnemonic|kujirad keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|kujirad keys add $GON_KEY_MINTER_NAME --recover
+cat ./relayer.mnemonic|kujirad keys add $GON_KEY_RELAYER_NAME --recover
 ```
 
 Now get some test KUJI:
@@ -436,10 +436,10 @@ kujirad query bank balances $GON_KUJIRA_WALLET_RELAYER
 
 ```sh
 # recover wallet using mnemonic
-echo $GON_KEY_CREATOR_MNEMONIC|terrad keys add $GON_KEY_CREATOR_NAME --recover
-echo $GON_KEY_MINTER_MNEMONIC|terrad keys add $GON_KEY_MINTER_NAME --recover
+cat ./creator.mnemonic|terrad keys add $GON_KEY_CREATOR_NAME --recover
+cat ./minter.mnemonic|terrad keys add $GON_KEY_MINTER_NAME --recover
 # Hermes uses default HD Path 118 as defined by Cosmos Hub
-echo $GON_KEY_RELAYER_MNEMONIC|terrad keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
+cat ./relayer.mnemonic|terrad keys add $GON_KEY_RELAYER_NAME --hd-path "m/44'/118'/0'/0/0" --recover
 ```
 
 Now get some test LUNA:
@@ -462,15 +462,12 @@ Hermes:
 
 ```sh
 # restore relayer wallets for hermes
-hermes --config config.toml keys add --key-name $GON_STARGAZE_KEY_NAME --chain $GON_STARGAZE_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_STARGAZE_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_JUNO_KEY_NAME --chain $GON_JUNO_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_OSMOSIS_KEY_NAME --chain $GON_OSMOSIS_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_IRISNET_KEY_NAME --chain $GON_IRISNET_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_IRISNET_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_UPTICK_KEY_NAME --chain $GON_UPTICK_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_UPTICK_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_OMNIFLIX_KEY_NAME --chain $GON_OMNIFLIX_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_OMNIFLIX_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_TERITORI_KEY_NAME --chain $GON_TERITORI_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_TERITORI_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_KUJIRA_KEY_NAME --chain $GON_KUJIRA_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_KUJIRA_WALLET_RELAYER
-hermes --config config.toml keys add --key-name $GON_TERRA_KEY_NAME --chain $GON_TERRA_CHAIN_ID --mnemonic-file ./relayer.mnemonic # $GON_TERRA_WALLET_RELAYER
+hermes --config config.toml keys add --key-name stargaze_relayer_wallet --chain elgafar-1 --mnemonic-file ./relayer.mnemonic # $GON_STARGAZE_WALLET_RELAYER
+hermes --config config.toml keys add --key-name juno_relayer_wallet --chain uni-6 --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name osmosis_relayer_wallet --chain osmo-test-4 --mnemonic-file ./relayer.mnemonic # $GON_JUNO_WALLET_RELAYER
+hermes --config config.toml keys add --key-name irisnet_relayer_wallet --chain gon-irishub-1 --mnemonic-file ./relayer.mnemonic # $GON_IRISNET_WALLET_RELAYER
+hermes --config config.toml keys add --key-name uptick_relayer_wallet --chain uptick_7000-2 --mnemonic-file ./relayer.mnemonic # $GON_UPTICK_WALLET_RELAYER
+hermes --config config.toml keys add --key-name omniflix_relayer_wallet --chain gon-flixnet-1 --mnemonic-file ./relayer.mnemonic # $GON_OMNIFLIX_WALLET_RELAYER
 ```
 
 Starting hermes

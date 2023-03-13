@@ -46,6 +46,10 @@ For quick testing all environment variables are defined in [ics721-demo.env](ics
 - cw721 and ics721 (contracts, code ids)
 - CLI settings (chain-id, node, keys, mnemonics)
 
+# Ark CLI
+
+There is a bash based CLI tool. It simplifies creation of collections, minting NFTs and transferring to other IBC chains. Check out here [cli/README.md](cli/README.md)
+
 # CLI Commands for Testing
 
 Below is a list of CLI commands you may need for testing:
