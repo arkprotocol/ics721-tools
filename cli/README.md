@@ -97,6 +97,7 @@ ark create collection \
 [--uri URI] \
 [--label LABEL] \
 [--collection COLLECTION] \
+[--code-id CODE_ID] \
 [--description DESCRIPTION] \
 [--from FROM] \
 [--admin ADMIN]
@@ -172,7 +173,7 @@ ark transfer ics721 \
 
 ```
 
-## Create a collection
+## Create A Collection
 
 Now let's create a collection on IRISnet:
 
@@ -181,11 +182,11 @@ Now let's create a collection on IRISnet:
 ark select chain irisnet # stargaze, juno, irisnet, uptick, and omniflix
 # create collection on selected chain
 ark create collection \
---collection arkalpha004 \
+--collection alphacollection001 \
 --uri "https://arkprotocol.io/" \
---symbol arkalpha \
+--symbol ArkAlphaCollection \
 --name "Ark Alpha Collection - coming soon..." \
---description "holders earn on each ICS721 transfer!" \
+--description "Alpha holders earn rewards on each transfer and multichain utility and any collection!" \
 --from $WALLET_MINTER \
 | jq # optional: using jq for better formatting JSON output!
 ```
@@ -309,7 +310,8 @@ ark transfer ics721 \
 --target-chain stargaze \
 --source-channel $CHANNEL_1_TO_STARGAZE \
 --collection $ARK_GON_COLLECTION \
---token arkalpha001
+--token arkalpha002 \
+| jq
 ```
 
 Transfer output contains:
