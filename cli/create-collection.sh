@@ -79,7 +79,7 @@ function create_collection() {
         fi
 
         # query tx for making sure it succeeds!
-        QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
+        QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]
         then
@@ -134,7 +134,7 @@ function create_collection() {
             fi
 
             # query tx for making sure it succeeds!
-            QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
+            QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
             then
@@ -180,7 +180,7 @@ function create_collection() {
             fi
 
             # query tx for making sure it succeeds!
-            QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
+            QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
             then
@@ -230,7 +230,7 @@ function create_collection() {
             fi
 
             # query tx for making sure it succeeds!
-            QUERY_OUTPUT=`query_tx --cli $CLI --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
+            QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
             then
