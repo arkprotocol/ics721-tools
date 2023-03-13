@@ -237,7 +237,7 @@ export ARK_GON_COLLECTION="arkalpha003"
 ark select chain irisnet
 ```
 
-## Mint/Issue an NFT for a collection
+## Mint/Issue An NFT For A Collection
 
 ```sh
 ark mint collection \
@@ -275,7 +275,7 @@ command and output added to history (1 entries)
 }
 ```
 
-## Query collections and tokens
+## Query Collections And Tokens
 
 Query all collections
 
