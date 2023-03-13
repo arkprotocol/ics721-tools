@@ -120,7 +120,7 @@ function transfer_ics721() {
     fi
 
     # query tx for making sure it succeeds!
-    ark query chain tx --cli "$CLI" --tx "$TXHASH" --max-call-limit "$MAX_CALL_LIMIT"
+    ark query chain tx --chain "$CHAIN" --tx "$TXHASH" --max-call-limit "$MAX_CALL_LIMIT"
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
