@@ -86,7 +86,7 @@ function collection_by_class_id() {
     if [ ! -z "$COLLECTION" ]
     then
         # ESCAPED_CLASS_ID=`echo $CLASS_ID | sed 's/\//\\\\\//g'` # escape slash
-        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: { classId: \""$CLASS_ID"\", collection: \""$COLLECTION"\" } }"
+        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: { class_id: \""$CLASS_ID"\", collection: \""$COLLECTION"\" } }"
         return 0
     else
         echo "no collections found: $QUERY_OUTPUT" >&2

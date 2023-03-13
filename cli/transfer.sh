@@ -1,17 +1,20 @@
 #!/bin/bash
 ARGS="$@" # backup all args
 
+# get function in case not yet initialised
+[[ ! $(type -t call_until_success) == function ]] && source ./call-until-success.sh
+
 function transfer_ics721() {
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
-            --chain) CHAIN="${2^^}"; shift ;; # uppercase
+            --chain) CHAIN="${2,,}"; shift ;; # lowercase
             --collection) COLLECTION="$2"; shift ;; # NFT module
-            --token) TOKEN_ID="$2"; shift ;;
+            --token) TOKEN="$2"; shift ;;
             --from) FROM="$2"; shift ;;
             --recipient) RECIPIENT="$2"; shift ;;
             --source-class-id) SOURCE_CLASS_ID="$2"; shift ;;
-            --target-chain) TARGET_CHAIN="${2^^}"; shift ;; # uppercase
-            --source-channel) SOURCE_CHANNEL="${2}"; shift ;; # uppercase
+            --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
+            --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
             *) echo "Unknown parameter: $1" >&2; return 1 ;;
         esac
@@ -30,7 +33,7 @@ function transfer_ics721() {
         return 1
     fi
 
-    if [ -z "$TOKEN_ID" ]
+    if [ -z "$TOKEN" ]
     then
         echo "--token is required" >&2
         return 1
@@ -85,7 +88,7 @@ function transfer_ics721() {
                 "token_id": "%s",
                 "msg": "%s"}}'\
             "$CONTRACT_ICS721"\
-            "$TOKEN_ID"\
+            "$TOKEN"\
             "$MSG"
         CMD="$CLI tx wasm execute '$COLLECTION' '$EXECUTE_MSG'\
             --from "$FROM"\
@@ -93,12 +96,13 @@ function transfer_ics721() {
             -b "$BROADCAST_MODE" --yes"
     else
         # ======== nft-transfer module
-        CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN_ID'\
+        CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN'\
             --from "$FROM"\
             --fees "$FEES"\
             -b "$BROADCAST_MODE" --yes"
     fi
 
+    echo "====> transferring $TOKEN (collection: $COLLECTION), from $CHAIN to $TARGET_CHAIN  <====" >&2
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
     EXIT_CODE=$?
@@ -114,6 +118,7 @@ function transfer_ics721() {
     fi
 
     # query tx for making sure it succeeds!
+    echo "====> waiting for transfer to finish <====" >&2
     ark query chain tx --cli "$CLI" --tx "$TXHASH" --max-call-limit "$MAX_CALL_LIMIT"
     # return in case of error
     EXIT_CODE=$?
@@ -121,32 +126,22 @@ function transfer_ics721() {
         return $EXIT_CODE
     fi
 
-    # before relay make sure owner has changed/nft is locked
-    NEW_OWNER=`ark query collection token --chain "$CHAIN" --token "$TOKEN_ID" --collection "$COLLECTION" | tail -n 1 | jq '.owner' | xargs`
-
-    if [ "$NEW_OWNER" = "$FROM" ]
-    then
-        echo ERROR, transfer not successful, nft returned to owner "$FROM" >&2
-        return 1
-    else
-        echo NFT "$TOKEN_ID" on source chain locked by "$NEW_OWNER" >&2
-    fi
-
-    # ====== relay from ICS721 on source chain to target chain
     if [ "$RELAY" = "true" ]; then
-        echo "hermes --config relayer/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
-        hermes --config relayer/config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
+        echo "====> relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
+        echo "hermes --config relayer/config.toml clear packets --chain $CHAIN --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
+        hermes --config relayer/config.toml clear packets --chain "$CHAIN" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
     fi
 
     # ====== check receival on target chain
     # - for target class id, we need: dest port, dest channel, source classId
+    echo "====> query counter-part channel for $SOURCE_CHANNEL <====" >&2
     SOURCE_CHANNEL_OUTPUT=`ark query channel channel --chain "$CHAIN" --channel "$SOURCE_CHANNEL"`
-    SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
-    # return in case of error
+    # - return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
         return $EXIT_CODE
     fi
+    SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
     TARGET_CHANNEL=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.channel_id'`
     TARGET_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.port_id'`
     if [ -z "$SOURCE_CLASS_ID" ]
@@ -154,6 +149,7 @@ function transfer_ics721() {
         echo "--source-class-id not defined, using collection $COLLECTION" >&2
         SOURCE_CLASS_ID="$COLLECTION"
     fi
+    echo "====> find class-id at $TARGET_CHAIN, target port: $TARGET_PORT, target channel: $TARGET_CHANNEL, source class id: $SOURCE_CLASS_ID <====" >&2
     printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id\
         --chain %s\
         --dest-port %s\
@@ -163,8 +159,6 @@ function transfer_ics721() {
         "$TARGET_PORT"\
         "$TARGET_CHANNEL"\
         "$SOURCE_CLASS_ID"
-    # get function in case not yet initialised
-    [[ ! $(type -t call_until_success) == function ]] && source ./call-until-success.sh
     QUERY_TARGET_COLLECTION_OUTPUT=`call_until_success\
         --cmd "$QUERY_TARGET_COLLECTION_CMD"\
         --max-call-limit "$MAX_CALL_LIMIT"\
@@ -176,11 +170,17 @@ function transfer_ics721() {
         return $EXIT_CODE
     fi
     TARGET_COLLECTION=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.collection'`
+    TARGET_CLASS_ID=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.class_id'`
+    if [[ ! ${TARGET_COLLECTION+x} ]] || [[ ${TARGET_COLLECTION} = null ]];then
+        echo "No collection found: $TARGET_COLLECTION" >&2
+        return 1
+    fi
     # make sure token is owned by recipient on target chain
+    echo "====> query token $TOKEN at $TARGET_CHAIN and collection $TARGET_COLLECTION <====" >&2
     printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token\
         --chain %s\
         --collection %s\
-        --token %s" "$TARGET_CHAIN" "$TARGET_COLLECTION" "$TOKEN_ID"
+        --token %s" "$TARGET_CHAIN" "$TARGET_COLLECTION" "$TOKEN"
     QUERY_TARGET_TOKEN_OUTPUT=`call_until_success\
         --cmd "$QUERY_TARGET_TOKEN_CMD"\
         --max-call-limit $MAX_CALL_LIMIT\
@@ -190,29 +190,16 @@ function transfer_ics721() {
     if [ $EXIT_CODE != 0 ]; then
         return $EXIT_CODE
     fi
-    TARGET_OWNER=`echo "$QUERY_TARGET_TOKEN_OUTPUT" | jq -r '.data.owner'`
+    TARGET_OWNER=`echo "$QUERY_TARGET_TOKEN_OUTPUT" | jq -r '.owner'`
+    echo "====> NFT recipient on target chain: $TARGET_OWNER <====" >&2
     if [ "$RECIPIENT" = "$TARGET_OWNER" ]
     then
-        echo NFT "$TOKEN_ID" owned on target chain by "$RECIPIENT" >&2
+        echo NFT "$TOKEN" owned on target chain by "$RECIPIENT" >&2
     else
         echo ERROR, relay not successful, nft returned to owner "$FROM" >&2
         return 1
     fi
 
-    # query token and check whether NFT has changed owner (locked by ics721 contract/nft module)
-    QUERY_SOURCE_TOKEN_OUTPUT=`ark query collection token\
-        --chain "$CHAIN"\
-        --token "$TOKEN_ID"\
-        --collection "$COLLECTION"`
-    NEW_OWNER=`echo "$QUERY_SOURCE_TOKEN_OUTPUT" | jq -r '.owner'`
-
-    if [ "$NEW_OWNER" = "$FROM" ]
-    then
-        echo ERROR, relay not successful, nft returned to owner "$FROM" >&2
-        return 1
-    else
-        echo NFT "$TOKEN_ID" on source chain locked by "$NEW_OWNER" >&2
-    fi
     ESCAPED_CMD=`echo $CMD | sed 's/"/\\\\"/g'` # escape double quotes
     echo "{}" | jq "{\
         cmd: \"$ESCAPED_CMD\",\
@@ -227,6 +214,7 @@ function transfer_ics721() {
         target: {\
             chain: \"$TARGET_CHAIN\",\
             collection: \"$TARGET_COLLECTION\",\
+            class_id: \"$TARGET_CLASS_ID\",\
             channel: \"$TARGET_CHANNEL\",\
             port: \"$TARGET_PORT\"\
         }\

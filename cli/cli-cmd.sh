@@ -35,7 +35,6 @@ function execute_cli() {
         # ark call already has propertiers cmd and data in DATA
         echo $DATA
     else
-        echo no ark call >&2
         ESCAPED_CMD=`echo $CMD | sed 's/"/\\\\"/g'` # escape double quotes
         echo $DATA | jq "{ cmd: \"$ESCAPED_CMD\", data: .}"
     fi
