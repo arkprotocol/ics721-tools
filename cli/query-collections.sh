@@ -5,6 +5,7 @@ function query_collections() {
             --chain) CHAIN="${2^^}"; shift ;; # uppercase
             --owner) OWNER="${2,,}"; shift ;; # lowercase
             --limit) LIMIT="${2}"; shift ;;
+            --offset) OFFSET="${2}"; shift ;;
             *) echo "Unknown parameter: $1" >&2; return 1 ;;
         esac
         shift
@@ -32,6 +33,9 @@ function query_collections() {
     then
         ALL_COLLECTIONS="[]"
         PAGE=1
+        if [[ ${OFFSET+x} ]];then
+            PAGE="$OFFSET"
+        fi
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             echo "query page $PAGE" >&2
@@ -50,6 +54,7 @@ function query_collections() {
         done
         # map only collection and creator
         readarray -t CONTRACTS < <(echo $ALL_COLLECTIONS | jq -c '.[]')
+        echo "Processing ${#CONTRACTS[@]} contracts" >&2
         OWNED_COLLECTIONS="[]"
         for CONTRACT in "${CONTRACTS[@]}"; do
             CONTRACT=`echo $CONTRACT|xargs` # remove double quotes
@@ -77,6 +82,9 @@ function query_collections() {
     else
         ALL_COLLECTIONS="[]"
         PAGE=1
+        if [[ ${OFFSET+x} ]];then
+            PAGE="$OFFSET"
+        fi
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             echo "query page $PAGE" >&2
