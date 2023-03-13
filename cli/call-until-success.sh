@@ -43,7 +43,7 @@ function call_until_success() {
     printf "<====\n" >&2
 
     # add functions if not yet defined
-    [[ ! $(type -t execute_cli) == function ]] && source ./cli-cmd.sh >&2
+    source ./execute-cli.sh >&2
 
     QUERY_OUTPUT=`execute_cli "$CMD"`
     EXIT_CODE=$?

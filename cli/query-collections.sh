@@ -6,18 +6,19 @@ function query_collections() {
             --owner) OWNER="${2,,}"; shift ;; # lowercase
             --limit) LIMIT="${2}"; shift ;;
             --offset) OFFSET="${2}"; shift ;;
+            --code-id) CODE_ID="${2}"; shift ;;
             *) echo "Unknown parameter: $1" >&2; return 1 ;;
         esac
         shift
     done
 
-    if [ -z $CHAIN ]
+    if [ -z "$CHAIN" ]
     then
         echo "--chain is required" >&2
         return 1
     fi
 
-    if [ -z $LIMIT ]
+    if [ -z "$LIMIT" ]
     then
         LIMIT=100
         echo "--limit not set, default: $LIMIT" >&2
@@ -31,6 +32,11 @@ function query_collections() {
 
     if [ "$ICS721_MODULE" == wasm ]
     then
+        if [ -z "$CODE_ID" ]
+        then
+            echo "--code-id is required" >&2
+            return 1
+        fi
         ALL_COLLECTIONS="[]"
         PAGE=1
         if [[ ${OFFSET+x} ]];then
@@ -39,7 +45,7 @@ function query_collections() {
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             echo "query page $PAGE" >&2
-            printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s" "$CODE_ID_CW721" "$PAGE"
+            printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s" "$CODE_ID" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             COLLECTIONS=`echo $QUERY_OUTPUT | jq -c '.data.contracts'`
             # check result is not empty

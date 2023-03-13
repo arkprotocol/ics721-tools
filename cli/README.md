@@ -30,10 +30,15 @@ First thing you need to do is to select the chain on which `Ark` CLI is suppose 
 ```sh
 # tell ARK on which chain it should operate with
 ark select chain irisnet
+#> reading irisnet.env
 ```
 
 IMPORTANT NOTE:
 Instead of using `ark select chain` it is also possible for all commands using the `--chain` flag!
+
+```sh
+ark query chain tx --tx E856A27A9496DDD7EE11FC5722BB7611017DB265F293C7962666EA31588BD1E9 --chain juno
+```
 
 # Chain Config / `$CHAIN.env` files
 
@@ -45,10 +50,129 @@ export WALLET_MINTER="stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf"
 export WALLET_RELAYER="stars1g0krhq56pmxmaz8lnj8h6jf55kcsq7x0lw5ywc"
 ```
 
-The relayer wallet is only needed - in case you want to manually relay your own IBC packets (e.g. ICS721/NFT transfers).
+The relayer wallet is only needed - in case you want to manually relay your own IBC packets (like for ICS721/NFT transfers).
+
 Please also NOTE that the creator and minter wallets provided in env files are being used by Ark team internally - so please be kind and use your own wallet ;)!
 
-# Create a collection
+# Commands
+
+## List of commands
+
+### Query transaction
+
+```sh
+ark query chain tx --tx [TXHASH]
+```
+
+### Chain: Select, Query, Reload
+
+```sh
+ark select chain juno
+# reading juno.env
+
+ark query chain
+# selected chain: juno
+
+ark reload chain
+# reading juno.env
+```
+
+### Ark Command history
+
+TODO: not working yet
+
+```sh
+ark query history list
+# []
+```
+
+### Create Collection
+
+```sh
+ark create collection \
+[--chain CHAIN] \
+[--name NAME] \
+[--data DATA] \
+[--symbol SYMBOL] \
+[--uri URI] \
+[--label LABEL] \
+[--collection COLLECTION] \
+[--description DESCRIPTION] \
+[--from FROM] \
+[--admin ADMIN]
+```
+
+### Mint/Issue an NFT for a collection
+
+```sh
+ark mint collection \
+[--chain CHAIN] \
+[--collection COLLECTION] \
+[--token TOKEN] \
+[--data DATA] \
+[--uri URI] \
+[--name NAME] \
+[--from FROM] \
+[--recipient RECIPIENT]
+```
+
+### Query All Collections
+
+```sh
+ark query collection collections \
+[--chain CHAIN] \
+[--owner OWNER] \
+[--limit LIMIT] \
+[--code-id CODE_ID] \
+[--offset OFFSET]
+```
+
+### Query For All Tokens For A Specific Collection
+
+```sh
+ark query collection tokens \
+[--chain CHAIN] \
+[--collection COLLECTION]
+```
+
+### Query For Specific Token And Collection
+
+```sh
+ark query collection token \
+[--chain CHAIN] \
+[--collection COLLECTION] \
+[--token TOKEN]
+```
+
+### ICS721/NFT Interchain Transfer
+
+```sh
+ark transfer ics721 \
+[--chain CHAIN] \
+[--from FROM] \
+[--recipient RECIPIENT] \
+[--target-chain TARGET_CHAIN] \
+[--source-channel SOURCE_CHANNEL] \
+[--collection COLLECTION] \
+[--token TOKEN] \
+[--source-class-id SOURCE_CLASS_ID] \
+[--relay]
+
+```
+
+###
+
+```sh
+
+```
+
+###
+
+```sh
+
+```
+
+## Create a collection
 
 Now let's create a collection on IRISnet:
 
@@ -106,11 +230,13 @@ Please note that output provides the collection in `id` (e.g. 'arkalpha004'). Id
 For ease of use, collection id may be added to env file, like in [irisnet.env](irisnet.env):
 
 ```sh
+# change vars in env file
 export ARK_GON_COLLECTION="arkalpha003"
+# IMPORTANT: don't forget reloading your envs!
+ark select chain irisnet
 ```
 
-# Mint/Issue an NFT for a collection
-
+## Mint/Issue an NFT for a collection
 
 ```sh
 ark mint collection \
@@ -148,7 +274,7 @@ command and output added to history (1 entries)
 }
 ```
 
-# Query collections and tokens
+## Query collections and tokens
 
 Query all collections
 
@@ -173,13 +299,7 @@ Query for specific token and collection:
 ark query collection token --collection $ARK_GON_COLLECTION --token arkalpha011 | jq
 ```
 
-```sh
-
-```
-
-
-# ICS721 transfer
-
+## ICS721/NFT Interchain Transfer
 
 ```sh
 # transfer from selected chain (e.g. IRISnet) to target chain Juno
@@ -316,8 +436,3 @@ The JSON output looks like this:
   }
 }
 ```
-
-```sh
-
-```
-

@@ -2,7 +2,7 @@
 function query_tx() {
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --cli) CLI="$2"; shift ;;
+            --chain) CHAIN="$2"; shift ;;
             --tx) TX="$2"; shift ;;
             --max-call-limit) MAX_CALL_LIMIT="$2"; shift ;;
             *) echo "Unknown parameter: $1" >&2; return 1 ;;
@@ -10,10 +10,16 @@ function query_tx() {
         shift
     done
 
-    if [ -z "$CLI" ]
+    if [ -z "$CHAIN" ]
     then
-        echo "--tx is required" >&2
+        echo "--chain is required" >&2
         return 1
+    fi
+
+    ark select chain "$CHAIN"
+    EXIT_CODE=$?
+    if [ "$EXIT_CODE" -ne 0 ]; then
+        return $EXIT_CODE;
     fi
 
     if [ -z "$TX" ]

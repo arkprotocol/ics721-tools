@@ -1,7 +1,7 @@
 #!/bin/bash
 source ./cli.env
 
-source ./cli-cmd.sh
+source ./execute-cli.sh
 source ./query-tx.sh
 source ./create-collection.sh
 source ./mint.sh
@@ -63,17 +63,21 @@ function ark() {
         chain)
             case $COMMAND in
                 query)
-                    SUB_COMMAND="$1"
-                    shift
-                    case $SUB_COMMAND in
-                        tx)
-                            ARK_FUN="query_tx"
-                            ;;
-                        *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
-                            return 1
-                            ;;
-                    esac
+                    if [[ ${1+x} ]]; then
+                        SUB_COMMAND="$1"
+                        shift
+                        case $SUB_COMMAND in
+                            tx)
+                                ARK_FUN="query_tx"
+                                ;;
+                            *)
+                                echo "Unknown sub command: $SUB_COMMAND" >&2
+                                return 1
+                                ;;
+                        esac
+                    else
+                        echo "selected chain: $CHAIN" >&2
+                    fi
                     ;;
                 select)
                     CHAIN=${1,,}
@@ -84,7 +88,16 @@ function ark() {
                     if [ "$EXIT_CODE" -ne 0 ]; then
                         return $EXIT_CODE;
                     fi
-
+                    ;;
+                reload)
+                    if [ -z "$CHAIN" ];then
+                        echo "No chain selected for reload!" >&2
+                    fi
+                    ark select chain "$CHAIN"
+                    EXIT_CODE=$?
+                    if [ "$EXIT_CODE" -ne 0 ]; then
+                        return $EXIT_CODE;
+                    fi
                     ;;
                 *)
                     echo "Unknown command: $COMMAND" >&2

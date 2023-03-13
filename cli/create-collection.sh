@@ -1,7 +1,7 @@
 #!/bin/bash
 ARGS=$@
 
-source ./cli-cmd.sh
+source ./execute-cli.sh
 source ./query-tx.sh
 
 function create_collection() {
