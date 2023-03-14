@@ -16,10 +16,6 @@ source ./transfer.sh
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
 
-echo "ark 0.1.0"
-[[ -z "$CHAIN" ]] && echo "- please select operating chain: ark select chain [chain: stagagaze|irisnet|juno|uptick|omniflix|osmosis]"
-echo "- max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=$MAX_CALL_LIMIT"
-
 function ark() {
     ARGS=$@ # backup args
 
@@ -208,3 +204,15 @@ function ark() {
         return $EXIT_CODE
     fi
 }
+
+echo "ark 0.1.0"
+if [[ ${1+x} ]]; then
+    ark select chain $1
+elif [[ -n "$CHAIN" ]]; then
+    echo "reloading $CHAIN"
+    ark select chain $CHAIN
+else
+    echo "- please select operating chain: ark select chain [chain: stagagaze|irisnet|juno|uptick|omniflix|osmosis]"
+fi
+
+echo "- max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=$MAX_CALL_LIMIT"

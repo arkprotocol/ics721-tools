@@ -3,14 +3,20 @@
 Load CLI
 ```sh
 # get Ark CLI repo
-git clone https://github.com/arkprotocol/ics721-tools
+$ git clone https://github.com/arkprotocol/ics721-tools
 # go to cli directory
 $ cd ics721-tools/cli
-# load ark scripts
-$ source ./ark-cli.sh 
+# initialize ark CLI
+$ source ./ark-cli.sh
 init ARK_HISTORY
 ark 0.1.0
 - please select operating chain: ark select chain [chain: stagagaze|irisnet|juno|uptick|omniflix|osmosis]
+- max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=200
+# init CLI and pass chain
+$ source ./ark-cli.sh stargaze
+init ARK_HISTORY
+ark 0.1.0
+reading stargaze.env
 - max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=200
 ```
 
@@ -29,8 +35,8 @@ Additional chains can be easily added by adding another `.env` file.
 First thing you need to do is to select the chain on which `Ark` CLI is suppose to work with:
 ```sh
 # tell ARK on which chain it should operate with
-ark select chain irisnet
-#> reading irisnet.env
+$ ark select chain irisnet
+reading irisnet.env
 ```
 
 IMPORTANT NOTE:
@@ -67,14 +73,14 @@ ark query chain tx --tx [TXHASH]
 ### Chain: Select, Query, Reload
 
 ```sh
-ark select chain juno
-# reading juno.env
+$ ark select chain juno
+reading juno.env
 
-ark query chain
-# selected chain: juno
+$ ark query chain
+selected chain: juno
 
-ark reload chain
-# reading juno.env
+$ ark reload chain
+reading juno.env
 ```
 
 ### Ark Command history
@@ -83,7 +89,7 @@ TODO: not working yet
 
 ```sh
 ark query history list
-# []
+[]
 ```
 
 ### Create Collection
@@ -179,9 +185,9 @@ Now let's create a collection on IRISnet:
 
 ```sh
 # tell ARK on which chain it should operate with
-ark select chain irisnet # stargaze, juno, irisnet, uptick, and omniflix
+$ ark select chain irisnet # stargaze, juno, irisnet, uptick, and omniflix
 # create collection on selected chain
-ark create collection \
+$ ark create collection \
 --collection alphacollection001 \
 --uri "https://arkprotocol.io/" \
 --symbol ArkAlphaCollection \
@@ -234,13 +240,13 @@ For ease of use, collection id may be added to env file, like in [irisnet.env](i
 # change vars in env file
 export ARK_GON_COLLECTION="arkalpha003"
 # IMPORTANT: don't forget reloading your envs!
-ark select chain irisnet
+$ ark select chain irisnet
 ```
 
 ## Mint/Issue An NFT For A Collection
 
 ```sh
-ark mint collection \
+$ ark mint collection \
 --from $WALLET_MINTER \
 --recipient $WALLET_MINTER \
 --collection $ARK_GON_COLLECTION \
@@ -251,12 +257,6 @@ ark mint collection \
 Output shows: mint command, tx query and output including mint command and tx result.
 
 ```sh
-~/data/development/ics721-tools/cli (main)$ ark mint collection \
---from $WALLET_MINTER \
---recipient $WALLET_MINTER \
---collection $ARK_GON_COLLECTION \
---token arkalpha001 \
-| jq # optional: using jq for better formatting JSON output!
 reading irisnet.env
 ====> minting arkalpha001 on chain irisnet <====
 iris tx nft mint 'arkalpha004' 'arkalpha001'                --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f                --recipient iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f                                                                --fees 2000uiris                -b sync --yes --output json
@@ -281,30 +281,30 @@ Query all collections
 
 ```sh
 # query all collections on IRISnet
-ark select chain irisnet
-ark query collection collections # please note there is a limit of 100! Also there is a bug on IRISnet, where offset is not working: https://github.com/game-of-nfts/gon-evidence/issues/194
+$ ark select chain irisnet
+$ ark query collection collections # please note there is a limit of 100! Also there is a bug on IRISnet, where offset is not working: https://github.com/game-of-nfts/gon-evidence/issues/194
 # query on another chain using `--chain` flag instead of using `ark select chain`
-ark query collection collections --chain stargaze
+$ ark query collection collections --chain stargaze
 # query for all collections starting at page/offset 7
-ark query collection collections --chain omniflix --offset 7
+$ ark query collection collections --chain omniflix --offset 7
 
 ```
 
 Query for all tokens for a specific collection:
 ```sh
-ark query collection tokens --collection $ARK_GON_COLLECTION | jq
+$ ark query collection tokens --collection $ARK_GON_COLLECTION | jq
 ```
 
 Query for specific token and collection:
 ```sh
-ark query collection token --collection $ARK_GON_COLLECTION --token arkalpha011 | jq
+$ ark query collection token --collection $ARK_GON_COLLECTION --token arkalpha011 | jq
 ```
 
 ## ICS721/NFT Interchain Transfer
 
 ```sh
 # transfer from selected chain (e.g. IRISnet) to target chain Juno
-ark transfer ics721 \
+$ ark transfer ics721 \
 --from $WALLET_MINTER \
 --recipient stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf \
 --target-chain stargaze \
@@ -403,9 +403,9 @@ Now let's transfer and also manually relay using optional `--relay` flag:
 
 ```sh
 # switch to Stargaze
-ark select chain stargaze
+$ ark select chain stargaze
 # transfer from Stargaze to Omniflix
-ark transfer ics721 \
+$ ark transfer ics721 \
 --from $WALLET_MINTER \
 --recipient omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx \
 --target-chain omniflix \
@@ -414,7 +414,6 @@ ark transfer ics721 \
 --token arkalpha001 \
 --source-class-id wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkalpha004 \
 --relay
-
 ```
 
 The JSON output looks like this:
