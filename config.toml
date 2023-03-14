@@ -247,12 +247,12 @@ rpc_timeout = '10s'
 account_prefix = 'stars'
 key_name = 'gon_stargaze_relayer_wallet' # as defined in nodes.env!
 store_prefix = 'ibc'
-default_gas = 100000
-max_gas = 4000000
+default_gas = 1000000
+max_gas = 200000000
 gas_price = { price = 0.1, denom = 'ustars' }
-gas_multiplier = 1.1
-max_msg_num = 30
-max_tx_size = 2097152
+gas_multiplier = 1.5
+max_msg_num = 10
+max_tx_size = 4097152
 clock_drift = '5s'
 max_block_time = '30s'
 trusting_period = '1209599s' # 14 days (unbonding period) minus 1 sec
@@ -263,12 +263,15 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # Stargaze ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-223'], # counterparty: ics721 on Juno, channel-102
-  ['*', 'channel-224'], # counterparty: ics721 on Osmosis, channel-2674
-  ['*', 'channel-225'], # counterparty: nft module on IRISnet, channel-31
-  ['*', 'channel-226'], # counterparty: nft module on Omniflix, channel-51
-  ['*', 'channel-227'], # counterparty: nft module on Uptick, channel-18
+  # - Game of NFTs tasks
+  ['*', 'channel-207'], # counterparty: nft module on IRISnet, channel-22
+  ['*', 'channel-208'], # counterparty: nft module on IRISnet, channel-23
+  ['*', 'channel-230'], # counterparty: ics721 on Juno, channel-120
+  ['*', 'channel-234'], # counterparty: ics721 on Juno, channel-122
+  ['*', 'channel-203'], # counterparty: nft module on Uptick, channel-6
+  ['*', 'channel-206'], # counterparty: nft module on Uptick, channel-12
+  ['*', 'channel-209'], # counterparty: nft module on OmniFlix, channel-44
+  ['*', 'channel-210'], # counterparty: nft module on OmniFlix, channel-45
 ]
 
 [[chains]]
@@ -280,12 +283,12 @@ rpc_timeout = '10s'
 account_prefix = 'juno'
 key_name = 'gon_juno_relayer_wallet' # as defined in nodes.env!
 store_prefix = 'ibc'
-default_gas = 100000
-max_gas = 4000000
+default_gas = 1000000
+max_gas = 200000000
 gas_price = { price = 0.1, denom = 'ujunox' }
-gas_multiplier = 1.1
-max_msg_num = 30
-max_tx_size = 2097152
+gas_multiplier = 1.5
+max_msg_num = 10
+max_tx_size = 4097152
 clock_drift = '5s'
 max_block_time = '30s'
 trusting_period = '2419199s' # 28 days (unbonding period) minus 1 sec
@@ -296,45 +299,15 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # Juno ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-102'], # counterparty: ics721 on Stargaze, channel-223
-  ['*', 'channel-104'], # counterparty: ics721 on Osmosis, channel-2676
-  ['*', 'channel-105'], # counterparty: nft module on IRISnet, channel-32
-  ['*', 'channel-106'], # counterparty: nft module on Uptick, channel-19
-  ['*', 'channel-107'], # counterparty: nft module on OmniFlix, channel-52
-]
-
-[[chains]]
-id = 'osmo-test-4'
-rpc_addr = 'https://rpc.testnet.osmosis.zone:443'
-grpc_addr = 'http://grpc-test.osmosis.zone:443'
-websocket_addr = 'wss://rpc.testnet.osmosis.zone:443/websocket'
-rpc_timeout = '10s'
-account_prefix = 'osmo'
-key_name = 'gon_osmosis_relayer_wallet' # as defined in nodes.env!
-store_prefix = 'ibc'
-default_gas = 5000000
-max_gas = 15000000
-gas_price = { price = 0.01, denom = 'uosmo' }
-gas_multiplier = 1.1
-max_msg_num = 20
-max_tx_size = 2097152
-clock_drift = '5s'
-max_block_time = '10s'
-trusting_period = '1209599s' # 18 days (unbonding period) minus 1 sec
-trust_threshold = { numerator = '1', denominator = '3' }
-address_type = { derivation = 'cosmos' }
-
-[chains.packet_filter]
-policy = 'allow'
-list = [
-  # Osmosis ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-2674'], # counterparty: ics721 on Stargaze, channel-224
-  ['*', 'channel-2676'], # counterparty: ics721 on Juno, channel-104
-  ['*', 'channel-2678'], # counterparty: nft module on IRISnet, channel-33
-  ['*', 'channel-2680'], # counterparty: nft module on Uptick, channel-20
-  ['*', 'channel-2679'], # counterparty: nft module on OmniFlix, channel-53
+  # - Game of NFTs tasks
+  ['*', 'channel-89'], # counterparty: nft module on IRISnet, channel-24
+  ['*', 'channel-90'], # counterparty: nft module on IRISnet, channel-25
+  ['*', 'channel-120'], # counterparty: ics721 on Stargaze, channel-230
+  ['*', 'channel-122'], # counterparty: ics721 on Stargaze, channel-234
+  ['*', 'channel-86'], # counterparty: nft module on Uptick, channel-7
+  ['*', 'channel-88'], # counterparty: nft module on Uptick, channel-13
+  ['*', 'channel-91'], # counterparty: nft module on OmniFlix, channel-46
+  ['*', 'channel-92'], # counterparty: nft module on OmniFlix, channel-47
 ]
 
 [[chains]]
@@ -362,12 +335,15 @@ address_type = { derivation = 'cosmos' }
 policy = 'allow'
 list = [
   # IRISnet ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-31'], # counterparty: ics721 on Stargaze, channel-225
-  ['*', 'channel-32'], # counterparty: ics721 on Juno, channel-105
-  ['*', 'channel-33'], # counterparty: ics721 on Osmosis, channel-2678
-  ['*', 'channel-35'], # counterparty: nft module on Uptick, channel-21
-  ['*', 'channel-34'], # counterparty: nft module on OmniFlix, channel-54
+  # - Game of NFTs tasks
+  ['*', 'channel-22'], # counterparty: ics721 on Stargaze, channel-207
+  ['*', 'channel-23'], # counterparty: ics721 on Stargaze, channel-208
+  ['*', 'channel-24'], # counterparty: ics721 on Juno, channel-89
+  ['*', 'channel-25'], # counterparty: ics721 on Juno, channel-90
+  ['*', 'channel-17'], # counterparty: nft module on Uptick, channel-3
+  ['*', 'channel-19'], # counterparty: nft module on Uptick, channel-4
+  ['*', 'channel-0'], # counterparty: nft module on OmniFlix, channel-24
+  ['*', 'channel-1'], # counterparty: nft module on OmniFlix, channel-25
 ]
 
 [[chains]]
@@ -395,12 +371,15 @@ address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.
 policy = 'allow'
 list = [
   # Uptick ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-18'], # counterparty: ics721 on Stargaze, channel-227
-  ['*', 'channel-19'], # counterparty: ics721 on Juno, channel-106
-  ['*', 'channel-20'], # counterparty: ics721 on Osmosis, channel-2680
-  ['*', 'channel-21'], # counterparty: nft module on IRISnet, channel-35
-  ['*', 'channel-22'], # counterparty: nft module on OmniFlix, channel-55
+  # - Game of NFTs tasks
+  ['*', 'channel-3'], # counterparty: nft module on IRISnet, channel-17
+  ['*', 'channel-4'], # counterparty: nft module on IRISnet, channel-19
+  ['*', 'channel-6'], # counterparty: ics721 on Stargaze, channel-203
+  ['*', 'channel-12'], # counterparty: ics721 on Stargaze, channel-206
+  ['*', 'channel-7'], # counterparty: ics721 on Juno, channel-86
+  ['*', 'channel-13'], # counterparty: ics721 on Juno, channel-88
+  ['*', 'channel-5'], # counterparty: nft module on OmniFlix, channel-41
+  ['*', 'channel-9'], # counterparty: nft module on OmniFlix, channel-42
 ]
 
 [[chains]]
@@ -424,10 +403,13 @@ address_type = { derivation = 'cosmos'}
 policy = 'allow'
 list = [
   # Omniflix ICS721 channels
-  # - Game of NFTs channels
-  ['*', 'channel-51'], # counterparty: ics721 on Stargaze, channel-226
-  ['*', 'channel-52'], # counterparty: ics721 on Juno, channel-107
-  ['*', 'channel-53'], # counterparty: ics721 on Osmosis, channel-2679
-  ['*', 'channel-54'], # counterparty: nft module on IRISnet, channel-34
-  ['*', 'channel-55'], # counterparty: nft module on Uptick, channel-22
+  # - Game of NFTs tasks
+  ['*', 'channel-24'], # counterparty: nft module on IRISnet, channel-0
+  ['*', 'channel-25'], # counterparty: nft module on IRISnet, channel-1
+  ['*', 'channel-44'], # counterparty: ics721 on Stargaze, channel-209
+  ['*', 'channel-45'], # counterparty: ics721 on Stargaze, channel-210
+  ['*', 'channel-46'], # counterparty: ics721 on Juno, channel-91
+  ['*', 'channel-47'], # counterparty: ics721 on Juno, channel-92
+  ['*', 'channel-41'], # counterparty: nft module on Uptick, channel-5
+  ['*', 'channel-42'], # counterparty: nft module on Uptick, channel-9
 ]
