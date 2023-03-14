@@ -252,8 +252,8 @@ max_gas = 200000000
 gas_price = { price = 0.1, denom = 'ustars' }
 gas_multiplier = 1.5
 max_msg_num = 10
-max_tx_size = 4097152
-clock_drift = '5s'
+max_tx_size = 4194304 # 4MiB
+clock_drift = '300s'
 max_block_time = '30s'
 trusting_period = '1209599s' # 14 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
@@ -288,8 +288,8 @@ max_gas = 200000000
 gas_price = { price = 0.1, denom = 'ujunox' }
 gas_multiplier = 1.5
 max_msg_num = 10
-max_tx_size = 4097152
-clock_drift = '5s'
+max_tx_size = 4194304 # 4MiB
+clock_drift = '300s'
 max_block_time = '30s'
 trusting_period = '2419199s' # 28 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
@@ -324,8 +324,8 @@ max_gas = 5000000
 gas_price = { price = 0.025, denom = 'uiris' }
 gas_multiplier = 1.5
 max_msg_num = 30
-max_tx_size = 2097152
-clock_drift = '10s'
+max_tx_size = 4194304 # 4MiB
+clock_drift = '300s'
 max_block_time = '10s'
 trusting_period = '259199s' # 3 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
@@ -360,8 +360,8 @@ max_gas = 10000000000000
 gas_price = { price = 0.01, denom = 'auptick' }
 gas_multiplier = 2
 max_msg_num = 30
-max_tx_size = 2097152
-clock_drift = '5s'
+max_tx_size = 4194304 # 4MiB
+clock_drift = '300s'
 max_block_time = '10s'
 trusting_period = '1814399s' # 21 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
@@ -391,10 +391,11 @@ rpc_timeout = '10s'
 account_prefix = 'omniflix'
 key_name = 'gon_omniflix_relayer_wallet' # as defined in nodes.env!
 store_prefix = 'ibc'
-max_gas = 2000000
+max_gas = 3000000
 gas_price = { price = 0.001, denom = 'uflix' }
 gas_multiplier = 1.1
-clock_drift = '5s'
+max_tx_size = 4194304 # 4MiB
+clock_drift = '300s'
 trusting_period = '1814399s' # 21 days (unbonding period) minus 1 sec
 trust_threshold = { numerator = '1', denominator = '3' }
 address_type = { derivation = 'cosmos'}
