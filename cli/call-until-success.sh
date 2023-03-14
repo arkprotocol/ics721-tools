@@ -1,12 +1,13 @@
 #!/bin/bash
 # calls until no messages in stderr is shown
 function call_until_success() {
+    ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --cmd) CMD="$2"; shift ;;
             --max-call-limit) MAX_CALL_LIMIT="$2"; shift ;;
             --sleep) SLEEP="$2"; shift ;;
-            *) echo "Unknown parameter: $1" >&2; return 1 ;;
+            *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
     done

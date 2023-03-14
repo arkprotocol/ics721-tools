@@ -5,6 +5,7 @@ source ./execute-cli.sh
 source ./query-tx.sh
 
 function create_collection() {
+    ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             --chain) CHAIN=""${2,,}""; shift ;; # uppercase
@@ -19,7 +20,7 @@ function create_collection() {
             --description=*) DESCRIPTION="${1:14}" ;; # NFT module
             --from) FROM="$2"; shift ;;
             --admin) ADMIN="$2"; shift ;;
-            *) echo "Unknown parameter: $1" >&2; return 1 ;;
+            *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
     done

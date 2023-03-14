@@ -1,10 +1,11 @@
 #!/bin/bash
 function query_channel() {
+    ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2^^}"; shift ;; # uppercase
             --channel) CHANNEL="$2"; shift ;;
-            *) echo "Unknown parameter: $1" >&2; return 1 ;;
+            *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
     done

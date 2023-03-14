@@ -5,6 +5,7 @@ ARGS="$@" # backup all args
 [[ ! $(type -t call_until_success) == function ]] && source ./call-until-success.sh
 
 function transfer_ics721() {
+    ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2,,}"; shift ;; # lowercase
@@ -16,7 +17,7 @@ function transfer_ics721() {
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
-            *) echo "Unknown parameter: $1" >&2; return 1 ;;
+            *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
     done
@@ -69,42 +70,74 @@ function transfer_ics721() {
         return 1
     fi
 
+    # for checking NFT receival in collection on target chain, target channel and target port is needed
+    # let's query as pre-task for saving time, before transferring, this way we also check whether channel is correct
+    echo "====> query channel and its counter part (for NFT retrieval on target chain) <====" >&2
+    SOURCE_CHANNEL_OUTPUT=`ark query channel channel --chain "$CHAIN" --channel "$SOURCE_CHANNEL"`
+    # - return in case of error
+    EXIT_CODE=$?
+    echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
+    if [ $EXIT_CODE != 0 ]; then
+        return $EXIT_CODE
+    fi
+    SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
+    if [[ -z "$SOURCE_PORT" ]] || [[ "$SOURCE_PORT" = null ]];then
+        echo "missing port_id" >&2
+        return 1;
+    fi
+    TARGET_CHANNEL=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.channel_id'`
+    if [[ -z "$TARGET_CHANNEL" ]] || [[ "$TARGET_CHANNEL" = null ]];then
+        echo "missing counterparty.channel_id" >&2
+        return 1;
+    fi
+    TARGET_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.port_id'`
+    if [[ -z "$TARGET_PORT" ]] || [[ "$TARGET_PORT" = null ]];then
+        echo "missing counterparty.channel_id" >&2
+        return 1;
+    fi
+
     if [ "$ICS721_MODULE" == wasm ]
     then
         # ======== wasm module
         # ====== send token to ICS721 contract
-        TIMESTAMP=`date -d "+1 day" +%s%N` # time in nano seconds
+        TIMESTAMP=`date -d "+5 min" +%s%N` # time in nano seconds, other options: "+1 day"
         printf -v RAW_MSG '{
-            "receiver": "%s",
-            "channel_id": "%s",
-            "timeout": { "timestamp": "%s" } }'\
-            "$RECIPIENT"\
-            "$SOURCE_CHANNEL"\
-            "$TIMESTAMP"
-        echo "base64 encoding message for transfer to ICS721 contract: $RAW_MSG" >&2
+"receiver": "%s",
+"channel_id": "%s",
+"timeout": { "timestamp": "%s" } }' \
+"$RECIPIENT" \
+"$SOURCE_CHANNEL" \
+"$TIMESTAMP"
+        echo "====> base64 encoding message for transfer to ICS721 contract <====" >&2
+        echo "$RAW_MSG" | jq >&2
         # Base64 encode msg
         MSG=`echo "$RAW_MSG" | base64 | xargs | sed 's/ //g'` # xargs concats multiple lines into one (with spaces), sed removes spaces
-        printf -v EXECUTE_MSG '{
-            "send_nft": {
-                "contract": "%s",
-                "token_id": "%s",
-                "msg": "%s"}}'\
+        printf -v EXECUTE_MSG '{"send_nft": {
+"contract": "%s",
+"token_id": "%s",
+"msg": "%s"}}'\
             "$CONTRACT_ICS721"\
             "$TOKEN"\
             "$MSG"
-        CMD="$CLI tx wasm execute '$COLLECTION' '$EXECUTE_MSG'\
-            --from "$FROM"\
-            --gas-prices "$GAS_PRICES" --gas "$GAS" --gas-adjustment "$GAS_ADJUSTMENT"\
-            -b "$BROADCAST_MODE" --yes"
+        CMD="$CLI tx wasm execute '$COLLECTION' '$EXECUTE_MSG' \
+--from "$FROM" \
+--gas-prices "$GAS_PRICES" \
+--gas "$GAS" \
+--gas-adjustment "$GAS_ADJUSTMENT" \
+-b "$BROADCAST_MODE" \
+--yes"
     else
         # ======== nft-transfer module
-        CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN'\
-            --from "$FROM"\
-            --fees "$FEES"\
-            -b "$BROADCAST_MODE" --yes"
+        # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now (5min)
+        CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
+--from "$FROM" \
+--fees "$FEES" \
+--packet-timeout-timestamp 300000000000 \
+-b "$BROADCAST_MODE" \
+--yes"
     fi
 
-    echo "====> transferring $TOKEN (collection: $COLLECTION), from $CHAIN to $TARGET_CHAIN  <====" >&2
+    echo "====> transferring $TOKEN (collection: $COLLECTION), from $CHAIN to $TARGET_CHAIN <====" >&2
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
     EXIT_CODE=$?
@@ -120,49 +153,47 @@ function transfer_ics721() {
     fi
 
     # query tx for making sure it succeeds!
-    ark query chain tx --chain "$CHAIN" --tx "$TXHASH" --max-call-limit "$MAX_CALL_LIMIT"
+    printf -v TX_QUERY_CMD "ark query chain tx --chain %s --tx %s --max-call-limit %s" $CHAIN $TXHASH $MAX_CALL_LIMIT
+    TX_QUERY_OUTPUT=`call_until_success \
+--cmd "$TX_QUERY_CMD" \
+--max-call-limit $MAX_CALL_LIMIT`
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
         return $EXIT_CODE
     fi
 
+    HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT >&2"
     if [ "$RELAY" = "true" ]; then
-        echo "====> relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
+        echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
         echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
         hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
+    else
+        echo "====> skip manual relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
+        echo "skipped: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
     fi
 
     # ====== check receival on target chain
     # - for target class id, we need: dest port, dest channel, source classId
     echo "====> query counter-part channel for $SOURCE_CHANNEL <====" >&2
-    SOURCE_CHANNEL_OUTPUT=`ark query channel channel --chain "$CHAIN" --channel "$SOURCE_CHANNEL"`
-    # - return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
-        return $EXIT_CODE
-    fi
-    SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
-    TARGET_CHANNEL=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.channel_id'`
-    TARGET_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.port_id'`
     if [ -z "$SOURCE_CLASS_ID" ]
     then
         echo "--source-class-id not defined, using collection $COLLECTION" >&2
         SOURCE_CLASS_ID="$COLLECTION"
     fi
     echo "====> find class-id at $TARGET_CHAIN, target port: $TARGET_PORT, target channel: $TARGET_CHANNEL, source class id: $SOURCE_CLASS_ID <====" >&2
-    printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id\
-        --chain %s\
-        --dest-port %s\
-        --dest-channel %s\
-        --source-class-id %s\
-        --sleep 1\
-        --max-call-limit %s"\
-        "$TARGET_CHAIN"\
-        "$TARGET_PORT"\
-        "$TARGET_CHANNEL"\
-        "$SOURCE_CLASS_ID"\
-        "$MAX_CALL_LIMIT"
+    printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id \
+--chain %s \
+--dest-port %s \
+--dest-channel %s \
+--source-class-id %s \
+--sleep 1 \
+--max-call-limit %s" \
+"$TARGET_CHAIN" \
+"$TARGET_PORT" \
+"$TARGET_CHANNEL" \
+"$SOURCE_CLASS_ID" \
+"$MAX_CALL_LIMIT"
     QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
     # return in case of error
     EXIT_CODE=$?
@@ -178,14 +209,17 @@ function transfer_ics721() {
     fi
     # make sure token is owned by recipient on target chain
     echo "====> query token $TOKEN at $TARGET_CHAIN and collection $TARGET_COLLECTION <====" >&2
-    printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token\
-        --chain %s\
-        --collection %s\
-        --token %s" "$TARGET_CHAIN" "$TARGET_COLLECTION" "$TOKEN"
-    QUERY_TARGET_TOKEN_OUTPUT=`call_until_success\
-        --cmd "$QUERY_TARGET_TOKEN_CMD"\
-        --max-call-limit $MAX_CALL_LIMIT\
-        --sleep 1`
+    printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token \
+--chain %s \
+--collection %s \
+--token %s" \
+"$TARGET_CHAIN" \
+"$TARGET_COLLECTION" \
+"$TOKEN"
+    QUERY_TARGET_TOKEN_OUTPUT=`call_until_success \
+--cmd "$QUERY_TARGET_TOKEN_CMD" \
+--max-call-limit $MAX_CALL_LIMIT \
+--sleep 1`
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then

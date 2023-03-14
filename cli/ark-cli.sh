@@ -199,7 +199,7 @@ function ark() {
         if [ ! $EXIT_CODE != 0 ]; then
             ARK_HISTORY+=("$RESULT")
             echo "$RESULT"
-            echo "command and output added to history (${#ARK_HISTORY[@]} entries)" >&2
+            # echo "command and output added to history (${#ARK_HISTORY[@]} entries)" >&2
         fi
         return $EXIT_CODE
     fi
