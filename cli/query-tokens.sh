@@ -29,7 +29,7 @@ function query_tokens() {
 
     if [ "$ICS721_MODULE" == wasm ]
     then
-        printf -v QUERY_MSG '{"all_tokens":{}}'
+        printf -v QUERY_MSG '{"all_tokens":{"limit": 100}}'
         printf -v QUERY_CMD "$CLI query wasm contract-state smart\
             %s\
             '%s'"\
