@@ -176,7 +176,7 @@ function transfer_ics721() {
     # ====== check receival on target chain
     # - for target class id, we need: dest port, dest channel, source classId
     # get class id from tx
-    echo "====> retrieving source class_id <====" >&2
+    echo "====> retrieving target class id <====" >&2
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq '.data.logs[0].events[] | select(.type == "wasm") | .attributes[] | select(.key =="class_id")' | jq -r '.value'`
@@ -184,13 +184,13 @@ function transfer_ics721() {
         if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
             BACKTRACK=true
             # remove source port and source channel
-            SOURCE_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
-            if [[ ! "$SOURCE_CLASS_ID" = wasm.* ]] && [[ ! "$SOURCE_CLASS_ID" = ibc/* ]];then
+            TARGET_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
+            if [[ ! "$TARGET_CLASS_ID" = wasm.* ]] && [[ ! "$TARGET_CLASS_ID" = ibc/* ]];then
                 # transfer from 1st/home chain
                 BACK_TO_HOME=true
             fi
         else
-            SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+            TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
         fi
     else
         SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.tx.body.messages[0].class_id'`
@@ -216,25 +216,26 @@ function transfer_ics721() {
                 echo "missing .data.class_trace.base_class_id" >&2
                 return 1;
             fi
-            SOURCE_CLASS_ID=${CLASS_TRACE_PATH}/"$CLASS_TRACE_BASE_CLASS_ID"
+            TARGET_CLASS_ID=${CLASS_TRACE_PATH}/"$CLASS_TRACE_BASE_CLASS_ID"
             # check if back track/returning back to previous chain
-            if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
+            if [[ $TARGET_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
                 BACKTRACK=true
                 # remove source port and source channel
-                SOURCE_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
-                if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
+                TARGET_CLASS_ID=${TARGET_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
+                if [[ "$TARGET_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
                     # transfer from 1st/home chain
                     BACK_TO_HOME=true
                 fi
             else
-                SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
             fi
         else
             if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
+                TARGET_CLASS_ID="$SOURCE_CLASS_ID"
                 # transfer from 1st/home chain
                 BACK_TO_HOME=true
             else
-                SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
             fi
         fi
     fi
@@ -243,11 +244,18 @@ function transfer_ics721() {
         echo "missing class_id in tx $TXHASH" >&2
         return 1;
     fi
+    echo "target class id: $TARGET_CLASS_ID" >&2
+    if [[ -z "$TARGET_CLASS_ID" ]] || [[ "$TARGET_CLASS_ID" = null ]];then
+        echo "missing class_id in tx $TXHASH" >&2
+        return 1;
+    fi
 
+    echo "BACKTRACK: $BACKTRACK" >&2
+    echo "BACK_TO_HOME: $BACK_TO_HOME" >&2
     if [[ "$BACK_TO_HOME" = true ]]; then
-        TARGET_COLLECTION=$SOURCE_CLASS_ID
+        TARGET_COLLECTION=$TARGET_CLASS_ID
     else
-        echo "====> find collection at $TARGET_CHAIN for source class id: $SOURCE_CLASS_ID <====" >&2
+        echo "====> find collection at $TARGET_CHAIN with class id $TARGET_CLASS_ID <====" >&2
         printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id \
 --chain %s \
 --dest-port %s \
@@ -256,7 +264,7 @@ function transfer_ics721() {
 --max-call-limit %s" \
 "$TARGET_CHAIN" \
 "$TARGET_PORT" \
-"$SOURCE_CLASS_ID" \
+"$TARGET_CLASS_ID" \
 "$MAX_CALL_LIMIT"
         QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
         # return in case of error
@@ -271,6 +279,7 @@ function transfer_ics721() {
             echo "No collection found: $TARGET_COLLECTION, output: $QUERY_TARGET_COLLECTION_OUTPUT" >&2
             return 1
         fi
+        echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq >&2
     fi
 
     # make sure token is owned by recipient on target chain
@@ -283,6 +292,7 @@ function transfer_ics721() {
 "$TARGET_COLLECTION" \
 "$TOKEN"
     TARGET_OWNER=
+    echo "$QUERY_TARGET_TOKEN_CMD" >&2
     while [[ ! "$RECIPIENT" = "$TARGET_OWNER" ]];do
         QUERY_TARGET_TOKEN_OUTPUT=`call_until_success \
 --cmd "$QUERY_TARGET_TOKEN_CMD" \
