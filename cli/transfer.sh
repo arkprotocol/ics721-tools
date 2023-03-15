@@ -13,7 +13,7 @@ function transfer_ics721() {
             --token) TOKEN="$2"; shift ;;
             --from) FROM="$2"; shift ;;
             --recipient) RECIPIENT="$2"; shift ;;
-            --source-class-id) SOURCE_CLASS_ID="$2"; shift ;;
+
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
@@ -76,7 +76,6 @@ function transfer_ics721() {
     SOURCE_CHANNEL_OUTPUT=`ark query channel channel --chain "$CHAIN" --channel "$SOURCE_CHANNEL"`
     # - return in case of error
     EXIT_CODE=$?
-    echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
     if [ $EXIT_CODE != 0 ]; then
         return $EXIT_CODE
     fi
@@ -95,8 +94,9 @@ function transfer_ics721() {
         echo "missing counterparty.channel_id" >&2
         return 1;
     fi
+    echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
-    if [ "$ICS721_MODULE" == wasm ]
+    if [[ "$ICS721_MODULE" == wasm ]]
     then
         # ======== wasm module
         # ====== send token to ICS721 contract
@@ -137,7 +137,9 @@ function transfer_ics721() {
 --yes"
     fi
 
-    echo "====> transferring $TOKEN (collection: $COLLECTION), from $CHAIN to $TARGET_CHAIN <====" >&2
+    BACKTRACK=false
+    BACK_TO_HOME=false
+    echo "====> transferring $TOKEN from $CHAIN to $TARGET_CHAIN, collection: $COLLECTION <====" >&2
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
     EXIT_CODE=$?
@@ -153,10 +155,9 @@ function transfer_ics721() {
     fi
 
     # query tx for making sure it succeeds!
+    echo "====> waiting for TX $TXHASH <====" >&2
     printf -v TX_QUERY_CMD "ark query chain tx --chain %s --tx %s --max-call-limit %s" $CHAIN $TXHASH $MAX_CALL_LIMIT
-    TX_QUERY_OUTPUT=`call_until_success \
---cmd "$TX_QUERY_CMD" \
---max-call-limit $MAX_CALL_LIMIT`
+    TX_QUERY_OUTPUT=`$TX_QUERY_CMD`
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
@@ -164,51 +165,116 @@ function transfer_ics721() {
     fi
 
     HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT >&2"
+    echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
     if [ "$RELAY" = "true" ]; then
-        echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
         echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
         hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
     else
-        echo "====> skip manual relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
         echo "skipped: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
     fi
 
     # ====== check receival on target chain
     # - for target class id, we need: dest port, dest channel, source classId
-    echo "====> query counter-part channel for $SOURCE_CHANNEL <====" >&2
-    if [ -z "$SOURCE_CLASS_ID" ]
+    # get class id from tx
+    echo "====> retrieving source class_id <====" >&2
+    if [[ "$ICS721_MODULE" == wasm ]]
     then
-        echo "--source-class-id not defined, using collection $COLLECTION" >&2
-        SOURCE_CLASS_ID="$COLLECTION"
+        SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq '.data.logs[0].events[] | select(.type == "wasm") | .attributes[] | select(.key =="class_id")' | jq -r '.value'`
+        # check if back track/returning back to previous chain
+        if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
+            BACKTRACK=true
+            # remove source port and source channel
+            SOURCE_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
+            if [[ ! "$SOURCE_CLASS_ID" = wasm.* ]] && [[ ! "$SOURCE_CLASS_ID" = ibc/* ]];then
+                # transfer from 1st/home chain
+                BACK_TO_HOME=true
+            fi
+        else
+            SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+        fi
+    else
+        SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.tx.body.messages[0].class_id'`
+        if [[ "$SOURCE_CLASS_ID" == ibc/* ]];then
+            printf -v CLASS_TRACE_CMD "$CLI query nft-transfer class-trace $SOURCE_CLASS_ID"
+            CLASS_TRACE_OUTPUT=`call_until_success \
+--cmd "$CLASS_TRACE_CMD" \
+--max-call-limit $MAX_CALL_LIMIT`
+            # return in case of error
+            EXIT_CODE=$?
+            if [ $EXIT_CODE != 0 ]; then
+                return $EXIT_CODE
+            fi
+            echo "trace output: $CLASS_TRACE_OUTPUT" >&2
+            CLASS_TRACE_PATH=`echo $CLASS_TRACE_OUTPUT | jq -r '.data.class_trace.path'`
+            if [[ -z "$CLASS_TRACE_PATH" ]] || [[ "$CLASS_TRACE_PATH" = null ]];then
+                echo "missing .data.class_trace.path" >&2
+                return 1;
+            fi
+
+            CLASS_TRACE_BASE_CLASS_ID=`echo $CLASS_TRACE_OUTPUT | jq -r '.data.class_trace.base_class_id'`
+            if [[ -z "$CLASS_TRACE_BASE_CLASS_ID" ]] || [[ "$CLASS_TRACE_BASE_CLASS_ID" = null ]];then
+                echo "missing .data.class_trace.base_class_id" >&2
+                return 1;
+            fi
+            SOURCE_CLASS_ID=${CLASS_TRACE_PATH}/"$CLASS_TRACE_BASE_CLASS_ID"
+            # check if back track/returning back to previous chain
+            if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
+                BACKTRACK=true
+                # remove source port and source channel
+                SOURCE_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
+                if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
+                    # transfer from 1st/home chain
+                    BACK_TO_HOME=true
+                fi
+            else
+                SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+            fi
+        else
+            if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
+                # transfer from 1st/home chain
+                BACK_TO_HOME=true
+            else
+                SOURCE_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+            fi
+        fi
     fi
-    echo "====> find class-id at $TARGET_CHAIN, target port: $TARGET_PORT, target channel: $TARGET_CHANNEL, source class id: $SOURCE_CLASS_ID <====" >&2
-    printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id \
+    echo "source class id: $SOURCE_CLASS_ID" >&2
+    if [[ -z "$SOURCE_CLASS_ID" ]] || [[ "$SOURCE_CLASS_ID" = null ]];then
+        echo "missing class_id in tx $TXHASH" >&2
+        return 1;
+    fi
+
+    if [[ "$BACK_TO_HOME" = true ]]; then
+        TARGET_COLLECTION=$SOURCE_CLASS_ID
+    else
+        echo "====> find collection at $TARGET_CHAIN for source class id: $SOURCE_CLASS_ID <====" >&2
+        printf -v QUERY_TARGET_COLLECTION_CMD "ark query ics721 class-id \
 --chain %s \
 --dest-port %s \
---dest-channel %s \
---source-class-id %s \
+--class-id %s \
 --sleep 1 \
 --max-call-limit %s" \
 "$TARGET_CHAIN" \
 "$TARGET_PORT" \
-"$TARGET_CHANNEL" \
 "$SOURCE_CLASS_ID" \
 "$MAX_CALL_LIMIT"
-    QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
-    # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
-        echo "error query target collection $QUERY_TARGET_COLLECTION_OUTPUT " >&2
-        return $EXIT_CODE
+        QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
+        # return in case of error
+        EXIT_CODE=$?
+        if [ $EXIT_CODE != 0 ]; then
+            echo "error query target collection $QUERY_TARGET_COLLECTION_OUTPUT " >&2
+            return $EXIT_CODE
+        fi
+        TARGET_COLLECTION=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.collection'`
+        TARGET_CLASS_ID=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.class_id'`
+        if [[ ! ${TARGET_COLLECTION+x} ]] || [[ ${TARGET_COLLECTION} = null ]];then
+            echo "No collection found: $TARGET_COLLECTION, output: $QUERY_TARGET_COLLECTION_OUTPUT" >&2
+            return 1
+        fi
     fi
-    TARGET_COLLECTION=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.collection'`
-    TARGET_CLASS_ID=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.class_id'`
-    if [[ ! ${TARGET_COLLECTION+x} ]] || [[ ${TARGET_COLLECTION} = null ]];then
-        echo "No collection found: $TARGET_COLLECTION, output: $QUERY_TARGET_COLLECTION_OUTPUT" >&2
-        return 1
-    fi
+
     # make sure token is owned by recipient on target chain
-    echo "====> query token $TOKEN at $TARGET_CHAIN and collection $TARGET_COLLECTION <====" >&2
+    echo "====> checking NFT $TOKEN recipient on target chain $TARGET_CHAIN <====" >&2
     printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token \
 --chain %s \
 --collection %s \
@@ -216,42 +282,46 @@ function transfer_ics721() {
 "$TARGET_CHAIN" \
 "$TARGET_COLLECTION" \
 "$TOKEN"
-    QUERY_TARGET_TOKEN_OUTPUT=`call_until_success \
+    TARGET_OWNER=
+    while [[ ! "$RECIPIENT" = "$TARGET_OWNER" ]];do
+        QUERY_TARGET_TOKEN_OUTPUT=`call_until_success \
 --cmd "$QUERY_TARGET_TOKEN_CMD" \
 --max-call-limit $MAX_CALL_LIMIT \
 --sleep 1`
-    # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
-        return $EXIT_CODE
-    fi
-    TARGET_OWNER=`echo "$QUERY_TARGET_TOKEN_OUTPUT" | jq -r '.owner'`
-    echo "====> NFT recipient on target chain: $TARGET_OWNER <====" >&2
-    if [ "$RECIPIENT" = "$TARGET_OWNER" ]
-    then
-        echo NFT "$TOKEN" owned on target chain by "$RECIPIENT" >&2
-    else
-        echo ERROR, relay not successful, nft returned to owner "$FROM" >&2
-        return 1
-    fi
+        # return in case of error
+        EXIT_CODE=$?
+        if [ $EXIT_CODE != 0 ]; then
+            # echo "ERROR, NFT $TOKEN on target chain owned by: $TARGET_OWNER" >&2
+            return $EXIT_CODE
+        fi
+        TARGET_OWNER=`echo "$QUERY_TARGET_TOKEN_OUTPUT" | jq -r '.owner'`
+        if [[ "$RECIPIENT" = "$TARGET_OWNER" ]];then
+            echo NFT "$TOKEN" owned on target chain by "$RECIPIENT" >&2
+            break
+        fi
+    done
 
+    echo "====> successful transfer of $TOKEN from $CHAIN to $TARGET_CHAIN <====" >&2
     ESCAPED_CMD=`echo $CMD | sed 's/"/\\\\"/g'` # escape double quotes
     echo "{}" | jq "{\
         cmd: \"$ESCAPED_CMD\",\
-        tx: \"$TXHASH\",\
         source: {\
             chain: \"$CHAIN\",\
+            port: \"$SOURCE_PORT\",\
+            channel: \"$SOURCE_CHANNEL\",\
             collection: \"$COLLECTION\",\
             class_id: \"$SOURCE_CLASS_ID\",\
-            channel: \"$SOURCE_CHANNEL\",\
-            port: \"$SOURCE_PORT\"\
+            from: \"$FROM\",\
         },\
         target: {\
             chain: \"$TARGET_CHAIN\",\
+            port: \"$TARGET_PORT\",\
+            channel: \"$TARGET_CHANNEL\",\
             collection: \"$TARGET_COLLECTION\",\
             class_id: \"$TARGET_CLASS_ID\",\
-            channel: \"$TARGET_CHANNEL\",\
-            port: \"$TARGET_PORT\"\
-        }\
+            recipient: \"$TARGET_OWNER\",\
+        },\
+        tx: \"$TXHASH\",\
+        id: \"$TOKEN\"\
     }"
 }

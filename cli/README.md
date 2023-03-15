@@ -162,7 +162,6 @@ ark transfer ics721 \
 [--source-channel SOURCE_CHANNEL] \
 [--collection COLLECTION] \
 [--token TOKEN] \
-[--source-class-id SOURCE_CLASS_ID] \
 [--relay]
 
 ```
@@ -321,8 +320,6 @@ Transfer output contains:
 4. query class-id on target chain
 5. output with info on source and target chain like class id and collection id
 
-Regarding:
-4. class id query: please note there is an optional `--source-class-id` flag. In case it is not provided `--collection` is used (also outlined in output below!).
 
 ```sh
 ====> transferring arkalpha001 (collection: arkalpha004), from irisnet to stargaze  <====
@@ -333,7 +330,6 @@ iris query tx 4050049F3855891F0415C016DC4F2755A5245E04F00AFACCC2FAA93AF4BB273A -
 command and output added to history (1 entries)
 ====> query counter-part channel for channel-22 <====
 ...
---source-class-id not defined, using collection arkalpha004
 ====> find class-id at stargaze, target port: wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh, target channel: channel-207, source class id: arkalpha004 <====
 ark query ics721 class-id        --chain stargaze        --dest-port wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh        --dest-channel channel-207        --source-class-id arkalpha004        --sleep 1        --max-call-limit 200
 reading stargaze.env
@@ -371,12 +367,11 @@ NFT arkalpha001 owned on target chain by stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8
 command and output added to history (1 entries)
 ```
 
-Now let's use above NFT for transferring to another chain. In this case `--source-class-id` is needed. In this case it is the class id on previous chain, with target chain Stargaze. For this have a look at above output for target chain Stargaze:
+Now let's use above NFT for transferring to another chain. For this have a look at above output for target chain Stargaze:
 
 - `collection` contract: `stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw`
-- `class_id`: `wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkalpha004`
 
-The `collection` is required for transferring an NFT from Stargaze and the `class_id` is required for retrieving collection on next chain, Omniflix.
+The `collection` is required for transferring an NFT from recipient's target chain Stargaze.
 
 ```json
 {
@@ -412,7 +407,6 @@ $ ark transfer ics721 \
 --source-channel $CHANNEL_1_TO_OMNIFLIX \
 --collection stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw \
 --token arkalpha001 \
---source-class-id wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkalpha004 \
 --relay
 ```
 
