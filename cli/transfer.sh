@@ -96,6 +96,27 @@ function transfer_ics721() {
     fi
     echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
+    echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
+    printf -v QUERY_TOKEN_CMD "ark query collection token --chain $CHAIN --collection $COLLECTION --token $TOKEN"
+    while [[ ! "$FROM" = "$TOKEN_OWNER" ]];do
+        QUERY_TOKEN_OUTPUT=`call_until_success \
+    --cmd "$QUERY_TOKEN_CMD" \
+    --max-call-limit $MAX_CALL_LIMIT`
+        # return in case of error
+        EXIT_CODE=$?
+        if [ $EXIT_CODE != 0 ]; then
+            return $EXIT_CODE
+        fi
+        if [[ "$ICS721_MODULE" == wasm ]]
+        then
+            # ======== wasm module
+            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r '.data.access.owner'`
+        else
+            # ======== nft-transfer module
+            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r '.data.owner'`
+        fi
+    done;
+
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         # ======== wasm module
@@ -227,7 +248,7 @@ function transfer_ics721() {
                     BACK_TO_HOME=true
                 fi
             else
-                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
+                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$TARGET_CLASS_ID"
             fi
         else
             if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
