@@ -71,11 +71,11 @@ function query_tokens() {
         done
     fi
 
-    if [ ! -z "$TOKENS" ] && [ ! -z "$QUERY_OUTPUT" ]
+    if [ ! -z "$ALL_TOKENS" ] && [ ! -z "$QUERY_OUTPUT" ]
     then
         COUNT=`echo $TOKENS | jq length`
         echo "$COUNT tokens found" >&2
-        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $TOKENS}"
+        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_TOKENS}"
         return 0
     else
         echo "no collections found: $QUERY_OUTPUT" >&2
