@@ -39,16 +39,33 @@ function query_tokens() {
         QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
         TOKENS=`echo $QUERY_OUTPUT | jq '.data.data.tokens'`
     else
-        printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION'"
-        QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
-
-        if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]
-        then
-            TOKENS=`echo $QUERY_OUTPUT | jq '.data.collection.nfts'`
-        else
-            TOKENS=`echo $QUERY_OUTPUT | jq '.data.onfts'`
+        ALL_TOKENS="[]"
+        PAGE=1
+        if [[ ${OFFSET+x} ]];then
+            PAGE="$OFFSET"
         fi
+        QUERY_OUTPUT=
+        printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION'"
+        while [[ $PAGE -gt 0 ]]; do
+            echo "query page $PAGE" >&2
+            QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]
+            then
+                TOKENS=`echo $QUERY_OUTPUT | jq '.data.collection.nfts'`
+            else
+                TOKENS=`echo $QUERY_OUTPUT | jq '.data.onfts'`
+            fi
+            NEXT_KEY=`echo $QUERY_OUTPUT | jq '.data.pagination.next_key'`
+            if [[ -z "$NEXT_KEY" ]] || [[ "$NEXT_KEY" = null ]];then
+                break
+            fi
+            # add to list
+            ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
 
+            PAGE=`expr $PAGE + 1`
+            DECODED_NEXT_KEY=`echo Z2lyMS9pYnJhaGltYXJzbGFubjU5 | base64 -d`
+            printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION' --page-key $DECODED_NEXT_KEY"
+        done
     fi
 
     if [ ! -z "$TOKENS" ] && [ ! -z "$QUERY_OUTPUT" ]
