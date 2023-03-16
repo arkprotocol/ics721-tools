@@ -55,7 +55,7 @@ function query_tokens() {
             else
                 TOKENS=`echo $QUERY_OUTPUT | jq '.data.onfts'`
             fi
-            NEXT_KEY=`echo $QUERY_OUTPUT | jq '.data.pagination.next_key'`
+            NEXT_KEY=`echo $QUERY_OUTPUT | jq -r '.data.pagination.next_key'`
             if [[ -z "$NEXT_KEY" ]] || [[ "$NEXT_KEY" = null ]];then
                 break
             fi
@@ -63,8 +63,11 @@ function query_tokens() {
             ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
 
             PAGE=`expr $PAGE + 1`
-            DECODED_NEXT_KEY=`echo Z2lyMS9pYnJhaGltYXJzbGFubjU5 | base64 -d`
-            printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION' --page-key $DECODED_NEXT_KEY"
+
+            DECODED_NEXT_KEY=
+            [[ ! -z "$NEXT_KEY" ]] && [[ ! "$NEXT_KEY" = null ]] && DECODED_NEXT_KEY=`echo $NEXT_KEY | base64 -d` # decode next key
+            printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION' %s"\
+            "$( [ ! -z "$DECODED_NEXT_KEY" ] && echo "--page-key $DECODED_NEXT_KEY" || echo "")"
         done
     fi
 
