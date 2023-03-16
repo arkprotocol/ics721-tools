@@ -97,7 +97,13 @@ function transfer_ics721() {
     echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
     echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
-    printf -v QUERY_TOKEN_CMD "ark query collection token --chain $CHAIN --collection $COLLECTION --token $TOKEN"
+    if [[ "$ICS721_MODULE" == wasm ]]
+    then
+        printf -v QUERY_TOKEN_CMD "ark query collection token --chain $CHAIN --collection $COLLECTION --token $TOKEN"
+    else
+        # workaround since single token query on uptick doesn't work yet - https://github.com/game-of-nfts/gon-evidence/issues/368
+        printf -v QUERY_TOKEN_CMD "ark query collection tokens --chain $CHAIN --collection $COLLECTION"
+    fi
     while [[ ! "$FROM" = "$TOKEN_OWNER" ]];do
         QUERY_TOKEN_OUTPUT=`call_until_success \
     --cmd "$QUERY_TOKEN_CMD" \
@@ -113,8 +119,9 @@ function transfer_ics721() {
             TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r '.data.access.owner'`
         else
             # ======== nft-transfer module
-            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r '.data.owner'`
+            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r ".data[] | select( .id | contains(\"$TOKEN\")) | .owner"`
         fi
+        echo "TOKEN_OWNER: $TOKEN_OWNER" >&2
     done;
 
     if [[ "$ICS721_MODULE" == wasm ]]
@@ -305,13 +312,16 @@ function transfer_ics721() {
 
     # make sure token is owned by recipient on target chain
     echo "====> checking NFT $TOKEN recipient on target chain $TARGET_CHAIN <====" >&2
-    printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token \
---chain %s \
---collection %s \
---token %s" \
-"$TARGET_CHAIN" \
-"$TARGET_COLLECTION" \
-"$TOKEN"
+    # switch and read env/config from target chain!
+    SOURCE_CHAIN=$CHAIN # backup
+    ark select chain $TARGET_CHAIN
+    if [[ "$ICS721_MODULE" == wasm ]]
+    then
+        printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token --chain $TARGET_CHAIN --collection $TARGET_COLLECTION --token $TOKEN"
+    else
+        # workaround since single token query on uptick doesn't work yet - https://github.com/game-of-nfts/gon-evidence/issues/368
+        printf -v QUERY_TARGET_TOKEN_CMD "ark query collection tokens --chain $TARGET_CHAIN --collection $TARGET_COLLECTION"
+    fi
     TARGET_OWNER=
     echo "$QUERY_TARGET_TOKEN_CMD" >&2
     while [[ ! "$RECIPIENT" = "$TARGET_OWNER" ]];do
@@ -322,15 +332,26 @@ function transfer_ics721() {
         # return in case of error
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]; then
+            # switch back
+            ark select chain $SOURCE_CHAIN
             # echo "ERROR, NFT $TOKEN on target chain owned by: $TARGET_OWNER" >&2
             return $EXIT_CODE
         fi
-        TARGET_OWNER=`echo "$QUERY_TARGET_TOKEN_OUTPUT" | jq -r '.owner'`
+        if [[ "$ICS721_MODULE" == wasm ]]
+        then
+            # ======== wasm module
+            TARGET_OWNER=`echo $QUERY_TARGET_TOKEN_OUTPUT | jq -r '.data.access.owner'`
+        else
+            # ======== nft-transfer module
+            TARGET_OWNER=`echo $QUERY_TARGET_TOKEN_OUTPUT | jq -r ".data[] | select( .id | contains(\"$TOKEN\")) | .owner"`
+        fi
         if [[ "$RECIPIENT" = "$TARGET_OWNER" ]];then
             echo NFT "$TOKEN" owned on target chain by "$RECIPIENT" >&2
             break
         fi
     done
+    # switch back
+    ark select chain $SOURCE_CHAIN
 
     echo "====> successful transfer of $TOKEN from $CHAIN to $TARGET_CHAIN <====" >&2
     ESCAPED_CMD=`echo $CMD | sed 's/"/\\\\"/g'` # escape double quotes
