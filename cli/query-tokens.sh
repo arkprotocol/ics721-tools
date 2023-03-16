@@ -55,14 +55,15 @@ function query_tokens() {
             else
                 TOKENS=`echo $QUERY_OUTPUT | jq '.data.onfts'`
             fi
+            # add to list
+            ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
+            echo "test" >&2
+
+            PAGE=`expr $PAGE + 1`
             NEXT_KEY=`echo $QUERY_OUTPUT | jq -r '.data.pagination.next_key'`
             if [[ -z "$NEXT_KEY" ]] || [[ "$NEXT_KEY" = null ]];then
                 break
             fi
-            # add to list
-            ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
-
-            PAGE=`expr $PAGE + 1`
 
             DECODED_NEXT_KEY=
             [[ ! -z "$NEXT_KEY" ]] && [[ ! "$NEXT_KEY" = null ]] && DECODED_NEXT_KEY=`echo $NEXT_KEY | base64 -d` # decode next key
@@ -71,7 +72,7 @@ function query_tokens() {
         done
     fi
 
-    if [ ! -z "$ALL_TOKENS" ] && [ ! -z "$QUERY_OUTPUT" ]
+    if [[ ! -z "$ALL_TOKENS" ]] && [[ ! -z "$QUERY_OUTPUT" ]]
     then
         COUNT=`echo $TOKENS | jq length`
         echo "$COUNT tokens found" >&2
