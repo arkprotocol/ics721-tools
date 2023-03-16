@@ -198,7 +198,7 @@ function transfer_ics721() {
         echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
         hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
     else
-        echo "skipped: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
+        echo "skip: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
     fi
 
     # ====== check receival on target chain
@@ -315,6 +315,7 @@ function transfer_ics721() {
     # switch and read env/config from target chain!
     SOURCE_CHAIN=$CHAIN # backup
     ark select chain $TARGET_CHAIN
+    TARGET_CHAIN_ID=$CHAIN_ID
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token --chain $TARGET_CHAIN --collection $TARGET_COLLECTION --token $TOKEN"
@@ -359,6 +360,7 @@ function transfer_ics721() {
         cmd: \"$ESCAPED_CMD\",\
         source: {\
             chain: \"$CHAIN\",\
+            chain_id: \"$CHAIN_ID\",\
             port: \"$SOURCE_PORT\",\
             channel: \"$SOURCE_CHANNEL\",\
             collection: \"$COLLECTION\",\
@@ -367,6 +369,7 @@ function transfer_ics721() {
         },\
         target: {\
             chain: \"$TARGET_CHAIN\",\
+            chain_id: \"$TARGET_CHAIN_ID\",\
             port: \"$TARGET_PORT\",\
             channel: \"$TARGET_CHANNEL\",\
             collection: \"$TARGET_COLLECTION\",\
