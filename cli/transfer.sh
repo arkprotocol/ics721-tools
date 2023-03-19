@@ -208,21 +208,11 @@ function transfer_ics721() {
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq '.data.logs[0].events[] | select(.type == "wasm") | .attributes[] | select(.key =="class_id")' | jq -r '.value'`
-        # check if back track/returning back to previous chain
-        if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
-            BACKTRACK=true
-            # remove source port and source channel
-            TARGET_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
-            if [[ ! "$TARGET_CLASS_ID" = wasm.* ]] && [[ ! "$TARGET_CLASS_ID" = ibc/* ]];then
-                # transfer from 1st/home chain
-                BACK_TO_HOME=true
-            fi
-        else
-            TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
-        fi
     else
         SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.tx.body.messages[0].class_id'`
+        # ibc class is a hash like "ibc/hash", hash contains class id
         if [[ "$SOURCE_CLASS_ID" == ibc/* ]];then
+            # get class id based on hash
             printf -v CLASS_TRACE_CMD "$CLI query nft-transfer class-trace $SOURCE_CLASS_ID"
             CLASS_TRACE_OUTPUT=`call_until_success \
 --cmd "$CLASS_TRACE_CMD" \
@@ -244,27 +234,7 @@ function transfer_ics721() {
                 echo "missing .data.class_trace.base_class_id" >&2
                 return 1;
             fi
-            TARGET_CLASS_ID=${CLASS_TRACE_PATH}/"$CLASS_TRACE_BASE_CLASS_ID"
-            # check if back track/returning back to previous chain
-            if [[ $TARGET_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
-                BACKTRACK=true
-                # remove source port and source channel
-                TARGET_CLASS_ID=${TARGET_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
-                if [[ "$TARGET_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
-                    # transfer from 1st/home chain
-                    BACK_TO_HOME=true
-                fi
-            else
-                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$TARGET_CLASS_ID"
-            fi
-        else
-            if [[ "$SOURCE_CLASS_ID" = "$CLASS_TRACE_BASE_CLASS_ID" ]];then
-                TARGET_CLASS_ID="$SOURCE_CLASS_ID"
-                # transfer from 1st/home chain
-                BACK_TO_HOME=true
-            else
-                TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
-            fi
+            SOURCE_CLASS_ID=${CLASS_TRACE_PATH}/"$CLASS_TRACE_BASE_CLASS_ID"
         fi
     fi
     echo "source class id: $SOURCE_CLASS_ID" >&2
@@ -272,11 +242,22 @@ function transfer_ics721() {
         echo "missing class_id in tx $TXHASH" >&2
         return 1;
     fi
-    echo "target class id: $TARGET_CLASS_ID" >&2
-    if [[ -z "$TARGET_CLASS_ID" ]] || [[ "$TARGET_CLASS_ID" = null ]];then
-        echo "missing class_id in tx $TXHASH" >&2
-        return 1;
+
+    # create target class id based on source class id
+    # check if back track/returning back to previous chain
+    if [[ $SOURCE_CLASS_ID = ${SOURCE_PORT}/${SOURCE_CHANNEL}* ]];then
+        BACKTRACK=true
+        # remove source port and source channel
+        TARGET_CLASS_ID=${SOURCE_CLASS_ID#"${SOURCE_PORT}/${SOURCE_CHANNEL}/"}
+        # home has no port and channel, so there is no slash ('/')!
+        if [[ ! "$TARGET_CLASS_ID" = */* ]];then
+            # transfer from 1st/home chain
+            BACK_TO_HOME=true
+        fi
+    else
+        TARGET_CLASS_ID="$TARGET_PORT/$TARGET_CHANNEL/$SOURCE_CLASS_ID"
     fi
+    echo "target class id: $TARGET_CLASS_ID" >&2
 
     echo "BACKTRACK: $BACKTRACK" >&2
     echo "BACK_TO_HOME: $BACK_TO_HOME" >&2
@@ -311,7 +292,7 @@ function transfer_ics721() {
     fi
 
     # make sure token is owned by recipient on target chain
-    echo "====> checking NFT $TOKEN recipient on target chain $TARGET_CHAIN <====" >&2
+    echo "====> checking NFT $TOKEN, owned by $RECIPIENT on target chain $TARGET_CHAIN <====" >&2
     # switch and read env/config from target chain!
     SOURCE_CHAIN=$CHAIN # backup
     ark select chain $TARGET_CHAIN
