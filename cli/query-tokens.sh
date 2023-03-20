@@ -57,7 +57,6 @@ function query_tokens() {
             fi
             # add to list
             ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
-            echo "test" >&2
 
             PAGE=`expr $PAGE + 1`
             NEXT_KEY=`echo $QUERY_OUTPUT | jq -r '.data.pagination.next_key'`

@@ -11,7 +11,7 @@ source ./query-collections.sh
 source ./query-tokens.sh
 source ./query-token.sh
 source ./collection-by-class-id.sh
-source ./transfer.sh
+source ./ics721-transfer.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
@@ -35,7 +35,7 @@ function ark() {
         ics721)
             case $COMMAND in
                 transfer)
-                    ARK_FUN="transfer_ics721"
+                    ARK_FUN="ics721_transfer"
                     ;;
                 query)
                     SUB_COMMAND="$1"

@@ -1,11 +1,8 @@
 #!/bin/bash
-ARGS="$@" # backup all args
 
 # get function in case not yet initialised
 source ./call-until-success.sh
-
-function transfer_ics721() {
-    ARGS=$@
+function ics721_transfer() {
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2,,}"; shift ;; # lowercase
@@ -13,7 +10,6 @@ function transfer_ics721() {
             --token) TOKEN="$2"; shift ;;
             --from) FROM="$2"; shift ;;
             --recipient) RECIPIENT="$2"; shift ;;
-
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
