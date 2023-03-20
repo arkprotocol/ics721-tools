@@ -47,7 +47,7 @@ function query_tokens() {
         QUERY_OUTPUT=
         printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION'"
         while [[ $PAGE -gt 0 ]]; do
-            echo "query page $PAGE" >&2
+            # echo "query page $PAGE" >&2
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]
             then

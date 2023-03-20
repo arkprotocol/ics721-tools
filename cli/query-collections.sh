@@ -45,7 +45,7 @@ function query_collections() {
         fi
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
-            echo "query page $PAGE" >&2
+            # echo "query page $PAGE" >&2
             printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s" "$CODE_ID" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             COLLECTIONS=`echo $QUERY_OUTPUT | jq -c '.data.contracts'`
@@ -94,7 +94,7 @@ function query_collections() {
         fi
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
-            echo "query page $PAGE" >&2
+            # echo "query page $PAGE" >&2
             printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms --page %s" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             # map only collection and creator

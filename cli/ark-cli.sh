@@ -12,6 +12,7 @@ source ./query-tokens.sh
 source ./query-token.sh
 source ./collection-by-class-id.sh
 source ./ics721-transfer.sh
+source ./nft-assert-token-owner.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
@@ -56,6 +57,27 @@ function ark() {
                     ;;
             esac
             ;;
+        nft)
+            case $COMMAND in
+                assert)
+                    SUB_COMMAND="$1"
+                    shift
+                    case $SUB_COMMAND in
+                        token-owner)
+                            ARK_FUN="nft_assert_token_owner"
+                            ;;
+                        *)
+                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            return 1
+                            ;;
+                    esac
+                    ;;
+                *)
+                    echo "Unknown command: $COMMAND" >&2
+                    return 1
+                    ;;
+            esac
+            ;;
         chain)
             case $COMMAND in
                 query)
@@ -78,7 +100,6 @@ function ark() {
                 select)
                     CHAIN=${1,,}
                     ENV=${CHAIN}.env
-                    echo "reading $ENV" >&2
                     source $ENV
                     EXIT_CODE=$?
                     if [ "$EXIT_CODE" -ne 0 ]; then

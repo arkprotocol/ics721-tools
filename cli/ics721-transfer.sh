@@ -94,45 +94,19 @@ function ics721_transfer() {
     echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
     echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
-    if [[ "$ICS721_MODULE" == wasm ]]
-    then
-        printf -v QUERY_TOKEN_CMD "ark query collection token --chain $CHAIN --collection $COLLECTION --token $TOKEN"
-    else
-        # workaround since single token query on uptick doesn't work yet - https://github.com/game-of-nfts/gon-evidence/issues/368
-        printf -v QUERY_TOKEN_CMD "ark query collection tokens --chain $CHAIN --collection $COLLECTION"
+    printf -v ASSERT_TOKEN_QUERY_CMD "ark assert nft token-owner \
+--collection $COLLECTION \
+--token $TOKEN \
+--owner $FROM \
+--max-call-limit $MAX_CALL_LIMIT"
+    echo "$ASSERT_TOKEN_QUERY_CMD " >&2
+    ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
+    # return in case of error
+    EXIT_CODE=$?
+    if [ $EXIT_CODE != 0 ]; then
+        echo "$ASSERT_TOKEN_QUERY_OUTPUT" >&2
+        return $EXIT_CODE
     fi
-    CALL_COUNT="$MAX_CALL_LIMIT"
-    printf "$QUERY_TOKEN_CMD " >&2
-    while [[ ! "$FROM" = "$TOKEN_OWNER" ]];do
-        QUERY_TOKEN_OUTPUT=$(call_until_success \
---cmd "$QUERY_TOKEN_CMD" \
---max-call-limit $MAX_CALL_LIMIT 2>/dev/null)
-        # return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
-            printf "\n" >&2
-            echo "$QUERY_TOKEN_OUTPUT" >&2
-            return $EXIT_CODE
-        fi
-        if [[ "$ICS721_MODULE" == wasm ]]
-        then
-            # ======== wasm module
-            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r '.data.access.owner'`
-        else
-            # ======== nft-transfer module
-            TOKEN_OWNER=`echo $QUERY_TOKEN_OUTPUT | jq -r ".data[] | select( .id | contains(\"$TOKEN\")) | .owner"`
-        fi
-        CALL_COUNT=$(($CALL_COUNT - 1))
-        if [ $CALL_COUNT -lt 1 ]
-        then
-            printf "\n" >&2
-            echo "$QUERY_TOKEN_OUTPUT" >&2
-            echo "Max call limit reached" >&2
-            return 1
-        fi
-        printf "." >&2 # progress bar
-    done;
-    printf "\n" >&2
 
     if [[ "$ICS721_MODULE" == wasm ]]
     then
@@ -309,53 +283,22 @@ function ics721_transfer() {
     SOURCE_CHAIN=$CHAIN # backup
     ark select chain $TARGET_CHAIN
     TARGET_CHAIN_ID=$CHAIN_ID
-    if [[ "$ICS721_MODULE" == wasm ]]
-    then
-        printf -v QUERY_TARGET_TOKEN_CMD "ark query collection token --chain $TARGET_CHAIN --collection $TARGET_COLLECTION --token $TOKEN"
-    else
-        # workaround since single token query on uptick doesn't work yet - https://github.com/game-of-nfts/gon-evidence/issues/368
-        printf -v QUERY_TARGET_TOKEN_CMD "ark query collection tokens --chain $TARGET_CHAIN --collection $TARGET_COLLECTION"
+    printf -v ASSERT_TOKEN_QUERY_CMD "ark assert nft token-owner \
+--collection $TARGET_COLLECTION \
+--token $TOKEN \
+--owner $RECIPIENT \
+--max-call-limit $MAX_CALL_LIMIT"
+    echo "$ASSERT_TOKEN_QUERY_CMD " >&2
+    ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
+    # return in case of error
+    EXIT_CODE=$?
+    if [ $EXIT_CODE != 0 ]; then
+        # switch back
+        ark select chain $SOURCE_CHAIN
+        echo "$ASSERT_TOKEN_QUERY_OUTPUT" >&2
+        return $EXIT_CODE
     fi
-    TARGET_OWNER=
-    CALL_COUNT="$MAX_CALL_LIMIT"
-    printf "$QUERY_TARGET_TOKEN_CMD " >&2
-    while [[ ! "$RECIPIENT" = "$TARGET_OWNER" ]];do
-        QUERY_TARGET_TOKEN_OUTPUT=$(call_until_success \
---cmd "$QUERY_TARGET_TOKEN_CMD" \
---max-call-limit $MAX_CALL_LIMIT \
---sleep 1 2>/dev/null)
-        # return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
-            # switch back
-            ark select chain $SOURCE_CHAIN
-            printf "\n" >&2
-            echo "$QUERY_TARGET_TOKEN_OUTPUT" >&2
-            # echo "ERROR, NFT $TOKEN on target chain owned by: $TARGET_OWNER" >&2
-            return $EXIT_CODE
-        fi
-        if [[ "$ICS721_MODULE" == wasm ]]
-        then
-            # ======== wasm module
-            TARGET_OWNER=`echo $QUERY_TARGET_TOKEN_OUTPUT | jq -r '.data.access.owner'`
-        else
-            # ======== nft-transfer module
-            TARGET_OWNER=`echo $QUERY_TARGET_TOKEN_OUTPUT | jq -r ".data[] | select( .id | contains(\"$TOKEN\")) | .owner"`
-        fi
-        if [[ "$RECIPIENT" = "$TARGET_OWNER" ]];then
-            break
-        fi
-        CALL_COUNT=$(($CALL_COUNT - 1))
-        if [ $CALL_COUNT -lt 1 ]
-        then
-            printf "\n" >&2
-            echo "$QUERY_TARGET_TOKEN_OUTPUT" >&2
-            echo "Max call limit reached" >&2
-            return 1
-        fi
-        printf "." >&2 # progress bar
-    done
-    printf "\n" >&2
+
     # switch back
     ark select chain $SOURCE_CHAIN
 
@@ -379,7 +322,7 @@ function ics721_transfer() {
             channel: \"$TARGET_CHANNEL\",\
             collection: \"$TARGET_COLLECTION\",\
             class_id: \"$TARGET_CLASS_ID\",\
-            recipient: \"$TARGET_OWNER\",\
+            recipient: \"$RECIPIENT\",\
         },\
         tx: \"$TXHASH\",\
         id: \"$TOKEN\"\
