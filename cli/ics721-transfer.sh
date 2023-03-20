@@ -3,6 +3,7 @@
 # get function in case not yet initialised
 source ./call-until-success.sh
 function ics721_transfer() {
+    ARGS=$@ # backup args
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2,,}"; shift ;; # lowercase
@@ -95,6 +96,7 @@ function ics721_transfer() {
 
     echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
     printf -v ASSERT_TOKEN_QUERY_CMD "ark assert nft token-owner \
+--chain $CHAIN \
 --collection $COLLECTION \
 --token $TOKEN \
 --owner $FROM \
@@ -173,8 +175,10 @@ function ics721_transfer() {
     # return in case of error
     EXIT_CODE=$?
     if [ $EXIT_CODE != 0 ]; then
+        echo "$TX_QUERY_OUTPUT" >&2
         return $EXIT_CODE
     fi
+    TX_HEIGHT=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.height'`
 
     HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT >&2"
     echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
@@ -325,6 +329,7 @@ function ics721_transfer() {
             recipient: \"$RECIPIENT\",\
         },\
         tx: \"$TXHASH\",\
+        height: \"$TX_HEIGHT\",\
         id: \"$TOKEN\"\
     }"
 }
