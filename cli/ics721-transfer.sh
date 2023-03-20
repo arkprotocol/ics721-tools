@@ -317,7 +317,7 @@ function ics721_transfer() {
             channel: \"$SOURCE_CHANNEL\",\
             collection: \"$COLLECTION\",\
             class_id: \"$SOURCE_CLASS_ID\",\
-            from: \"$FROM\",\
+            owner: \"$FROM\",\
         },\
         target: {\
             chain: \"$TARGET_CHAIN\",\
@@ -326,7 +326,7 @@ function ics721_transfer() {
             channel: \"$TARGET_CHANNEL\",\
             collection: \"$TARGET_COLLECTION\",\
             class_id: \"$TARGET_CLASS_ID\",\
-            recipient: \"$RECIPIENT\",\
+            owner: \"$RECIPIENT\",\
         },\
         tx: \"$TXHASH\",\
         height: \"$TX_HEIGHT\",\

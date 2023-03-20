@@ -12,8 +12,10 @@ source ./query-tokens.sh
 source ./query-token.sh
 source ./collection-by-class-id.sh
 source ./ics721-transfer.sh
+source ./ics721-transfer-chains.sh
 source ./nft-assert-token-owner.sh
 source ./nft-transfer.sh
+source ./chain-query-height.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
@@ -37,7 +39,20 @@ function ark() {
         ics721)
             case $COMMAND in
                 transfer)
-                    ARK_FUN="ics721_transfer"
+                    SUB_COMMAND="$1"
+                    shift
+                    case $SUB_COMMAND in
+                        token)
+                            ARK_FUN="ics721_transfer"
+                            ;;
+                        chains)
+                            ARK_FUN="ics721_transfer_chains"
+                            ;;
+                        *)
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
+                            return 1
+                            ;;
+                    esac
                     ;;
                 query)
                     SUB_COMMAND="$1"
@@ -47,13 +62,13 @@ function ark() {
                             ARK_FUN="collection_by_class_id"
                             ;;
                         *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
                             ;;
                     esac
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
@@ -68,7 +83,7 @@ function ark() {
                             ARK_FUN="nft_assert_token_owner"
                             ;;
                         *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
                             ;;
                     esac
@@ -77,7 +92,7 @@ function ark() {
                     ARK_FUN="nft_transfer"
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
@@ -92,8 +107,11 @@ function ark() {
                             tx)
                                 ARK_FUN="query_tx"
                                 ;;
+                            height)
+                                ARK_FUN="chain_query_height"
+                                ;;
                             *)
-                                echo "Unknown sub command: $SUB_COMMAND" >&2
+                                echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                                 return 1
                                 ;;
                         esac
@@ -103,6 +121,7 @@ function ark() {
                     ;;
                 select)
                     CHAIN=${1,,}
+                    echo "reading $CHAIN" >&2
                     ENV=${CHAIN}.env
                     source $ENV
                     EXIT_CODE=$?
@@ -121,7 +140,7 @@ function ark() {
                     fi
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
@@ -148,13 +167,13 @@ function ark() {
                             ARK_FUN="query_token"
                             ;;
                         *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
                             ;;
                     esac
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
@@ -172,13 +191,13 @@ function ark() {
                             ARK_FUN="query_channel"
                             ;;
                         *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
                             ;;
                     esac
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
@@ -201,19 +220,19 @@ function ark() {
                             return 0
                             ;;
                         *)
-                            echo "Unknown sub command: $SUB_COMMAND" >&2
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
                             ;;
                     esac
                     ;;
                 *)
-                    echo "Unknown command: $COMMAND" >&2
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
                     return 1
                     ;;
             esac
             ;;
         *)
-            echo "Unknown module: $MODULE" >&2
+            echo "Unknown module: $MODULE, args passed: '$ARGS'" >&2
             return 1
             ;;
     esac
