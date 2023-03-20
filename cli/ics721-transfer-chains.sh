@@ -197,14 +197,22 @@ owner: \"$SOURCE_OWNER\" \
                 echo "$ALL_TRANSFERS" >&2
                 echo "$TOKEN is in collection $TARGET_COLLECTION on chain $TARGET_CHAIN" >&2
                 echo "ERROR: transfer stopped! Duration $DURATION_HEIGHT is longer than $MAX_HEIGHT" >&2
-                echo "revert back with: ark transfer ics721 chains \
+                printf -v REVERT_BACK_CMD "ark transfer ics721 chains \
 --chain $TARGET_CHAIN \
 --collection $TARGET_COLLECTION \
 --token $TOKEN \
 --from $TARGET_OWNER \
 --recipients $REVERT_RECIPIENTS \
 --target-chains $REVERT_CHAINS \
---source-channels $REVERT_SOURCE_CHANNELS" >&2
+--source-channels $REVERT_SOURCE_CHANNELS"
+                printf "\n\n\n" >&2
+                echo "=======================================================" >&2
+                echo "= reverting $TOKEN back from $TARGET_CHAIN to $INITIAL_CHAIN" >&2
+                echo "=======================================================" >&2
+                # reset max height for reverting
+                MAX_HEIGHT=
+                echo "$REVERT_BACK_CMD" >&2
+                $REVERT_BACK_CMD
                 # switch back to initial chain
                 ark select chain $INITIAL_CHAIN
                 return 1;
