@@ -108,6 +108,7 @@ function ics721_transfer() {
         return $EXIT_CODE
     fi
 
+    echo "====> transferring $TOKEN from $CHAIN to $TARGET_CHAIN, collection: $COLLECTION <====" >&2
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         # ======== wasm module
@@ -151,7 +152,6 @@ function ics721_transfer() {
 
     BACKTRACK=false
     BACK_TO_HOME=false
-    echo "====> transferring $TOKEN from $CHAIN to $TARGET_CHAIN, collection: $COLLECTION <====" >&2
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
     EXIT_CODE=$?

@@ -107,17 +107,17 @@ function mint() {
             fi
 
             echo "====> minting $TOKEN on chain $CHAIN <====" >&2
-            printf -v CMD "$CLI tx $ICS721_MODULE mint '$COLLECTION_ID' '$TOKEN'\
-                --from $FROM\
-                --recipient $RECIPIENT\
-                %s\
-                %s\
-                %s\
-                --fees $FEES\
-                -b $BROADCAST_MODE --yes"\
-                "$( [ ! -z "$URI" ] && echo "--uri '$URI'" || echo "")"\
-                "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")"\
-                "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
+            printf -v CMD "$CLI tx $ICS721_MODULE mint '$COLLECTION_ID' '$TOKEN' \
+--from $FROM \
+--recipient $RECIPIENT \
+%s \
+%s \
+%s \
+--fees $FEES \
+-b $BROADCAST_MODE --yes" \
+"$( [ ! -z "$URI" ] && echo "--uri '$URI'" || echo "")" \
+"$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
+"$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
             CMD_OUTPUT=`execute_cli "$CMD"`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
@@ -158,16 +158,16 @@ function mint() {
                 return 1
             fi
             echo "====> minting on collection $COLLECTION_ID and chain $CHAIN <====" >&2
-            printf -v CMD "$CLI tx $ICS721_MODULE mint '$COLLECTION_ID'\
-                --from $FROM\
-                --recipient $RECIPIENT\
-                --media-uri '$URI'\
-                %s\
-                %s\
-                --fees $FEES\
-                -b $BROADCAST_MODE --yes"\
-                "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")"\
-                "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
+            printf -v CMD "$CLI tx $ICS721_MODULE mint '$COLLECTION_ID' \
+--from $FROM \
+--recipient $RECIPIENT \
+--media-uri '$URI' \
+%s \
+%s \
+--fees $FEES \
+-b $BROADCAST_MODE --yes" \
+"$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
+"$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
             CMD_OUTPUT=`execute_cli "$CMD"`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
