@@ -13,6 +13,7 @@ source ./query-token.sh
 source ./collection-by-class-id.sh
 source ./ics721-transfer.sh
 source ./nft-assert-token-owner.sh
+source ./nft-transfer.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
@@ -71,6 +72,9 @@ function ark() {
                             return 1
                             ;;
                     esac
+                    ;;
+                transfer)
+                    ARK_FUN="nft_transfer"
                     ;;
                 *)
                     echo "Unknown command: $COMMAND" >&2
