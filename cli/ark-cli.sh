@@ -124,9 +124,9 @@ function ark() {
                     echo "reading $CHAIN" >&2
                     ENV=${CHAIN}.env
                     source $ENV
-                    EXIT_CODE=$?
-                    if [ "$EXIT_CODE" -ne 0 ]; then
-                        return $EXIT_CODE;
+                    ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE=$?
+                    if [ "$ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE" -ne 0 ]; then
+                        return $ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE;
                     fi
                     ;;
                 reload)
@@ -134,9 +134,9 @@ function ark() {
                         echo "No chain selected for reload!" >&2
                     fi
                     ark select chain "$CHAIN"
-                    EXIT_CODE=$?
-                    if [ "$EXIT_CODE" -ne 0 ]; then
-                        return $EXIT_CODE;
+                    ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE=$?
+                    if [ "$ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE" -ne 0 ]; then
+                        return $ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE;
                     fi
                     ;;
                 *)
@@ -239,13 +239,13 @@ function ark() {
 
     if [ ! -z "$ARK_FUN" ];then
         RESULT=`"$ARK_FUN" "$@"`
-        EXIT_CODE=$?
-        if [ ! $EXIT_CODE != 0 ]; then
+        ARK_INTERNAL_ARK_CLI_EXIT_CODE=$?
+        if [ ! $ARK_INTERNAL_ARK_CLI_EXIT_CODE != 0 ]; then
             ARK_HISTORY+=("$RESULT")
             echo "$RESULT"
             # echo "command and output added to history (${#ARK_HISTORY[@]} entries)" >&2
         fi
-        return $EXIT_CODE
+        return $ARK_INTERNAL_ARK_CLI_EXIT_CODE
     fi
 }
 

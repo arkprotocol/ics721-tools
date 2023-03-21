@@ -85,13 +85,15 @@ function ics721_transfer_chains() {
     # backup initial chain
     INITIAL_CHAIN="$CHAIN"
     SOURCE_CHAIN="$CHAIN"
+
+    INITIAL_HEIGHT=
     ALL_TRANSFERS="[]"
     while [[ -n "$RECIPIENTS" ]]; do
         ark select chain $SOURCE_CHAIN
         # - return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
-            return $EXIT_CODE
+        ARK_SELECT_CHAIN_EXIT_CODE=$?
+        if [ $ARK_SELECT_CHAIN_EXIT_CODE != 0 ]; then
+            return $ARK_SELECT_CHAIN_EXIT_CODE
         fi
         SOURCE_CHANNEL=`echo "$SOURCE_CHANNELS" | cut -d'/' -f 1`
         SOURCE_CHANNELS=`echo ${SOURCE_CHANNELS#"${SOURCE_CHANNEL}"} | cut -d'/' -f'2-'`
@@ -104,11 +106,11 @@ function ics721_transfer_chains() {
         # switch to next chain and retrieve recipient
         ark select chain $TARGET_CHAIN
         # - return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
+        ARK_SELECT_CHAIN_EXIT_CODE=$?
+        if [ $ARK_SELECT_CHAIN_EXIT_CODE != 0 ]; then
             # switch back to initial chain
             ark select chain $INITIAL_CHAIN
-            return $EXIT_CODE
+            return $ARK_SELECT_CHAIN_EXIT_CODE
         fi
         # recipient on target chain!
         RECIPIENT=`echo "$RECIPIENTS" | cut -d'/' -f 1`
@@ -117,15 +119,17 @@ function ics721_transfer_chains() {
 
         # switch back to source chain for transfer
         ark select chain $SOURCE_CHAIN
+        # - return in case of error
+        ARK_SELECT_CHAIN_EXIT_CODE=$?
+        if [ $ARK_SELECT_CHAIN_EXIT_CODE != 0 ]; then
+            # switch back to initial chain
+            ark select chain $INITIAL_CHAIN
+            return $ARK_SELECT_CHAIN_EXIT_CODE
+        fi
         printf "\n\n\n" >&2
         echo "=======================================================" >&2
         echo "= transfer $TOKEN from $SOURCE_CHAIN to $TARGET_CHAIN" >&2
         echo "=======================================================" >&2
-        # - return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
-            return $EXIT_CODE
-        fi
         printf -v ICS721_TRANSFER_CMD "ark transfer ics721 token \
 --from $FROM \
 --collection $COLLECTION \
@@ -135,23 +139,17 @@ function ics721_transfer_chains() {
 --source-channel $SOURCE_CHANNEL"
         echo "$ICS721_TRANSFER_CMD" >&2
         ICS721_TRANSFER_CMD_OUTPUT=$($ICS721_TRANSFER_CMD)
-        EXIT_CODE=$?
+        ICS721_TRANSFER_EXIT_CODE=$?
         # - return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
-            return $EXIT_CODE
-        fi
-        TX=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.tx'`
-        HEIGHT=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.height'`
-        # - return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
+        if [ $ICS721_TRANSFER_EXIT_CODE != 0 ]; then
             # switch back to initial chain
             ark select chain $INITIAL_CHAIN
             echo "$ICS721_TRANSFER_CMD_OUTPUT" >&2
-            return $EXIT_CODE
+            echo "REVERT_BACK_CMD: $REVERT_BACK_CMD" >&2
+            return $ICS721_TRANSFER_EXIT_CODE
         fi
-
+        TX=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.tx'`
+        HEIGHT=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.height'`
         SOURCE_CHAIN_ID=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.source.chain_id'`
         SOURCE_PORT=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.source.port'`
         SOURCE_COLLECTION=`echo "$ICS721_TRANSFER_CMD_OUTPUT" | jq -r '.source.collection'`
@@ -193,11 +191,7 @@ owner: \"$SOURCE_OWNER\" \
             DURATION_HEIGHT=`expr $NEXT_HEIGHT - $INITIAL_HEIGHT`
             echo "DURATION_HEIGHT: $DURATION_HEIGHT" >&2
 
-            if [[ -n "$MAX_HEIGHT" ]] && [[ "$DURATION_HEIGHT" -gt "$MAX_HEIGHT" ]]; then
-                echo "$ALL_TRANSFERS" >&2
-                echo "$TOKEN is in collection $TARGET_COLLECTION on chain $TARGET_CHAIN" >&2
-                echo "ERROR: transfer stopped! Duration $DURATION_HEIGHT is longer than $MAX_HEIGHT" >&2
-                printf -v REVERT_BACK_CMD "ark transfer ics721 chains \
+            printf -v REVERT_BACK_CMD "ark transfer ics721 chains \
 --chain $TARGET_CHAIN \
 --collection $TARGET_COLLECTION \
 --token $TOKEN \
@@ -205,6 +199,10 @@ owner: \"$SOURCE_OWNER\" \
 --recipients $REVERT_RECIPIENTS \
 --target-chains $REVERT_CHAINS \
 --source-channels $REVERT_SOURCE_CHANNELS"
+            if [[ -n "$MAX_HEIGHT" ]] && [[ "$DURATION_HEIGHT" -gt "$MAX_HEIGHT" ]]; then
+                echo "$ALL_TRANSFERS" >&2
+                echo "$TOKEN is in collection $TARGET_COLLECTION on chain $TARGET_CHAIN" >&2
+                echo "ERROR: transfer stopped! Duration $DURATION_HEIGHT is longer than $MAX_HEIGHT" >&2
                 printf "\n\n\n" >&2
                 echo "=======================================================" >&2
                 echo "= reverting $TOKEN back from $TARGET_CHAIN to $INITIAL_CHAIN" >&2
@@ -212,10 +210,12 @@ owner: \"$SOURCE_OWNER\" \
                 # reset max height for reverting
                 MAX_HEIGHT=
                 echo "$REVERT_BACK_CMD" >&2
-                $REVERT_BACK_CMD
+                REVERT_BACK_CMD_OUTPUT=`$REVERT_BACK_CMD`
                 # switch back to initial chain
                 ark select chain $INITIAL_CHAIN
-                return 1;
+                echo "$TOKEN reverted back to $TARGET_COLLECTION on chain $INITIAL_CHAIN" >&2
+                echo "REVERT_BACK_CMD_OUTPUT: $REVERT_BACK_CMD_OUTPUT" >&2
+                return 1
             fi
         fi
 
@@ -243,6 +243,7 @@ total_duration_height: \"$DURATION_HEIGHT\", \
 
     # switch back to initial chain
     ark select chain $INITIAL_CHAIN
-
+    echo "Successful transfer through all chains!" >&2
+    echo "Skip revert: $REVERT_BACK_CMD" >&2
     echo "$RESULT"
 }

@@ -56,9 +56,9 @@ function ics721_transfer() {
     fi
 
     ark select chain "$CHAIN"
-    EXIT_CODE=$?
-    if [ "$EXIT_CODE" -ne 0 ]; then
-        return $EXIT_CODE;
+    SELECT_CHAIN_EXIT_CODE=$?
+    if [ "$SELECT_CHAIN_EXIT_CODE" -ne 0 ]; then
+        return $SELECT_CHAIN_EXIT_CODE;
     fi
 
     if [ -z $FROM ]
@@ -73,9 +73,9 @@ function ics721_transfer() {
     SOURCE_CHANNEL_CMD="ark query channel channel --chain $CHAIN --channel $SOURCE_CHANNEL"
     SOURCE_CHANNEL_OUTPUT=$($SOURCE_CHANNEL_CMD 2>/dev/null)
     # - return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
-        return $EXIT_CODE
+    ARK_QUERY_CHANNL_EXIT_CODE=$?
+    if [ $ARK_QUERY_CHANNL_EXIT_CODE != 0 ]; then
+        return $ARK_QUERY_CHANNL_EXIT_CODE
     fi
     SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
     if [[ -z "$SOURCE_PORT" ]] || [[ "$SOURCE_PORT" = null ]];then
@@ -104,10 +104,10 @@ function ics721_transfer() {
     echo "$ASSERT_TOKEN_QUERY_CMD " >&2
     ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
     # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
+    ASSERT_TOKEN_QUERY_EXIT_CODE=$?
+    if [ $ASSERT_TOKEN_QUERY_EXIT_CODE != 0 ]; then
         echo "$ASSERT_TOKEN_QUERY_OUTPUT" >&2
-        return $EXIT_CODE
+        return $ASSERT_TOKEN_QUERY_EXIT_CODE
     fi
 
     echo "====> transferring $TOKEN from $CHAIN to $TARGET_CHAIN, collection: $COLLECTION <====" >&2
@@ -156,9 +156,9 @@ function ics721_transfer() {
     BACK_TO_HOME=false
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
-        return $EXIT_CODE
+    CMD_EXIT_CODE=$?
+    if [ $CMD_EXIT_CODE != 0 ]; then
+        return $CMD_EXIT_CODE
     fi
     TXHASH=`echo "$CMD_OUTPUT"|jq -r '.data.txhash'`
     if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
@@ -173,10 +173,10 @@ function ics721_transfer() {
     printf -v TX_QUERY_CMD "ark query chain tx --chain %s --tx %s --max-call-limit %s" $CHAIN $TXHASH $MAX_CALL_LIMIT
     TX_QUERY_OUTPUT=`$TX_QUERY_CMD`
     # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
+    TX_QUERY_EXIT_CODE=$?
+    if [ $TX_QUERY_EXIT_CODE != 0 ]; then
         echo "$TX_QUERY_OUTPUT" >&2
-        return $EXIT_CODE
+        return $TX_QUERY_EXIT_CODE
     fi
     TX_HEIGHT=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.height'`
 
@@ -206,9 +206,9 @@ function ics721_transfer() {
 --cmd "$CLASS_TRACE_CMD" \
 --max-call-limit $MAX_CALL_LIMIT`
             # return in case of error
-            EXIT_CODE=$?
-            if [ $EXIT_CODE != 0 ]; then
-                return $EXIT_CODE
+            CLASS_TRACE_EXIT_CODE=$?
+            if [ $CLASS_TRACE_EXIT_CODE != 0 ]; then
+                return $CLASS_TRACE_EXIT_CODE
             fi
             CLASS_TRACE_PATH=`echo $CLASS_TRACE_OUTPUT | jq -r '.data.class_trace.path'`
             if [[ -z "$CLASS_TRACE_PATH" ]] || [[ "$CLASS_TRACE_PATH" = null ]];then
@@ -267,10 +267,10 @@ function ics721_transfer() {
 "$MAX_CALL_LIMIT"
         QUERY_TARGET_COLLECTION_OUTPUT=`execute_cli "$QUERY_TARGET_COLLECTION_CMD"`
         # return in case of error
-        EXIT_CODE=$?
-        if [ $EXIT_CODE != 0 ]; then
+        QUERY_TARGET_COLLECTION_EXIT_CODE=$?
+        if [ $QUERY_TARGET_COLLECTION_EXIT_CODE != 0 ]; then
             echo "error query target collection $QUERY_TARGET_COLLECTION_OUTPUT " >&2
-            return $EXIT_CODE
+            return $QUERY_TARGET_COLLECTION_EXIT_CODE
         fi
         TARGET_COLLECTION=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.collection'`
         TARGET_CLASS_ID=`echo "$QUERY_TARGET_COLLECTION_OUTPUT" | jq -r '.data.class_id'`
@@ -295,12 +295,12 @@ function ics721_transfer() {
     echo "$ASSERT_TOKEN_QUERY_CMD " >&2
     ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
     # return in case of error
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]; then
+    ASSERT_TOKEN_QUERY_EXIT_CODE=$?
+    if [ $ASSERT_TOKEN_QUERY_EXIT_CODE != 0 ]; then
         # switch back
         ark select chain $SOURCE_CHAIN
         echo "$ASSERT_TOKEN_QUERY_OUTPUT" >&2
-        return $EXIT_CODE
+        return $ASSERT_TOKEN_QUERY_EXIT_CODE
     fi
 
     # switch back
