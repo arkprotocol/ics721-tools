@@ -78,31 +78,39 @@ function nft_transfer() {
     fi
 
     # execute
-    TRANSFER_CMD_OUTPUT=`execute_cli "$TRANSFER_CMD"`
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]
-    then
-        echo "$TRANSFER_CMD_OUTPUT" >&2
-        return "$EXIT_CODE"
-    fi
-    TXHASH=`echo $TRANSFER_CMD_OUTPUT | jq -r '.data.txhash'`
-    if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
-    then
-        echo "ERROR no tx found!" >&2
-        echo $TRANSFER_CMD_OUTPUT >&2
-        return 1
-    fi
+    CALL_COUNT="$MAX_CALL_LIMIT"
+    echo "$TRANSFER_CMD" >&2
+    while [[ 1 -gt 0 ]]; do
+        if [[ "$CALL_COUNT" -eq 0 ]]
+        then
+            echo "Max call limit reached" >&2
+            echo $ERROR >&2
+            return 1
+        fi
+        CALL_COUNT=$(($CALL_COUNT - 1))
+        TRANSFER_CMD_OUTPUT=`execute_cli "$TRANSFER_CMD"`
+        NFT_TRANSFER_EXIT_CODE=$?
+        if [[ $NFT_TRANSFER_EXIT_CODE != 0 ]]
+        then
+            continue
+        fi
+        TXHASH=`echo $TRANSFER_CMD_OUTPUT | jq -r '.data.txhash'`
+        if [[ -z "$TXHASH" ]] && [[ "$TXHASH" = null ]]
+        then
+            echo "ERROR no tx found!" >&2
+            continue
+        fi
+        echo "TX: $TXHASH" >&2
 
-    # query tx for making sure it succeeds!
-    QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
-    EXIT_CODE=$?
-    if [ $EXIT_CODE != 0 ]
-    then
-        echo "$QUERY_OUTPUT" >&2
-        return "$EXIT_CODE"
-    fi
+        # query tx for making sure it succeeds!
+        QUERY_OUTPUT=`query_tx --chain $CHAIN --tx $TXHASH --max-call-limit $MAX_CALL_LIMIT`
+        QUERY_NFT_TRANSFER_TX_EXIT_CODE=$?
+        if [[ $QUERY_NFT_TRANSFER_TX_EXIT_CODE == 0 ]]
+        then
+            break
+        fi
+    done
 
-    #clear;tx=`iris tx nft transfer iaa1488wwr235vka7j722hzacpk0plxw33ksqyneuz ibc/571895A89A58FFE9FE57C36DC949D647C0B6A900FCA2531905CAECCA30FC86DB gir1/taitruong --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f -y --output json --fees 2000uiris | jq -r '.txhash'`; echo $tx; while [[ -z "" ]]; do iris query tx $tx --output json | jq '.height';done
     echo "succesfully transferred, tx: $TXHASH" >&2
-
+    echo "$QUERY_OUTPUT"
 }
