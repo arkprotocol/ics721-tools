@@ -28,23 +28,34 @@ function query_tokens() {
         return $EXIT_CODE;
     fi
 
+    ALL_TOKENS="[]"
     if [ "$ICS721_MODULE" == wasm ]
     then
-        printf -v QUERY_MSG '{"all_tokens":{"limit": 100}}'
-        printf -v QUERY_CMD "$CLI query wasm contract-state smart\
-            %s\
-            '%s'"\
-            "$COLLECTION"\
-            "$QUERY_MSG"
-        QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
-        TOKENS=`echo $QUERY_OUTPUT | jq '.data.data.tokens'`
+        LIMIT=100
+        printf -v QUERY_MSG '{"all_tokens":{"limit": %s}}' "$LIMIT"
+        while [[ 1 -gt 0 ]]; do
+            # echo "query page $PAGE" >&2
+            printf -v QUERY_CMD "$CLI query wasm contract-state smart\
+                %s\
+                '%s'"\
+                "$COLLECTION"\
+                "$QUERY_MSG"
+            QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            TOKENS=`echo $QUERY_OUTPUT | jq '.data.data.tokens'`
+            # add to list
+            ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
+            COUNT=`echo $TOKENS | jq length`
+            # stop sloop in case tokens are below limit
+            [[ "$COUNT" -lt "$LIMIT" ]] && break
+
+            LAST_TOKEN=`echo $TOKENS | jq -r last`
+            printf -v QUERY_MSG '{"all_tokens":{"limit": 100, "start_after": "%s" }}' "$LAST_TOKEN"
+        done
     else
-        ALL_TOKENS="[]"
         PAGE=1
         if [[ ${OFFSET+x} ]];then
             PAGE="$OFFSET"
         fi
-        QUERY_OUTPUT=
         printf -v QUERY_CMD "$CLI query $ICS721_MODULE collection '$COLLECTION'"
         while [[ $PAGE -gt 0 ]]; do
             # echo "query page $PAGE" >&2
@@ -73,11 +84,12 @@ function query_tokens() {
 
     if [[ ! -z "$ALL_TOKENS" ]] && [[ ! -z "$QUERY_OUTPUT" ]]
     then
-        COUNT=`echo $TOKENS | jq length`
+        COUNT=`echo $ALL_TOKENS | jq length`
         echo "$COUNT tokens found" >&2
         echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_TOKENS}"
         return 0
     else
+        echo "ALL_TOKENSxxxx: $ALL_TOKENS" >&2
         echo "no collections found: $QUERY_OUTPUT" >&2
         return 1
     fi
