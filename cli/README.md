@@ -62,15 +62,63 @@ Please also NOTE that the creator and minter wallets provided in env files are b
 
 # Commands
 
-## List of commands
+## ICS721 Commands
 
-### Query transaction
+### NFT Interchain Transfer
+
+Transferring to another chain
+```sh
+ark transfer ics721 token \
+[--chain CHAIN] \
+[--from FROM] \
+[--recipient RECIPIENT] \
+[--target-chain TARGET_CHAIN] \
+[--source-channel SOURCE_CHANNEL] \
+[--collection COLLECTION] \
+[--token TOKEN] \
+[--relay]
+
+```
+
+### NFT Multi-Chain Transfer
+
+Transferring through multiple chains
+```sh
+ark transfer ics721 chains \
+[--chain CHAIN] \
+[--from FROM] \
+[--recipients RECIPIENTS] \
+[--target-chains TARGET_CHAINS] \
+[--source-channels SOURCE_CHANNELS] \
+[--collection COLLECTION] \
+[--token TOKEN] \
+[--max-height MAX_HEIGHT]
+
+```
+
+### Collection Query By Class ID
+
+A collection being transferred to chains using `nft` module have this id format: `ibc/SOME_HASH`.
+The hash is generated using a class id.
+
+TODO: remove `--dest-port`
+
+```sh
+ark query ics721 class-id \
+[--chain CHAIN] \
+[--class-id CLASS_ID] \
+[--dest-port DEST_PORT] \
+[--max-call-limit MAX_CALL_LIMIT] \
+[--sleep SLEEP] \
+```
+
+## Query transaction
 
 ```sh
 ark query chain tx --tx [TXHASH]
 ```
 
-### Chain: Select, Query, Reload
+## Chain: Select, Query, Reload
 
 ```sh
 $ ark select chain juno
@@ -83,7 +131,7 @@ $ ark reload chain
 reading juno.env
 ```
 
-### Ark Command history
+## Ark Command history
 
 TODO: not working yet
 
@@ -92,7 +140,7 @@ ark query history list
 []
 ```
 
-### Create Collection
+## Create Collection
 
 ```sh
 ark create collection \
@@ -109,7 +157,7 @@ ark create collection \
 [--admin ADMIN]
 ```
 
-### Mint/Issue an NFT for a collection
+## Mint/Issue an NFT for a collection
 
 ```sh
 ark mint collection \
@@ -123,7 +171,7 @@ ark mint collection \
 [--recipient RECIPIENT]
 ```
 
-### Query All Collections
+## Query All Collections
 
 ```sh
 ark query collection collections \
@@ -134,7 +182,7 @@ ark query collection collections \
 [--offset OFFSET]
 ```
 
-### Query For All Tokens For A Specific Collection
+## Query For All Tokens For A Specific Collection
 
 ```sh
 ark query collection tokens \
@@ -142,7 +190,7 @@ ark query collection tokens \
 [--collection COLLECTION]
 ```
 
-### Query For Specific Token And Collection
+## Query For Specific Token And Collection
 
 ```sh
 ark query collection token \
@@ -151,32 +199,67 @@ ark query collection token \
 [--token TOKEN]
 ```
 
-### ICS721/NFT Interchain Transfer
+## Block Height Query
+
+Outputs latest block height.
 
 ```sh
-ark transfer ics721 \
-[--chain CHAIN] \
-[--from FROM] \
-[--recipient RECIPIENT] \
-[--target-chain TARGET_CHAIN] \
-[--source-channel SOURCE_CHANNEL] \
-[--collection COLLECTION] \
-[--token TOKEN] \
-[--relay]
+ark query chain height --chain [CHAIN]
+```
+
+## Transaction Query
+
+Queries for transaction until max call limit is reached. Helpful for sync operations, since this query waits until tx is finished!
+```sh
+ark query chain tx --chain [CHAIN] --tx [TXHASH] --max-call-limit [MAX_CALL_LIMIT]
+```
+
+## NFT Commands
+
+### NFT Transfer
+
+Transfer NFT to another owner (within same chain).
+
+NOTE: In case NFT is not owned by `FROM`, this command waits until max call limit. This allows doing a transfer, while another command (like interchain transfers) is transferring NFT to this new
+```sh
+ark transfer nft --collection [COLLECTION] --token [TOKEN] --recipient [RECIPIENT] --from [FROM]
+```
+
+### NFT Assert Token Owner
+
+Helper function, awaiting for NFT owned by given address until max call limit.
+
+```sh
+ ark assert nft token-owner --chain irisnet --collection arkprotocol002 --token ark100 --owner iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --max-call-limit 200
+```
+
+Output returns with exit code 0, in case of success.
+
+##
+
+```sh
 
 ```
 
-###
+##
 
 ```sh
 
 ```
 
-###
+##
 
 ```sh
 
 ```
+
+##
+
+```sh
+
+```
+
+# Commands explained
 
 ## Create A Collection
 
@@ -208,16 +291,9 @@ The 1st command is the ones used for creating a collection. The return transacti
 export MAX_CALL_LIMIT=200
 ```
 
-Once it succeeds output looks like this:
+Once it succeeds, output looks like this:
 
-```sh
-reading irisnet.env
-====> irisnet: creating collection arkalpha004, from: iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f  <====
-iris tx nft issue arkalpha004                --symbol "arkalpha"                                --name "Ark Alpha Collection - coming soon..."                --uri "https://arkprotocol.io/"                --description="holders earn on each ICS721 transfer!"                --mint-restricted=true --update-restricted=true                --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f                --fees 2000uiris                -b sync --yes --output json
-
-====> executing until success.....<====
-iris query tx EA421D256B287E52626CD8AD34D8D9181F1869F5302B1E466833293B136669C3 --output json
-command and output added to history (1 entries)
+```json
 {
   "cmd": "iris tx nft issue arkalpha004 --symbol \"arkalpha\" --name \"Ark Alpha Collection - coming soon...\" --uri \"https://arkprotocol.io/\" --description=\"holders earn on each ICS721 transfer!\" --mint-restricted=true --update-restricted=true --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --fees 2000uiris -b sync --yes --output json",
   "data": {
@@ -255,14 +331,7 @@ $ ark mint collection \
 
 Output shows: mint command, tx query and output including mint command and tx result.
 
-```sh
-reading irisnet.env
-====> minting arkalpha001 on chain irisnet <====
-iris tx nft mint 'arkalpha004' 'arkalpha001'                --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f                --recipient iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f                                                                --fees 2000uiris                -b sync --yes --output json
-
-====> executing until success........<====
-iris query tx 774BBFB3B4EAE294200D11E7DE09BCC91B6EB62CC65F5953DD79CA423188F59D --output json
-command and output added to history (1 entries)
+```json
 {
   "cmd": "iris tx nft mint 'arkalpha004' 'arkalpha001' --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --recipient iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --fees 2000uiris -b sync --yes --output json",
   "data": {
@@ -299,11 +368,13 @@ Query for specific token and collection:
 $ ark query collection token --collection $ARK_GON_COLLECTION --token arkalpha011 | jq
 ```
 
-## ICS721/NFT Interchain Transfer
+## ICS721 Commands
+
+### NFT Interchain Transfer
 
 ```sh
 # transfer from selected chain (e.g. IRISnet) to target chain Juno
-$ ark transfer ics721 \
+$ ark transfer ics721 token \
 --from $WALLET_MINTER \
 --recipient stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf \
 --target-chain stargaze \
@@ -320,51 +391,31 @@ Transfer output contains:
 4. query class-id on target chain
 5. output with info on source and target chain like class id and collection id
 
-
-```sh
-====> transferring arkalpha001 (collection: arkalpha004), from irisnet to stargaze  <====
-iris tx nft-transfer transfer 'nft-transfer' 'channel-22' 'stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf' 'arkalpha004' 'arkalpha001'            --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f            --fees 2000uiris            -b sync --yes --output json
-
-====> executing until success........<====
-iris query tx 4050049F3855891F0415C016DC4F2755A5245E04F00AFACCC2FAA93AF4BB273A --output json
-command and output added to history (1 entries)
-====> query counter-part channel for channel-22 <====
-...
-====> find class-id at stargaze, target port: wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh, target channel: channel-207, source class id: arkalpha004 <====
-ark query ics721 class-id        --chain stargaze        --dest-port wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh        --dest-channel channel-207        --source-class-id arkalpha004        --sleep 1        --max-call-limit 200
-reading stargaze.env
-
-====> retrieving class-id.......<====
-command and output added to history (2 entries)
-====> query token arkalpha001 at stargaze and collection stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw <====
-
-====> executing until success<====
-ark query collection token        --chain stargaze        --collection stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw        --token arkalpha001
-reading stargaze.env
-starsd query wasm contract-state smart            stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw            '{"all_nft_info":{"token_id": "arkalpha001"}}' --output json
-command and output added to history (2 entries)
-====> NFT recipient on target chain: stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf <====
-NFT arkalpha001 owned on target chain by stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf
-...
+```json
 {
-  "cmd": "iris tx nft-transfer transfer 'nft-transfer' 'channel-22' 'stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf' 'arkalpha004' 'arkalpha001' --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --fees 2000uiris -b sync --yes",
-  "tx": "4050049F3855891F0415C016DC4F2755A5245E04F00AFACCC2FAA93AF4BB273A",
+  "cmd": "iris tx nft-transfer transfer 'nft-transfer' 'channel-22' 'stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf' 'arkprotocol002' 'ark192' --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --fees 2000uiris --packet-timeout-timestamp 300000000000 -b sync --yes",
   "source": {
     "chain": "irisnet",
-    "collection": "arkalpha004",
-    "class_id": "arkalpha004",
+    "chain_id": "gon-irishub-1",
+    "port": "nft-transfer",
     "channel": "channel-22",
-    "port": "nft-transfer"
+    "collection": "arkprotocol002",
+    "class_id": "arkprotocol002",
+    "owner": "iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f"
   },
   "target": {
     "chain": "stargaze",
-    "collection": "stars1ztf5rfs06cgduxn3j68l8nqcsdgne06c0fd6e80xn6xjllde3hns52x7xw",
-    "class_id": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkalpha004",
+    "chain_id": "elgafar-1",
+    "port": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh",
     "channel": "channel-207",
-    "port": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh"
-  }
+    "collection": "stars1ff06t96hwd96fa3pq7uxgrxqqt3gv4zda444k0kappcr6tcwyzass8e4jz",
+    "class_id": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+    "owner": "stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf"
+  },
+  "tx": "900F2A87ECC5A00AEC4DB62C4600D8C7A35EF4490B688CBA585B7FB6365F64A8",
+  "height": "578254",
+  "id": "ark192"
 }
-command and output added to history (1 entries)
 ```
 
 Now let's use above NFT for transferring to another chain. For this have a look at above output for target chain Stargaze:
@@ -431,3 +482,141 @@ The JSON output looks like this:
   }
 }
 ```
+
+### NFT Multi-Chain Transfer
+
+Transferring through 5 chains and channels through this flow:
+`i --(1)--> s --(1)--> j --(1)--> u --(1)--> o --(1)--> i`
+
+Flow starts from IRISnet and ends at IRISnet, resulting each collection being escrowed/locked on all 5 chains. In addtion last transfer creates a new collection on IRISnet, while initial collection is locked at IRISnet.
+
+```sh
+# transfer from selected chain (e.g. IRISnet) to target chain Juno
+ark transfer ics721 chains --collection $ARK_GON_COLLECTION --from $WALLET_MINTER --recipients stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf/juno183e7ccwsnngj2q8lfxnmekunspnfxs6q9akx5y/uptick1h7c0ltrj6z707eh3z4cyv4jkqwfv6lj76se7lr/omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx/iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --target-chains stargaze/juno/uptick/omniflix/irisnet --source-channels channel-22/channel-230/channel-86/channel-5/channel-24 --token ark193 --max-height 50 | jq
+```
+
+Transfer output contains:
+1. transfers: details for each interchain transfer, including chain, chain id, collection, port, channel, target channel, class id and owner (before transfer)
+2. final chain details: chain, chain id, collection, port, channel, class id and owner
+
+Please also note, that in log output, it provides an undo command, allowing to transfer back to initial chain. Like: `Skip revert: ark transfer ics721 chains --chain irisnet --collection ibc/415A6D8164A11757001E29DEEE482FC373D2CB37BC33E9D8BECFC458358478AA --token ark193 --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --recipients omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx/uptick1h7c0ltrj6z707eh3z4cyv4jkqwfv6lj76se7lr/juno183e7ccwsnngj2q8lfxnmekunspnfxs6q9akx5y/stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf/iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --target-chains omniflix/uptick/juno/stargaze/irisnet --source-channels channel-0/channel-41/channel-7/channel-120/channel-207`
+
+```json
+{
+{
+  "transfers": [
+    {
+      "cmd": "ark transfer ics721 token --from iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --collection arkprotocol002 --token ark193 --recipient stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf --target-chain stargaze --source-channel channel-22",
+      "tx": "F3850F73175A0FFD9FB0C37960D6E13DAC6558DA019B6DAC60D926C2AA4C548D",
+      "height": "578375",
+      "chain": "irisnet",
+      "chain_id": "gon-irishub-1",
+      "port": "nft-transfer",
+      "channel": "channel-22",
+      "target_channel": "channel-207",
+      "collection": "arkprotocol002",
+      "class_id": "arkprotocol002",
+      "owner": "iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f"
+    },
+    {
+      "cmd": "ark transfer ics721 token --from stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf --collection stars1ff06t96hwd96fa3pq7uxgrxqqt3gv4zda444k0kappcr6tcwyzass8e4jz --token ark193 --recipient juno183e7ccwsnngj2q8lfxnmekunspnfxs6q9akx5y --target-chain juno --source-channel channel-230",
+      "tx": "E33F4C1F789338F06916C2571E0C91D970A0881CC164375E2E78389475C5F5AA",
+      "height": "3970056",
+      "chain": "stargaze",
+      "chain_id": "elgafar-1",
+      "port": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh",
+      "channel": "channel-230",
+      "target_channel": "channel-120",
+      "collection": "stars1ff06t96hwd96fa3pq7uxgrxqqt3gv4zda444k0kappcr6tcwyzass8e4jz",
+      "class_id": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+      "owner": "stars183e7ccwsnngj2q8lfxnmekunspnfxs6q8nzqcf"
+    },
+    {
+      "cmd": "ark transfer ics721 token --from juno183e7ccwsnngj2q8lfxnmekunspnfxs6q9akx5y --collection juno1pzphrwp3vp3m6vsd2axjak4lgzr9hg7lxelx0lnntm76gh69ypnsafdew2 --token ark193 --recipient uptick1h7c0ltrj6z707eh3z4cyv4jkqwfv6lj76se7lr --target-chain uptick --source-channel channel-86",
+      "tx": "9FD429D9514B8C7E610CCF9665D245C4264AC4CC0D18A3FD8756C6C41FD3FD87",
+      "height": "640281",
+      "chain": "juno",
+      "chain_id": "uni-6",
+      "port": "wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a",
+      "channel": "channel-86",
+      "target_channel": "channel-7",
+      "collection": "juno1pzphrwp3vp3m6vsd2axjak4lgzr9hg7lxelx0lnntm76gh69ypnsafdew2",
+      "class_id": "wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/channel-120/wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+      "owner": "juno183e7ccwsnngj2q8lfxnmekunspnfxs6q9akx5y"
+    },
+    {
+      "cmd": "ark transfer ics721 token --from uptick1h7c0ltrj6z707eh3z4cyv4jkqwfv6lj76se7lr --collection ibc/1945C3288496E68862A524E6C5A59627ABFB5BA9D624E13B826F050AA055CDFF --token ark193 --recipient omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx --target-chain omniflix --source-channel channel-5",
+      "tx": "CD159BD292FF6326CB12FE658D6C59021102E9B3BDBAE843C27D7B9047EDB284",
+      "height": "2590229",
+      "chain": "uptick",
+      "chain_id": "uptick_7000-2",
+      "port": "nft-transfer",
+      "channel": "channel-5",
+      "target_channel": "channel-41",
+      "collection": "ibc/1945C3288496E68862A524E6C5A59627ABFB5BA9D624E13B826F050AA055CDFF",
+      "class_id": "nft-transfer/channel-7/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/channel-120/wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+      "owner": "uptick1h7c0ltrj6z707eh3z4cyv4jkqwfv6lj76se7lr"
+    },
+    {
+      "cmd": "ark transfer ics721 token --from omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx --collection ibc/39B2848724674E175F6803CDC3FA260E9CFE209D619E9C83EFC3A4E9AE538322 --token ark193 --recipient iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --target-chain irisnet --source-channel channel-24",
+      "tx": "2BC5BBF6FB734A9CF24E3EBFCD962AEA62948F545F0FA596288662818E91B989",
+      "height": "665924",
+      "chain": "omniflix",
+      "chain_id": "gon-flixnet-1",
+      "port": "nft-transfer",
+      "channel": "channel-24",
+      "target_channel": "channel-0",
+      "collection": "ibc/39B2848724674E175F6803CDC3FA260E9CFE209D619E9C83EFC3A4E9AE538322",
+      "class_id": "nft-transfer/channel-41/nft-transfer/channel-7/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/channel-120/wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+      "owner": "omniflix183e7ccwsnngj2q8lfxnmekunspnfxs6qw3yyyx"
+    }
+  ],
+  "chain": "irisnet",
+  "chain_id": "gon-irishub-1",
+  "port": "nft-transfer",
+  "channel": "channel-0",
+  "collection": "ibc/415A6D8164A11757001E29DEEE482FC373D2CB37BC33E9D8BECFC458358478AA",
+  "class_id": "nft-transfer/channel-0/nft-transfer/channel-41/nft-transfer/channel-7/wasm.juno1stv6sk0mvku34fj2mqrlyru6683866n306mfv52tlugtl322zmks26kg7a/channel-120/wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/arkprotocol002",
+  "owner": "iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f",
+  "total_duration_height": "19"
+}
+```
+
+### Collection Query By Class ID
+
+A collection being transferred to chains using `nft` module have this id format: `ibc/SOME_HASH`.
+The hash is generated using a class id.
+
+TODO: remove `--dest-port`
+
+```sh
+ark query ics721 class-id --class-id wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/gonTeamRace2 --dest-port wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh
+```
+
+output:
+
+```json
+{
+  "cmd": "starsd query wasm contract-state smart stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh '{\"nft_contract\":{\"class_id\":\"wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/gonTeamRace2\"}}' --output json",
+  "data": {
+    "class_id": "wasm.stars1ve46fjrhcrum94c7d8yc2wsdz8cpuw73503e8qn9r44spr6dw0lsvmvtqh/channel-207/gonTeamRace2",
+    "collection": "stars1unjgjcyhhx5r8tn96hqs92xdv6d0hy64xw55qu4um8awvy5qdulq0ggj28"
+  }
+}
+```
+
+## NFT Commands
+
+### NFT Transfer
+
+```sh
+ark transfer nft --collection arkprotocol002 --token ark194 --recipient $WALLET_MINTER --from $WALLET_CREATOR
+```
+
+### NFT Assert Token Owner
+
+```sh
+ ark assert nft token-owner --chain irisnet --collection arkprotocol002 --token ark100 --owner $WALLET_MINTER --max-call-limit 200
+```
+
+Output returns with exit code 0, in case of success.
