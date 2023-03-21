@@ -249,7 +249,7 @@ function ark() {
     fi
 }
 
-echo "ark 0.1.0"
+echo "ark 0.1.1"
 if [[ ${1+x} ]]; then
     ark select chain $1
 elif [[ -n "$CHAIN" ]]; then
