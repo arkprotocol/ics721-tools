@@ -35,12 +35,16 @@ function query_tokens() {
         printf -v QUERY_MSG '{"all_tokens":{"limit": %s}}' "$LIMIT"
         while [[ 1 -gt 0 ]]; do
             # echo "query page $PAGE" >&2
-            printf -v QUERY_CMD "$CLI query wasm contract-state smart\
-                %s\
-                '%s'"\
-                "$COLLECTION"\
-                "$QUERY_MSG"
+            printf -v QUERY_CMD "$CLI query wasm contract-state smart \
+%s \
+'%s'" \
+"$COLLECTION" \
+"$QUERY_MSG"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            EXECUTE_CLI_EXIT_CODE=$?
+            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+                return $EXECUTE_CLI_EXIT_CODE;
+            fi
             TOKENS=`echo $QUERY_OUTPUT | jq '.data.data.tokens'`
             # add to list
             ALL_TOKENS=`echo "$ALL_TOKENS" | jq ". + $TOKENS"`
@@ -60,6 +64,10 @@ function query_tokens() {
         while [[ $PAGE -gt 0 ]]; do
             # echo "query page $PAGE" >&2
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            EXECUTE_CLI_EXIT_CODE=$?
+            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+                return $EXECUTE_CLI_EXIT_CODE;
+            fi
             if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]
             then
                 TOKENS=`echo $QUERY_OUTPUT | jq '.data.collection.nfts'`
@@ -89,7 +97,7 @@ function query_tokens() {
         echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_TOKENS}"
         return 0
     else
-        echo "ALL_TOKENSxxxx: $ALL_TOKENS" >&2
+        echo "ALL_TOKENS: $ALL_TOKENS" >&2
         echo "no collections found: $QUERY_OUTPUT" >&2
         return 1
     fi
