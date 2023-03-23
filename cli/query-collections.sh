@@ -103,7 +103,8 @@ function query_collections() {
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             # echo "query page $PAGE" >&2
-            printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms --page %s" "$PAGE"
+            printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms"\
+            "$( [ ! -z "$DECODED_NEXT_KEY" ] && QUERY_CMD="$QUERY_CMD --page-key $DECODED_NEXT_KEY"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
             if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
@@ -128,12 +129,13 @@ function query_collections() {
             fi
             # add to list
             ALL_COLLECTIONS=`echo "$ALL_COLLECTIONS" | jq ". + $COLLECTIONS"`
-            # check limit
-            LENGTH=`echo "$ALL_COLLECTIONS" | jq length`
-            if [[ "$LENGTH" -eq "$LIMIT" ]] || [[ "$LENGTH" -gt "$LIMIT" ]];then
+            PAGE=`expr $PAGE + 1`
+            NEXT_KEY=`echo $QUERY_OUTPUT | jq -r '.data.pagination.next_key'`
+            if [[ -z "$NEXT_KEY" ]] || [[ "$NEXT_KEY" = null ]];then
                 break
             fi
-            PAGE=`expr $PAGE + 1`
+            DECODED_NEXT_KEY=
+            [[ ! -z "$NEXT_KEY" ]] && [[ ! "$NEXT_KEY" = null ]] && DECODED_NEXT_KEY=`echo $NEXT_KEY | base64 -d` # decode next key
         done
     fi
 
