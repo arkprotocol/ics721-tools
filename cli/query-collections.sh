@@ -48,6 +48,10 @@ function query_collections() {
             # echo "query page $PAGE" >&2
             printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s" "$CODE_ID" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            EXECUTE_CLI_EXIT_CODE=$?
+            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+                return $EXECUTE_CLI_EXIT_CODE;
+            fi
             COLLECTIONS=`echo $QUERY_OUTPUT | jq -c '.data.contracts'`
             # check result is not empty
             LENGTH=`echo $COLLECTIONS | jq length`
@@ -67,6 +71,10 @@ function query_collections() {
             CONTRACT=`echo $CONTRACT|xargs` # remove double quotes
             QUERY_CMD="$CLI query wasm contract $CONTRACT"
             CREATOR=`execute_cli "$QUERY_CMD"| jq '.data.contract_info.creator'`
+            EXECUTE_CLI_EXIT_CODE=$?
+            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+                return $EXECUTE_CLI_EXIT_CODE;
+            fi
             CREATOR=${CREATOR,,} # lowercase
             CREATOR=`echo $CREATOR|xargs` # remove double quotes
             echo "collection: $CONTRACT, creator: $CREATOR" >&2
@@ -97,6 +105,10 @@ function query_collections() {
             # echo "query page $PAGE" >&2
             printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms --page %s" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
+            EXECUTE_CLI_EXIT_CODE=$?
+            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+                return $EXECUTE_CLI_EXIT_CODE;
+            fi
             # map only collection and creator
             if [ "$ICS721_MODULE" = collection ]; then
                 COLLECTIONS=`echo $QUERY_OUTPUT | jq -c '.data.denoms' | jq -c 'map({"id": .id, "creator": .creator, "name": .name, "symbol": .symbol })'`
