@@ -94,7 +94,7 @@ function query_tokens() {
     then
         COUNT=`echo $ALL_TOKENS | jq length`
         echo "$COUNT tokens found" >&2
-        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_TOKENS}"
+        echo "{ \"cmd\": \"$QUERY_CMD\", \"data\": $ALL_TOKENS }"
         return 0
     else
         echo "ALL_TOKENS: $ALL_TOKENS" >&2

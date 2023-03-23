@@ -103,8 +103,10 @@ function query_collections() {
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             # echo "query page $PAGE" >&2
-            printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms"\
-            "$( [ ! -z "$DECODED_NEXT_KEY" ] && QUERY_CMD="$QUERY_CMD --page-key $DECODED_NEXT_KEY"
+            printf -v QUERY_CMD "$CLI query $ICS721_MODULE denoms"
+            if [[ ! -z "$DECODED_NEXT_KEY" ]]; then
+                QUERY_CMD="$QUERY_CMD --page-key $DECODED_NEXT_KEY"
+            fi
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
             if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
@@ -141,9 +143,10 @@ function query_collections() {
 
     if [ ! -z "$ALL_COLLECTIONS" ] && [ ! -z "$QUERY_OUTPUT" ]
     then
-        echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_COLLECTIONS}"
+        echo "{ \"cmd\": \"$QUERY_CMD\", \"data\": $ALL_COLLECTIONS}"
         COUNT=`echo $ALL_COLLECTIONS | jq length`
         echo "$COUNT collections found" >&2
+        echo "{ \"cmd\": \"$QUERY_CMD\", \"data\": $ALL_COLLECTIONS }"
         return 0
     else
         echo "no collections found: $QUERY_OUTPUT" >&2
