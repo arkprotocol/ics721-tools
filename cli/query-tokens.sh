@@ -16,16 +16,16 @@ function query_tokens() {
         return 1
     fi
 
-    if [ -z "$COLLECTION" ]
-    then
-        echo "--collection is required" >&2
-        return 1
-    fi
-
     ark select chain "$CHAIN"
     EXIT_CODE=$?
     if [ "$EXIT_CODE" -ne 0 ]; then
         return $EXIT_CODE;
+    fi
+
+    if [ -z "$COLLECTION" ]
+    then
+        echo "--collection is required" >&2
+        return 1
     fi
 
     ALL_TOKENS="[]"
@@ -92,9 +92,10 @@ function query_tokens() {
 
     if [[ ! -z "$ALL_TOKENS" ]] && [[ ! -z "$QUERY_OUTPUT" ]]
     then
+        LAST_QUERY_CMD=`echo $QUERY_OUTPUT | jq '.cmd'`
         COUNT=`echo $ALL_TOKENS | jq length`
         echo "$COUNT tokens found" >&2
-        echo "{ \"cmd\": \"$QUERY_CMD\", \"data\": $ALL_TOKENS }"
+        echo "{ \"cmd\": $LAST_QUERY_CMD, \"data\": $ALL_TOKENS }"
         return 0
     else
         echo "ALL_TOKENS: $ALL_TOKENS" >&2

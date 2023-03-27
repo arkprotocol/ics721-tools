@@ -121,9 +121,9 @@ function ark() {
                     ;;
                 select)
                     CHAIN=${1,,}
-                    echo "reading $CHAIN" >&2
-                    ENV=${CHAIN}.env
-                    source $ENV
+                    ARK_ENV=${CHAIN}.env
+                    echo "reading $ARK_ENV" >&2
+                    source $ARK_ENV
                     ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE=$?
                     if [ "$ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE" -ne 0 ]; then
                         return $ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE;
