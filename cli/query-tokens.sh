@@ -42,7 +42,7 @@ function query_tokens() {
 "$QUERY_MSG"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
-            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+            if [[ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]]; then
                 return $EXECUTE_CLI_EXIT_CODE;
             fi
             TOKENS=`echo $QUERY_OUTPUT | jq '.data.data.tokens'`
@@ -65,7 +65,7 @@ function query_tokens() {
             # echo "query page $PAGE" >&2
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
-            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+            if [[ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]]; then
                 return $EXECUTE_CLI_EXIT_CODE;
             fi
             if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]

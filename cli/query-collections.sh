@@ -49,7 +49,7 @@ function query_collections() {
             printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s" "$CODE_ID" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
-            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+            if [[ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]]; then
                 return $EXECUTE_CLI_EXIT_CODE;
             fi
             COLLECTIONS=`echo $QUERY_OUTPUT | jq -c '.data.contracts'`
@@ -109,7 +109,7 @@ function query_collections() {
             fi
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
-            if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then
+            if [[ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]]; then
                 return $EXECUTE_CLI_EXIT_CODE;
             fi
             # map only collection and creator
