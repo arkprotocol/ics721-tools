@@ -16,6 +16,7 @@ source ./ics721-transfer-chains.sh
 source ./nft-assert-token-owner.sh
 source ./nft-transfer.sh
 source ./chain-query-height.sh
+source ./nft-query-snapshot.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
@@ -90,6 +91,19 @@ function ark() {
                     ;;
                 transfer)
                     ARK_FUN="nft_transfer"
+                    ;;
+                query)
+                    SUB_COMMAND="$1"
+                    shift
+                    case $SUB_COMMAND in
+                        snapshot)
+                            ARK_FUN="nft_query_snapshot"
+                            ;;
+                        *)
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
+                            return 1
+                            ;;
+                    esac
                     ;;
                 *)
                     echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2

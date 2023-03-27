@@ -199,6 +199,14 @@ ark query collection token \
 [--token TOKEN]
 ```
 
+## Snapshot / Query For Owners
+
+```sh
+ark query nft snapshot \
+[--chain CHAIN] \
+[--collection COLLECTION]
+```
+
 ## Block Height Query
 
 Outputs latest block height.
