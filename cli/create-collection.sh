@@ -63,12 +63,12 @@ function create_collection() {
         # instantiate
         echo "====> $CHAIN: creating collection (symbol: $SYMBOL, label: "$LABEL", minter: $FROM)  <====" >&2
         printf -v INSTANTIATE_MSG '{"name":"%s", "symbol":"%s", "minter":"%s"}' "$NAME" "$SYMBOL" $FROM
-        printf -v CMD "$CLI tx wasm instantiate $CODE_ID \'$INSTANTIATE_MSG\'\
-            --from $FROM --label '$LABEL'\
-            %s\
-            --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT\
-            -b $BROADCAST_MODE --yes"\
-            "$( [ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
+        printf -v CMD "$CLI tx wasm instantiate $CODE_ID \'$INSTANTIATE_MSG\' \
+--from $FROM --label '$LABEL' \
+%s \
+--gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT \
+-b $BROADCAST_MODE --yes" \
+"$( [ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
 
         CMD_OUTPUT=`execute_cli "$CMD"`
         EXIT_CODE=$?
@@ -110,21 +110,21 @@ function create_collection() {
             fi
 
             echo "====> $CHAIN: creating collection $COLLECTION, from: $FROM  <====" >&2
-            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION\
-                %s\
-                %s\
-                %s\
-                %s\
-                %s\
-                --mint-restricted=true --update-restricted=true\
-                --from "$FROM"\
-                --fees "$FEES"\
-                -b "$BROADCAST_MODE" --yes"\
-                "$( [ ! -z "$SYMBOL" ] && echo "--symbol \"$SYMBOL\"" || echo "")"\
-                "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")"\
-                "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"\
-                "$( [ ! -z "$URI" ] && echo "--uri \"$URI\"" || echo "")"\
-                "$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")"
+            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION \
+%s \
+%s \
+%s \
+%s \
+%s \
+--mint-restricted=true --update-restricted=true \
+--from "$FROM" \
+--fees "$FEES" \
+-b "$BROADCAST_MODE" --yes" \
+"$( [ ! -z "$SYMBOL" ] && echo "--symbol \"$SYMBOL\"" || echo "")" \
+"$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
+"$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")" \
+"$( [ ! -z "$URI" ] && echo "--uri \"$URI\"" || echo "")" \
+"$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")"
             CMD_OUTPUT=`execute_cli "$CMD"`
             EXIT_CODE=$?
             if [ $EXIT_CODE != 0 ]
@@ -161,15 +161,15 @@ function create_collection() {
             fi
 
             echo "====> $CHAIN: creating collection $COLLECTION, from: $FROM  <====" >&2
-            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION\
-                %s\
-                %s\
-                --mint-restricted=true --update-restricted=true\
-                --from $FROM\
-                --fees $FEES\
-                -b $BROADCAST_MODE --yes"\
-                "$( [ ! -z $SYMBOL ] && echo "--symbol $SYMBOL" || echo "")"\
-                "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"
+            printf -v CMD "$CLI tx $ICS721_MODULE issue $COLLECTION \
+%s \
+%s \
+--mint-restricted=true --update-restricted=true \
+--from $FROM \
+--fees $FEES \
+-b $BROADCAST_MODE --yes" \
+"$( [ ! -z $SYMBOL ] && echo "--symbol $SYMBOL" || echo "")" \
+"$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"
 
             CMD_OUTPUT=`execute_cli "$CMD"`
             EXIT_CODE=$?
@@ -210,16 +210,16 @@ function create_collection() {
                 return 1
             fi
             echo "====> $CHAIN: creating collection (symbol: $SYMBOL, name: $NAME, from: $FROM)  <====" >&2
-            printf -v CMD "$CLI tx $ICS721_MODULE create \"$SYMBOL\" --name \"$NAME\"\
-                %s\
-                %s\
-                %s\
-                --from "$FROM"\
-                --fees "$FEES"\
-                -b "$BROADCAST_MODE" --yes"\
-                "$( [ ! -z $URI ] && echo "--uri $URI" || echo "")"\
-                "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")"\
-                "$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")" # --description not documented in CLI...
+            printf -v CMD "$CLI tx $ICS721_MODULE create \"$SYMBOL\" --name \"$NAME\" \
+%s \
+%s \
+%s \
+--from "$FROM" \
+--fees "$FEES" \
+-b "$BROADCAST_MODE" --yes" \
+"$( [ ! -z $URI ] && echo "--uri $URI" || echo "")" \
+"$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
+"$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")" # --description not documented in CLI...
 
             CMD_OUTPUT=`execute_cli "$CMD"`
             EXIT_CODE=$?
