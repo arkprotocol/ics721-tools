@@ -179,6 +179,7 @@ kujirad config
 ```
 
 Terra
+Endpoints: https://docs.terra.money/develop/endpoints/
 ```sh
 git clone https://github.com/terra-money/core terra-core
 cd terra-core
@@ -188,7 +189,7 @@ make install
 terrad version
 # config, since terrad has no config command, client.toml needs to be edited directly!
 sed -i 's/chain-id = ".*"/chain-id = "pisco-1"/' ~/.terra/config/client.toml
-sed -i 's/node = ".*"/node = "http:\/\/localhost:26657"/' ~/.terra/config/client.toml
+sed -i 's/node = ".*"/node = "https:\/\/terra-rpc.polkachu.com:443"/' ~/.terra/config/client.toml
 sed -i 's/broadcast-mode = ".*"/broadcast-mode = "block"/' ~/.terra/config/client.toml
 # show and check config
 tail ~/.terra/config/client.toml

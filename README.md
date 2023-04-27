@@ -91,26 +91,26 @@ Upload and instantiate contract:
 
 ```sh
 # upload/store on chain
-starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # find stored contract's code_id in output
+starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # find stored contract's code_id in output
 
 # instantiate collection based on instantiate msg: https://github.com/CosmWasm/cw-nfts/blob/v0.16/contracts/CW721-base/src/msg.rs#L6-L16
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_STARGAZE_WALLET_MINTER;starsd tx wasm instantiate 1635 "$INSTANTIATE_MSG" --label ark-test-01 --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_STARGAZE_WALLET_CREATOR # address defined in $GON_STARGAZE_CONTRACT_CW721, find instantiated contract in output
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_STARGAZE_WALLET_MINTER;starsd tx wasm instantiate 1635 "$INSTANTIATE_MSG" --label ark-test-01 --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $WALLET_CREATOR # address defined in $GON_STARGAZE_CONTRACT_CW721, find instantiated contract in output
 
 # test collection and query for number of NFTs (result count should be 0)
 starsd query wasm contract-state smart $GON_STARGAZE_CONTRACT_CW721 '{"num_tokens":{}}'
 
 # same for juno
 # - upload
-junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # code id 362
+junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # code id 362
 # - instantiate
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_JUNO_WALLET_MINTER;junod tx wasm instantiate 362 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_JUNO_WALLET_CREATOR # address defined in $GON_JUNO_CONTRACT_CW721
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_JUNO_WALLET_MINTER;junod tx wasm instantiate 362 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_JUNO_WALLET_CREATOR # address defined in $GON_JUNO_CONTRACT_CW721
 junod query wasm contract-state smart $GON_JUNO_CONTRACT_CW721 '{"num_tokens":{}}'
 
 # same for osmosis
 # - upload
-osmosisd tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # code id 6072
+osmosisd tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # code id 6072
 # - instantiate
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_OSMOSIS_WALLET_MINTER;osmosisd tx wasm instantiate 6072 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_OSMOSIS_WALLET_CREATOR # address defined in $GON_OSMOSIS_CONTRACT_CW721
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_OSMOSIS_WALLET_MINTER;osmosisd tx wasm instantiate 6072 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_OSMOSIS_WALLET_CREATOR # address defined in $GON_OSMOSIS_CONTRACT_CW721
 osmosisd query wasm contract-state smart $GON_OSMOSIS_CONTRACT_CW721 '{"num_tokens":{}}'
 
 ```
@@ -133,27 +133,27 @@ Upload and instantiate contract:
 
 ```sh
 # upload contract
-starsd tx wasm store ./cw_ics721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # code id 1636, find contract's code_id in output
+starsd tx wasm store ./cw_ics721_bridge_pr44.wasm  --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # code id 1636, find contract's code_id in output
 
 # instantiate based on instantiate msg: https://github.com/public-awesome/ICS721/blob/3af19e421a95aec5291a0cabbe796c58698ac97f/contracts/cw-ICS721-bridge/src/msg.rs#L17
-starsd tx wasm instantiate 1636 '{"cw721_base_code_id":1635}' --label ark-test-ICS721-pr44 --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_STARGAZE_WALLET_CREATOR # find instantiated contract in output
+starsd tx wasm instantiate 1919 '{"cw721_base_code_id":1635}' --label exploited-ICS721 --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $WALLET_CREATOR # find instantiated contract in output
 
 # test query on ICS721
 starsd query wasm contract-state smart $GON_STARGAZE_CONTRACT_ICS721 '{"nft_contract":{"class_id":"DUMMY"}}' # data: null
 
 # juno
 # - upload
-junod tx wasm store ./cw_ics721_bridge_pr44.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # code id 363
+junod tx wasm store ./cw_ics721_bridge_pr44.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # code id 363
 # - instantiate
-junod tx wasm instantiate 363 '{"cw721_base_code_id":362}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_JUNO_WALLET_CREATOR
+junod tx wasm instantiate 363 '{"cw721_base_code_id":362}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_JUNO_WALLET_CREATOR
 # test query on ICS721
 junod query wasm contract-state smart $GON_JUNO_CONTRACT_ICS721 '{"nft_contract":{"class_id":"DUMMY"}}' # data: null
 
 # osmosis
 # - upload
-osmosisd tx wasm store ./cw_ics721_bridge_pr44.wasm --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes # code id 6077
+osmosisd tx wasm store ./cw_ics721_bridge_pr44.wasm --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes # code id 6077
 # - instantiate
-osmosisd tx wasm instantiate 6077 '{"cw721_base_code_id":6072}' --label ark-test-ICS721-pr44 --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_OSMOSIS_WALLET_CREATOR
+osmosisd tx wasm instantiate 6077 '{"cw721_base_code_id":6072}' --label ark-test-ICS721-pr44 --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_OSMOSIS_WALLET_CREATOR
 # test query on ICS721
 osmosisd query wasm contract-state smart $GON_OSMOSIS_CONTRACT_ICS721 '{"nft_contract":{"class_id":"DUMMY"}}' # data: null
 ```
@@ -169,9 +169,9 @@ Example:
 
 ```sh
 # create new wallet with name test_creator
-starsd keys add $GON_KEY_CREATOR_NAME # MNEMONIC will returned, pls backup!
+starsd keys add $WALLET_CREATOR # MNEMONIC will returned, pls backup!
 # recover a wallet
-uptickd keys add $GON_KEY_CREATOR_NAME --recover # prompts for mnemonic!
+uptickd keys add $WALLET_CREATOR --recover # prompts for mnemonic!
 # list all keys
 iris query nft collection ibc/05472E356B4178A3131291252F6031DFF465658BE4A526D499139F8691D5A31F
 ```
@@ -189,7 +189,7 @@ junod tx wasm instantiate CODE_ID 'JSON_ENCODED_INIT_MESSAGE' --label LABEL_TEXT
 # ========================== nft module ==========================
 # instantiate (issue) collection (denom_id)
 # DENOM_ID must match this regex: ([a-z][a-zA-Z0-9/]{2,127})
-iris tx nft issue DENOM_ID --symbol DENOM_SYMBOL --description "OPTIONAL_DESCRIPTION" --uri "OPTIONAL_OFFCHAIN_CLASS_METADATA_URI" --from $GON_KEY_CREATOR_NAME -b sync -y --mint-restricted=false --update-restricted=false --fees 20uiris
+iris tx nft issue DENOM_ID --symbol DENOM_SYMBOL --description "OPTIONAL_DESCRIPTION" --uri "OPTIONAL_OFFCHAIN_CLASS_METADATA_URI" --from $WALLET_CREATOR -b sync -y --mint-restricted=false --update-restricted=false --fees 20uiris
 
 ```
 
@@ -199,20 +199,20 @@ Example:
 # ========================== wasm module ==========================
 # uploading CW721 contract
 # - search in output for code_id! this is needed for instantiation!
-starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes
+starsd tx wasm store ./cw721_base_v0.16.0.wasm --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes
 # upload ICS721 contract
 # - search in output for code_id! this is needed for instantiation!
 # - in case of 'out of gas in location' error use '--gas-prices' option:
-junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $GON_KEY_CREATOR_NAME --yes
+junod tx wasm store ./cw721_base_v0.16.0.wasm --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --output json --from $WALLET_CREATOR --yes
 
 # instantiate CW721, only required for wasm module
 # - search in output for CW721's contract_address! Needed for execution and query on CW721 collection contract.
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_STARGAZE_WALLET_MINTER;starsd tx wasm instantiate $GON_STARGAZE_CODE_ID_CW721 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ustars --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_STARGAZE_WALLET_CREATOR
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_STARGAZE_WALLET_MINTER;starsd tx wasm instantiate $GON_STARGAZE_CODE_ID_CW721 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ustars --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $WALLET_CREATOR
 
-printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_JUNO_WALLET_MINTER;junod tx wasm instantiate $GON_JUNO_CODE_ID_CW721 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_JUNO_WALLET_CREATOR
+printf -v INSTANTIATE_MSG '{"name":"ark test collection", "symbol":"ark-test-01", "minter":"%s"}' $GON_JUNO_WALLET_MINTER;junod tx wasm instantiate $GON_JUNO_CODE_ID_CW721 "$INSTANTIATE_MSG" --label ark-test-01 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_JUNO_WALLET_CREATOR
 
 # instantiate ICS721 contract
-junod tx wasm instantiate $GON_JUNO_CODE_ID_ICS721 '{"CW721_base_code_id":$GON_JUNO_CODE_ID_CW721}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $GON_KEY_CREATOR_NAME --yes --admin $GON_JUNO_WALLET_CREATOR
+junod tx wasm instantiate $GON_JUNO_CODE_ID_ICS721 '{"CW721_base_code_id":$GON_JUNO_CODE_ID_CW721}' --label ark-test-ICS721-pr44 --gas-prices 0.1ujunox --gas auto --gas-adjustment 1.3 -b sync --from $WALLET_CREATOR --yes --admin $GON_JUNO_WALLET_CREATOR
 
 # query collection info
 # - wasm module
@@ -225,7 +225,7 @@ starsd query wasm contract-state smart $GON_STARGAZE_CONTRACT_CW721 '{"contract_
 
 # ========================== nft module ==========================
 # - instantiate/issue collection
-iris tx nft issue ark/MyAwesomeCollection --symbol ark-awesome --description "you BETTER check this out" --uri "https://arkprotocol.io/" --from $GON_KEY_CREATOR_NAME -b sync -y --mint-restricted=false --update-restricted=false --fees 20uiris
+iris tx nft issue ark/MyAwesomeCollection --symbol ark-awesome --description "you BETTER check this out" --uri "https://arkprotocol.io/" --from $WALLET_CREATOR -b sync -y --mint-restricted=false --update-restricted=false --fees 20uiris
 # - query all collections
 iris query nft denoms
 # - specific query
@@ -247,7 +247,7 @@ Example:
 # create channel between 2 ICS721 contracts
 # port id is: wasm.ICS_CONTRACT_ADDRESS, VERSION is defined in ICS721 contract
 # - create channel with NEW connection
-hermes --config config.toml create channel --a-chain $GON_STARGAZE_CHAIN_ID --b-chain $GON_JUNO_CHAIN_ID --a-port $GON_STARGAZE_ICS721_PORT --b-port $GON_JUNO_ICS721_PORT --new-client-connection --channel-version $ICS721_VERSION --yes
+hermes --config config.toml create channel --a-chain elgafar-1 --b-chain gon-irishub-1 --a-port wasm.stars1sdjf7k7d0lgm0fns0stlzsudncac3rhwawavpmv6z445932hyp4qretw9y --b-port nft-transfer --new-client-connection --channel-version $ICS721_VERSION --yes
 # - create channel with existing connection, NOTE: connection is between 2 defined chains, it can be used for creating channels to other chains
 hermes --config config.toml create channel --a-chain $GON_STARGAZE_CHAIN_ID --a-port $GON_STARGAZE_ICS721_PORT --b-port $GON_OSMOSIS_ICS721_PORT --a-connection connection-112 --channel-version $ICS721_VERSION --yes
 
@@ -289,7 +289,7 @@ starsd query wasm contract-state smart $GON_STARGAZE_CONTRACT_CW721 '{"num_token
 # - token info and owner
 junod query wasm contract-state smart $GON_JUNO_CONTRACT_CW721 '{"all_nft_info":{"token_id": "1"}}'
 # ========================== nft module ==========================
-iris tx nft mint ark ark1 --uri=foo.bar --recipient $GON_IRISNET_WALLET_MINTER --from $GON_KEY_CREATOR_NAME -y --fees 20uiris
+iris tx nft mint ark ark1 --uri=foo.bar --recipient $GON_IRISNET_WALLET_MINTER --from $WALLET_CREATOR -y --fees 20uiris
 # - query all nfts
 iris query nft collection ark
 # - query specific nft
