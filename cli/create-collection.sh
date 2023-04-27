@@ -61,10 +61,10 @@ function create_collection() {
             return 1
         fi
         # instantiate
-        echo "====> $CHAIN: creating collection (symbol: $SYMBOL, label: $LABEL, minter: $FROM)  <====" >&2
+        echo "====> $CHAIN: creating collection (symbol: $SYMBOL, label: "$LABEL", minter: $FROM)  <====" >&2
         printf -v INSTANTIATE_MSG '{"name":"%s", "symbol":"%s", "minter":"%s"}' "$NAME" "$SYMBOL" $FROM
         printf -v CMD "$CLI tx wasm instantiate $CODE_ID \'$INSTANTIATE_MSG\'\
-            --from $FROM --label $LABEL\
+            --from $FROM --label '$LABEL'\
             %s\
             --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT\
             -b $BROADCAST_MODE --yes"\
