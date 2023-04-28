@@ -15,6 +15,7 @@ source ./ics721-transfer-chains.sh
 source ./nft-approve.sh
 source ./nft-assert-token-owner.sh
 source ./nft-mint.sh
+source ./nft-query-approvals.sh
 source ./nft-transfer.sh
 source ./chain-query-height.sh
 source ./nft-query-snapshot.sh
@@ -106,6 +107,9 @@ function ark() {
                         snapshot)
                             ARK_FUN="nft_query_snapshot"
                             ;;
+                        approvals)
+                            ARK_FUN="nft_query_approvals"
+                            ;;
                         *)
                             echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
                             return 1
@@ -141,7 +145,7 @@ function ark() {
                     fi
                     ;;
                 select)
-                    CHAIN=${1,,}
+                    CHAIN=${1,,} # lowercase
                     ARK_ENV=${CHAIN}.env
                     echo "reading $ARK_ENV" >&2
                     source $ARK_ENV
