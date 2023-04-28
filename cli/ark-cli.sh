@@ -4,7 +4,6 @@ source ./cli.env
 source ./execute-cli.sh
 source ./query-tx.sh
 source ./create-collection.sh
-source ./mint.sh
 source ./query-channels.sh
 source ./query-channel.sh
 source ./query-collections.sh
@@ -13,9 +12,10 @@ source ./query-token.sh
 source ./collection-by-class-id.sh
 source ./ics721-transfer.sh
 source ./ics721-transfer-chains.sh
-source ./nft-assert-token-owner.sh
-source ./nft-transfer.sh
 source ./nft-approve.sh
+source ./nft-assert-token-owner.sh
+source ./nft-mint.sh
+source ./nft-transfer.sh
 source ./chain-query-height.sh
 source ./nft-query-snapshot.sh
 
@@ -77,6 +77,9 @@ function ark() {
             ;;
         nft)
             case $COMMAND in
+                approve)
+                    ARK_FUN="nft_approve"
+                    ;;
                 assert)
                     SUB_COMMAND="$1"
                     shift
@@ -90,11 +93,11 @@ function ark() {
                             ;;
                     esac
                     ;;
+                mint)
+                    ARK_FUN="nft_mint"
+                    ;;
                 transfer)
                     ARK_FUN="nft_transfer"
-                    ;;
-                approve)
-                    ARK_FUN="nft_approve"
                     ;;
                 query)
                     SUB_COMMAND="$1"
@@ -167,9 +170,6 @@ function ark() {
             case $COMMAND in
                 create)
                     ARK_FUN="create_collection"
-                    ;;
-                mint)
-                    ARK_FUN="mint"
                     ;;
                 query)
                     SUB_COMMAND="$1"
