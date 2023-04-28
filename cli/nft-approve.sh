@@ -46,7 +46,7 @@ function nft_approve() {
 
     if [ -z "$DURATION" ]
     then
-        echo "NOTE: approval duration will be set for next 2 minutes. Or pass --duration [\"+2 minutes\"|\"+2 days\"] is required" >&2
+        echo "NOTE: approval duration will be set for next 2 minutes. Or pass --duration [\"+2 minutes\"|\"+2 days\"]." >&2
         DURATION="+2 minutes"
     fi
 

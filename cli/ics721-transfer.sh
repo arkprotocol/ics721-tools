@@ -14,6 +14,8 @@ function ics721_transfer() {
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
+            --duration) DURATION="$2"; shift ;;
+            --amount) AMOUNT="$2"; shift ;;
             *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
@@ -53,6 +55,12 @@ function ics721_transfer() {
     then
         echo "--source-channel is required" >&2
         return 1
+    fi
+
+    if [ -z "$DURATION" ]
+    then
+        echo "NOTE: approval duration will be set for next 5 minutes. Or pass --duration [\"+5 minutes\"|\"+2 days\"]." >&2
+        DURATION="+5 minutes"
     fi
 
     ark select chain "$CHAIN"
@@ -115,7 +123,7 @@ function ics721_transfer() {
     then
         # ======== wasm module
         # ====== send token to ICS721 contract
-        TIMESTAMP=`date -d "+5 min" +%s%N` # time in nano seconds, other options: "+1 day"
+        TIMESTAMP=`date -d "$DURATION" +%s%N` # time in nano seconds, other options: "+1 day"
         printf -v RAW_MSG '{
 "receiver": "%s",
 "channel_id": "%s",
@@ -143,17 +151,19 @@ function ics721_transfer() {
 --yes"
     else
         # ======== nft-transfer module
-        # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now (5min)
+        TIMEOUT=`expr $(date -d "2000-01-01 $DURATION" +%s%N) - $(date -d "2000-01-01" +%s%N)` # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now
         CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from "$FROM" \
 --fees "$FEES" \
---packet-timeout-timestamp 300000000000 \
+--packet-timeout-timestamp $TIMEOUT \
 -b "$BROADCAST_MODE" \
 --yes"
     fi
 
     BACKTRACK=false
     BACK_TO_HOME=false
+    # add optional amount
+    printf -v CMD "$CMD %s" "$( [ ! -z "$AMOUNT" ] && echo "--amount $AMOUNT" || echo "")"
     CMD_OUTPUT=`execute_cli "$CMD"`
     # return in case of error
     CMD_EXIT_CODE=$?
@@ -330,6 +340,8 @@ function ics721_transfer() {
         },\
         tx: \"$TXHASH\",\
         height: \"$TX_HEIGHT\",\
-        id: \"$TOKEN\"\
+        id: \"$TOKEN\",\
+        amount: \"$AMOUNT\",\
+        duration: \"$DURATION\"\
     }"
 }
