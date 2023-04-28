@@ -15,6 +15,7 @@ source ./ics721-transfer.sh
 source ./ics721-transfer-chains.sh
 source ./nft-assert-token-owner.sh
 source ./nft-transfer.sh
+source ./nft-approve.sh
 source ./chain-query-height.sh
 source ./nft-query-snapshot.sh
 
@@ -91,6 +92,9 @@ function ark() {
                     ;;
                 transfer)
                     ARK_FUN="nft_transfer"
+                    ;;
+                approve)
+                    ARK_FUN="nft_approve"
                     ;;
                 query)
                     SUB_COMMAND="$1"
