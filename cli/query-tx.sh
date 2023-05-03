@@ -36,7 +36,7 @@ function query_tx() {
     fi
 
     # source in case not yet initialised
-    source ./call-until-success.sh >&2
+    source "$ARK_HOME_DIR"/call-until-success.sh >&2
 
     QUERY_CMD="$CLI query tx $TX"
     call_until_success --cmd "$QUERY_CMD" --max-call-limit "$MAX_CALL_LIMIT"

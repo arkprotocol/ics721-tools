@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get function in case not yet initialised
-source ./call-until-success.sh
+source "$ARK_HOME_DIR"/call-until-success.sh
 function ics721_transfer_chains() {
     ARGS=$@ # backup args
     while [[ "$#" -gt 0 ]]; do

@@ -10,22 +10,22 @@ DESCRIPTION="Ark Protocol's mission: build multi-chain NFT utilities, allowing N
 DATA='{"github_username": "taitruong", "discord_handle": "mr_t|Ark Protocol#2337", "team_name": "Ark Protocol", "community": "All Cosmos chains ;)"}'
 
 # Stargaze
-CW721_CONTRACT=`./create-collection.sh --chain stars --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
+CW721_CONTRACT=`"$ARK_HOME_DIR"/create-collection.sh --chain stars --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
 REPLACE_PATTERN="s/GON_STARGAZE_CONTRACT_CW721=\".*\"/GON_STARGAZE_CONTRACT_CW721=\"$CW721_CONTRACT\"/"
 sed -i "$REPLACE_PATTERN" ./nodes.env
 
 # Juno
-CW721_CONTRACT=`./create-collection.sh --chain juno --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
+CW721_CONTRACT=`"$ARK_HOME_DIR"/create-collection.sh --chain juno --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
 REPLACE_PATTERN="s/GON_JUNO_CONTRACT_CW721=\".*\"/GON_JUNO_CONTRACT_CW721=\"$CW721_CONTRACT\"/"
 sed -i "$REPLACE_PATTERN" ./nodes.env
 
 # Osmosis
-CW721_CONTRACT=`./create-collection.sh --chain osmo --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
+CW721_CONTRACT=`"$ARK_HOME_DIR"/create-collection.sh --chain osmo --name "$NAME" --symbol "$SYMBOL" --label "$LABEL" | tail -n 1 2>&1 | tee -a logs/collections.log`
 REPLACE_PATTERN="s/GON_OSMOSIS_CONTRACT_CW721=\".*\"/GON_OSMOSIS_CONTRACT_CW721=\"$CW721_CONTRACT\"/"
 sed -i "$REPLACE_PATTERN" ./nodes.env
 
 # IRISnet
-./create-collection.sh --chain iris \
+"$ARK_HOME_DIR"/create-collection.sh --chain iris \
     --collection "$COLLECTION_ID" \
     --data "$DATA" \
     --uri "$URI" \
@@ -38,7 +38,7 @@ echo pattern: $REPLACE_PATTERN
 sed -i "$REPLACE_PATTERN" ./nodes.env
 
 # Uptick
-./create-collection.sh --chain upt \
+"$ARK_HOME_DIR"/create-collection.sh --chain upt \
     --collection "$COLLECTION_ID" \
     --uri "$URI" \
     --name "$NAME" \
@@ -50,7 +50,7 @@ echo pattern: $REPLACE_PATTERN
 sed -i "$REPLACE_PATTERN" ./nodes.env
 
 # OmniFlix
-./create-collection.sh --chain omni \
+"$ARK_HOME_DIR"/create-collection.sh --chain omni \
     --collection "$COLLECTION_ID" \
     --uri "$URI" \
     --name "$NAME" \

@@ -1,27 +1,45 @@
 #!/bin/bash
-source ./cli.env
-
-source ./execute-cli.sh
-source ./query-tx.sh
-source ./create-collection.sh
-source ./query-channels.sh
-source ./query-channel.sh
-source ./query-collections.sh
-source ./query-tokens.sh
-source ./query-token.sh
-source ./collection-by-class-id.sh
-source ./ics721-transfer.sh
-source ./ics721-transfer-chains.sh
-source ./nft-approve.sh
-source ./nft-assert-token-owner.sh
-source ./nft-mint.sh
-source ./nft-query-approvals.sh
-source ./nft-transfer.sh
-source ./chain-query-height.sh
-source ./nft-query-snapshot.sh
 
 # init history if not set yet
 [[ -z ${ARK_HISTORY+x} ]] && export ARK_HISTORY=() && echo init ARK_HISTORY
+
+if [[ -z "$ARK_HOME_DIR" ]] ; then
+    ARK_HOME_DIR="$(dirname -- "${BASH_SOURCE[0]}")"            # relative
+    ARK_HOME_DIR="$(cd -- "$MY_PATH" && pwd)"    # absolutized and normalized
+fi
+echo "ARK_HOME_DIR: $ARK_HOME_DIR"
+
+if [[ -z "$ARK_ENV_DIR" ]] ; then
+    ARK_ENV_DIR="$ARK_HOME_DIR"
+fi
+echo "ARK_ENV_DIR: $ARK_ENV_DIR"
+
+
+if [[ -z "$ARK_HERMES_DIR" ]] ; then
+    ARK_HERMES_DIR="$(cd $ARK_HOME_DIR/.. && pwd)"
+fi
+echo "ARK_HERMES_DIR: $ARK_HERMES_DIR"
+
+source "$ARK_HOME_DIR"/cli.env
+
+source "$ARK_HOME_DIR"/execute-cli.sh
+source "$ARK_HOME_DIR"/query-tx.sh
+source "$ARK_HOME_DIR"/create-collection.sh
+source "$ARK_HOME_DIR"/query-channels.sh
+source "$ARK_HOME_DIR"/query-channel.sh
+source "$ARK_HOME_DIR"/query-collections.sh
+source "$ARK_HOME_DIR"/query-tokens.sh
+source "$ARK_HOME_DIR"/query-token.sh
+source "$ARK_HOME_DIR"/collection-by-class-id.sh
+source "$ARK_HOME_DIR"/ics721-transfer.sh
+source "$ARK_HOME_DIR"/ics721-transfer-chains.sh
+source "$ARK_HOME_DIR"/nft-approve.sh
+source "$ARK_HOME_DIR"/nft-assert-token-owner.sh
+source "$ARK_HOME_DIR"/nft-mint.sh
+source "$ARK_HOME_DIR"/nft-query-approvals.sh
+source "$ARK_HOME_DIR"/nft-transfer.sh
+source "$ARK_HOME_DIR"/chain-query-height.sh
+source "$ARK_HOME_DIR"/nft-query-snapshot.sh
 
 function ark() {
     ARGS=$@ # backup args
@@ -146,23 +164,50 @@ function ark() {
                     ;;
                 select)
                     CHAIN=${1,,} # lowercase
-                    ARK_ENV=${CHAIN}.env
-                    echo "reading $ARK_ENV" >&2
-                    source $ARK_ENV
+                    ARK_ENV_FILE="$ARK_ENV_DIR/"${CHAIN}.env
+                    echo "reading $ARK_ENV_FILE" >&2
+                    source "$ARK_ENV_FILE"
                     ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE=$?
                     if [ "$ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE" -ne 0 ]; then
                         return $ARK_INTERNAL_SELECT_CHAIN_EXIT_CODE;
                     fi
                     ;;
                 reload)
-                    if [ -z "$CHAIN" ];then
-                        echo "No chain selected for reload!" >&2
+                    echo reloading ark cli and chain config
+                    ARK_CLI_FILE="$ARK_HOME_DIR/ark-cli.sh"
+                    source "$ARK_CLI_FILE"
+                    ;;
+                *)
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
+                    return 1
+                    ;;
+            esac
+            ;;
+        config)
+            case $COMMAND in
+                set)
+                    if [[ ${1+x} ]]; then
+                        SUB_COMMAND="$1"
+                        shift
+                        case $SUB_COMMAND in
+                            home)
+                                ARK_HOME_DIR="$1"
+                                ;;
+                            env)
+                                ARK_ENV_DIR="$1"
+                                ;;
+                            *)
+                                echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
+                                return 1
+                                ;;
+                        esac
+                    else
+                        echo "selected chain: $CHAIN" >&2
                     fi
-                    ark select chain "$CHAIN"
-                    ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE=$?
-                    if [ "$ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE" -ne 0 ]; then
-                        return $ARK_INTERNAL_RELOAD_CHAIN_EXIT_CODE;
-                    fi
+                    ;;
+                show)
+                    echo "ARK_HOME_DIR: $ARK_HOME_DIR"
+                    echo "ARK_ENV_DIR: $ARK_ENV_DIR"
                     ;;
                 *)
                     echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
@@ -278,7 +323,7 @@ elif [[ -n "$CHAIN" ]]; then
     echo "reloading $CHAIN"
     ark select chain $CHAIN
 else
-    echo "- please select operating chain: ark select chain [chain: stagagaze|irisnet|juno|uptick|omniflix|osmosis]"
+    echo "- please select operating chain: ark select chain [chain: stargaze|irisnet|juno|uptick|omniflix|osmosis]"
 fi
 
 echo "- max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=$MAX_CALL_LIMIT"

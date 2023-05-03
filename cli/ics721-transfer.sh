@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get function in case not yet initialised
-source ./call-until-success.sh
+source "$ARK_HOME_DIR"/call-until-success.sh
 function ics721_transfer() {
     ARGS=$@ # backup args
     while [[ "$#" -gt 0 ]]; do
@@ -217,13 +217,13 @@ function ics721_transfer() {
     fi
     TX_HEIGHT=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.height'`
 
-    HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT >&2"
+    HERMES_CMD="hermes --config $ARK_HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT >&2"
     echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
     if [ "$RELAY" = "true" ]; then
-        echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
-        hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$PORT" >&2
+        echo "hermes --config $ARK_HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
+        hermes --config $ARK_HERMES_DIR/config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$PORT" >&2
     else
-        echo "skip: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
+        echo "skip: hermes --config $ARK_HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
     fi
 
     # ====== check receival on target chain
