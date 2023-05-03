@@ -7,15 +7,18 @@ function ics721_transfer() {
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2,,}"; shift ;; # lowercase
-            --collection) COLLECTION="$2"; shift ;; # NFT module
+            --collection) COLLECTION="$2"; shift ;;
             --token) TOKEN="$2"; shift ;;
             --from) FROM="$2"; shift ;;
             --recipient) RECIPIENT="$2"; shift ;;
+            --port) PORT="${2}"; shift ;;
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
+            --governed) GOVERNED="true";;
             --duration) DURATION="$2"; shift ;;
             --amount) AMOUNT="$2"; shift ;;
+            --proxy) PROXY="$2"; shift ;;
             *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
@@ -42,6 +45,12 @@ function ics721_transfer() {
     if [ -z "$RECIPIENT" ]
     then
         echo "--recipient is required" >&2
+        return 1
+    fi
+
+    if [ -z "$PORT" ]
+    then
+        echo "--port is required" >&2
         return 1
     fi
 
@@ -122,6 +131,11 @@ function ics721_transfer() {
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         # ======== wasm module
+        if [[ ! "$PORT" == wasm.* ]]
+        then
+            echo "Port does not start with 'wasm.': $PORT" >&2
+            return 1
+        fi
         # ====== send token to ICS721 contract
         TIMESTAMP=`date -d "$DURATION" +%s%N` # time in nano seconds, other options: "+1 day"
         printf -v RAW_MSG '{
@@ -135,14 +149,27 @@ function ics721_transfer() {
         echo "$RAW_MSG" | jq >&2
         # Base64 encode msg
         MSG=`echo "$RAW_MSG" | base64 | xargs | sed 's/ //g'` # xargs concats multiple lines into one (with spaces), sed removes spaces
-        printf -v EXECUTE_MSG '{"send_nft": {
-"contract": "%s",
+        # send nft either to (1) ICS721 or (2) via proxy, in case of proxy it may also be (3) governed
+        # (1) send_nft: call from collection to ics721
+        # (2) send_nft: call from collection to proxy
+        # (3) bridge_nft: call from proxy (which then sub calls send_nft from collection to proxy)
+        BRIDGE_OR_SEND_NFT=$( [ ! -z "$GOVERNED" ] && echo "bridge_nft" || echo "send_nft")
+        COLLECTION_OR_CONTRACT=$( [ ! -z "$GOVERNED" ] && echo "collection" || echo "contract")
+        COLLECTION_OR_CONTRACT_VALUE=$( [ ! -z "$GOVERNED" ] && echo "$COLLECTION" || echo "$ICS721_CONTRACT")
+        ICS721_CONTRACT=${PORT#"wasm."} # remove 'wasm.' prefix
+        printf -v EXECUTE_MSG '{"%s": {
+"%s": "%s",
 "token_id": "%s",
 "msg": "%s"}}'\
-            "$CONTRACT_ICS721"\
-            "$TOKEN"\
-            "$MSG"
-        CMD="$CLI tx wasm execute '$COLLECTION' '$EXECUTE_MSG' \
+        "$BRIDGE_OR_SEND_NFT"\
+        "$COLLECTION_OR_CONTRACT"\
+        "$COLLECTION_OR_CONTRACT_VALUE"\
+        "$TOKEN"\
+        "$MSG"
+
+
+        PROXY_OR_COLLECTION=$( [ ! -z "$GOVERNED" ] && echo "$PROXY" || echo "$COLLECTION")
+        CMD="$CLI tx wasm execute '$PROXY_OR_COLLECTION' '$EXECUTE_MSG' \
 --from "$FROM" \
 --gas-prices "$GAS_PRICES" \
 --gas "$GAS" \
@@ -152,7 +179,7 @@ function ics721_transfer() {
     else
         # ======== nft-transfer module
         TIMEOUT=`expr $(date -d "2000-01-01 $DURATION" +%s%N) - $(date -d "2000-01-01" +%s%N)` # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now
-        CMD="$CLI tx nft-transfer transfer '$ICS721_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
+        CMD="$CLI tx nft-transfer transfer '$PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from "$FROM" \
 --fees "$FEES" \
 --packet-timeout-timestamp $TIMEOUT \
@@ -190,13 +217,13 @@ function ics721_transfer() {
     fi
     TX_HEIGHT=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.height'`
 
-    HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT >&2"
+    HERMES_CMD="hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT >&2"
     echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
     if [ "$RELAY" = "true" ]; then
-        echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
-        hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$ICS721_PORT" >&2
+        echo "hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
+        hermes --config ../config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$PORT" >&2
     else
-        echo "skip: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $ICS721_PORT" >&2
+        echo "skip: hermes --config ../config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
     fi
 
     # ====== check receival on target chain
