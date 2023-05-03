@@ -60,7 +60,7 @@ function collection_by_class_id() {
             "$DEST_CONTRACT_ICS721"\
             "$QUERY_MSG"
         CALL_COUNT="$MAX_CALL_LIMIT"
-        printf "retrieving class-id" >&2
+        printf "retrieving class-id: $QUERY_CMD" >&2
         while [[ -z "$COLLECTION" ]] || [[ "$COLLECTION" = null ]]; do
             CALL_COUNT=$(($CALL_COUNT - 1))
             if [[ ${SLEEP+x} ]];then
@@ -69,6 +69,8 @@ function collection_by_class_id() {
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD" 2>/dev/null`
             EXIT_CODE=$?
             if [ "$EXIT_CODE" -ne 0 ]; then
+                printf "\n" >&2
+                echo "ERROR!" >&2
                 return $EXIT_CODE;
             fi
             COLLECTION=`echo $QUERY_OUTPUT | jq -r '.data.data'`
