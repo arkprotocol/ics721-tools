@@ -37,7 +37,8 @@ function nft_query_approvals() {
 
     if [ "$ICS721_MODULE" == wasm ]
     then
-        printf -v QUERY_APPROVALS_MSG '{"approvals": {"token_id": "%s"}}' "$TOKEN"
+        # owner_of query also contains approvals info
+        printf -v QUERY_APPROVALS_MSG '{"owner_of": {"token_id": "%s"}}' "$TOKEN"
         printf -v QUERY_APPROVALS_CMD "$CLI query wasm contract-state smart $COLLECTION '$QUERY_APPROVALS_MSG'"
         QUERY_APPROVALS_OUTPUT=`execute_cli "$QUERY_APPROVALS_CMD"`
     else
