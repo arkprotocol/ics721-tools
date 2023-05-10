@@ -46,7 +46,7 @@ ark select chain juno
 ark create collection --label test --symbol ArkAlphaCollection --from $WALLET_MINTER --code-id $CODE_ID_CW721 | jq # 
 # - irisnet
 ark select chain irisnet
-ark create collection --collection testCollection001 --symbol ArkAlphaCollection --from $WALLET_MINTER --code-id $CODE_ID_CW721 | jq
+ark create collection --collection testCollection001 --symbol ArkAlphaCollection --from $WALLET_MINTER | jq
 
 ```
 
