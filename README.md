@@ -18,6 +18,72 @@ Higly recommended: Do you wonder why it is possible by transferring 2 NFTs to th
 
 ![Building Multi-Chain NFT Utilities](https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa0c571f0-9a1f-4747-9786-d63c0f29685f_1600x913.jpeg)
 
+# Quick Start
+
+Setup `ark` CLI:
+
+```sh
+git clone https://github.com/arkprotocol/ics721-tools
+cd ics721-tools/cli
+export ARK_ENV_DIR=$(pwd)
+export ARK_HOME_DIR=$(pwd)
+export ARK_HERMES_DIR=$(pwd)/..
+# load ark CLI
+source $ARK_HOME_DIR/ark-cli.sh
+# now working e.g. on juno chain will read config file from this repo in scripts folder
+ark select chain stargaze # reads juno.env file
+echo $WALLET_MINTER # test correct wallet is shown as defined in env file
+```
+
+## Create a collection
+
+```sh
+# - stargaze
+ark select chain stargaze
+ark create collection --label test --symbol ArkAlphaCollection --from $WALLET_MINTER --code-id $CODE_ID_CW721 | jq # 
+# - juno
+ark select chain juno
+ark create collection --label test --symbol ArkAlphaCollection --from $WALLET_MINTER --code-id $CODE_ID_CW721 | jq # 
+# - irisnet
+ark select chain irisnet
+ark create collection --collection testCollection001 --symbol ArkAlphaCollection --from $WALLET_MINTER --code-id $CODE_ID_CW721 | jq
+
+```
+
+## Mint/issue an NFT
+
+```sh
+# - stargaze
+ark select chain stargaze
+ark mint nft --from $WALLET_MINTER --recipient $WALLET_MINTER --collection $TEST_COLLECTION --token ark001
+# - juno
+ark select chain juno
+ark mint nft --from $WALLET_MINTER --recipient $WALLET_MINTER --collection $TEST_COLLECTION --token ark001
+# - irisnet
+ark select chain irisnet
+ark mint nft --from $WALLET_MINTER --recipient $WALLET_MINTER --collection $TEST_COLLECTION --token ark001
+
+```
+
+## Transfer an NFT
+
+```sh
+# - stargaze to irisnet
+ark select chain stargaze
+ark transfer ics721 token --from $WALLET_MINTER --recipient iaa183e7ccwsnngj2q8lfxnmekunspnfxs6qxd4v3f --target-chain irisnet --source-channel $CHANNEL_2_TO_IRISNET --collection $TEST_COLLECTION --port $ICS721_PORT --duration "+60 minutes" --relay --token ark001
+# transfer output on target, irisnet is:
+# "collection": "ibc/C98A9212AAF75521F8ABD9A8F0853384DE9D0C16776A0A556AFC9EC2B0EDE713",
+# "class_id": "nft-transfer/channel-23/stars1nxejvz48thntgdzg9tr0xpdfmv9fq2nkn7pgl7ek2k0jsmdyzy9sksqrxy",
+
+# - transfer above nft from irisnet back to stargaze
+ark select chain irisnet
+ark transfer ics721 token --from $WALLET_MINTER --recipient stars1lfzfh4ceu60er5ewl5h0py9se4qm043rz80dr6 --target-chain stargaze --source-channel $CHANNEL_2_TO_STARGAZE --collection "ibc/C98A9212AAF75521F8ABD9A8F0853384DE9D0C16776A0A556AFC9EC2B0EDE713" --port $ICS721_PORT --duration "+60 minutes" --relay --token ark001
+# transfer output on target, stargaze is:
+# "collection": "stars1nxejvz48thntgdzg9tr0xpdfmv9fq2nkn7pgl7ek2k0jsmdyzy9sksqrxy",
+# "class_id": "stars1nxejvz48thntgdzg9tr0xpdfmv9fq2nkn7pgl7ek2k0jsmdyzy9sksqrxy",
+```
+
+Of course there is a lot more you can do with `ark`'s CLI ;) - like transferring through multiple chains with one command and reverting it back. Check details below.
 
 # How-To Send NFTs to Another Chain Using ICS721
 
