@@ -153,10 +153,10 @@ function ics721_transfer() {
         # (1) send_nft: call from collection to ics721
         # (2) send_nft: call from collection to proxy
         # (3) bridge_nft: call from proxy (which then sub calls send_nft from collection to proxy)
+        ICS721_CONTRACT=${PORT#"wasm."} # remove 'wasm.' prefix
         BRIDGE_OR_SEND_NFT=$( [ ! -z "$GOVERNED" ] && echo "bridge_nft" || echo "send_nft")
         COLLECTION_OR_CONTRACT=$( [ ! -z "$GOVERNED" ] && echo "collection" || echo "contract")
         COLLECTION_OR_CONTRACT_VALUE=$( [ ! -z "$GOVERNED" ] && echo "$COLLECTION" || echo "$ICS721_CONTRACT")
-        ICS721_CONTRACT=${PORT#"wasm."} # remove 'wasm.' prefix
         printf -v EXECUTE_MSG '{"%s": {
 "%s": "%s",
 "token_id": "%s",
