@@ -40,6 +40,7 @@ source "$ARK_HOME_DIR"/nft-query-approvals.sh
 source "$ARK_HOME_DIR"/nft-transfer.sh
 source "$ARK_HOME_DIR"/chain-query-height.sh
 source "$ARK_HOME_DIR"/nft-query-snapshot.sh
+source "$ARK_HOME_DIR"/wasm_tx_store.sh
 
 function ark() {
     ARGS=$@ # backup args
@@ -285,6 +286,27 @@ function ark() {
                             echo "$HISTORY"
                             # return and do not execute or add to history
                             return 0
+                            ;;
+                        *)
+                            echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
+                            return 1
+                            ;;
+                    esac
+                    ;;
+                *)
+                    echo "Unknown command: $COMMAND, args passed: '$ARGS'" >&2
+                    return 1
+                    ;;
+            esac
+            ;;
+        wasm)
+            case $COMMAND in
+                tx)
+                    SUB_COMMAND="$1"
+                    shift
+                    case $SUB_COMMAND in
+                        store)
+                            ARK_FUN="wasm_tx_store"
                             ;;
                         *)
                             echo "Unknown sub command: $SUB_COMMAND, args passed: '$ARGS'" >&2
