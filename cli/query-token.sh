@@ -3,7 +3,7 @@ function query_token() {
     ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
-            --chain) CHAIN=""${2^^}""; shift ;; # uppercase
+            --chain) CHAIN=""${2,,}""; shift ;; # lowercase
             --collection) COLLECTION_ID="$2"; shift ;; # NFT module
             --token) TOKEN_ID="$2"; shift ;;
             *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;

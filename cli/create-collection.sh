@@ -8,7 +8,7 @@ function create_collection() {
     ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --chain) CHAIN=""${2,,}""; shift ;; # uppercase
+            --chain) CHAIN=""${2,,}""; shift ;; # lowercase
             --name) NAME="$2"; shift ;;
             --data) DATA="$2"; shift ;;
             --symbol) SYMBOL="$2"; shift ;;

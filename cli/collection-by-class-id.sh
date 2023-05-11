@@ -3,7 +3,7 @@ function collection_by_class_id() {
     ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
-            --chain) CHAIN=""${2^^}""; shift ;; # uppercase
+            --chain) CHAIN=""${2,,}""; shift ;; # lowercase
             --class-id) CLASS_ID="$2"; shift ;;
             --dest-port) DEST_PORT="$2"; shift ;;
             --max-call-limit) MAX_CALL_LIMIT="$2"; shift ;;

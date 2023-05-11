@@ -3,7 +3,7 @@ function nft_mint() {
     ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --chain) CHAIN=""${2^^}""; shift ;; # uppercase
+            --chain) CHAIN=""${2,,}""; shift ;; # lowercase
             --collection) COLLECTION_ID="$2"; shift ;;
             --token) TOKEN="$2"; shift ;;
             --data) DATA="$2"; shift ;;

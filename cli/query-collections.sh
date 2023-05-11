@@ -3,7 +3,7 @@ function query_collections() {
     ARGS=$@
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --chain) CHAIN="${2^^}"; shift ;; # uppercase
+            --chain) CHAIN="${2,,}"; shift ;; # lowercase
             --owner) OWNER="${2,,}"; shift ;; # lowercase
             --limit) LIMIT="${2}"; shift ;;
             --offset) OFFSET="${2}"; shift ;;
