@@ -32,10 +32,12 @@ function query_channels() {
         LENGTH=`echo $CHANNELS | jq length`
         echo "length $LENGTH" >&2
         if [[ $LENGTH == 0 ]];then
+            echo END >&2
             break
         fi
         ALL_CHANNELS=`echo "$ALL_CHANNELS" | jq ". + $CHANNELS"`
         PAGE=`expr $PAGE + 1`
     done
-    echo $QUERY_OUTPUT | jq "{ cmd: .cmd, data: $ALL_CHANNELS}"
+    CMD=`echo $QUERY_OUTPUT | jq -r ".cmd"`
+    echo "{\"cmd\": \"$CMD\", \"data\": $ALL_CHANNELS}"
 }
