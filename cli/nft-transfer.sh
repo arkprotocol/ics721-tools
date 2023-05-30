@@ -114,3 +114,5 @@ function nft_transfer() {
     echo "succesfully transferred, tx: $TXHASH" >&2
     echo "$QUERY_OUTPUT"
 }
+
+export -f nft_transfer

@@ -41,3 +41,5 @@ function query_tx() {
     QUERY_CMD="$CLI query tx $TX"
     call_until_success --cmd "$QUERY_CMD" --max-call-limit "$MAX_CALL_LIMIT"
 }
+
+export -f query_tx

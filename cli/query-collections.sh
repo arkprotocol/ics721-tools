@@ -153,3 +153,5 @@ function query_collections() {
         return 1
     fi
 }
+
+export -f query_collections

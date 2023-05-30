@@ -349,3 +349,5 @@ else
 fi
 
 echo "- max calls (like tx queries) until succcesful response set to: MAX_CALL_LIMIT=$MAX_CALL_LIMIT"
+
+export -f ark

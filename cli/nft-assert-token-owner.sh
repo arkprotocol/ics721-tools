@@ -95,3 +95,5 @@ function nft_assert_token_owner() {
     printf "\n" >&2
 
 }
+
+export -f nft_assert_token_owner

@@ -253,3 +253,5 @@ function create_collection() {
     fi
     return 1
 }
+
+export -f create_collection

@@ -26,3 +26,5 @@ function chain_query_height() {
     fi
     echo "{\"chain\": \"$CHAIN\", \"height\": $NEXT_HEIGHT}"
 }
+
+export -f chain_query_height

@@ -372,3 +372,5 @@ function ics721_transfer() {
         duration: \"$DURATION\"\
     }"
 }
+
+export -f ics721_transfer

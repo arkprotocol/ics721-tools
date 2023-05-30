@@ -203,3 +203,5 @@ function nft_mint() {
     fi
 
 }
+
+export -f nft_mint

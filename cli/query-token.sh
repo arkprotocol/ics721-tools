@@ -67,3 +67,5 @@ function query_token() {
         return 1
     fi
 }
+
+export query_token

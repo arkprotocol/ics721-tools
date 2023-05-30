@@ -73,3 +73,5 @@ function nft_query_snapshot() {
         return 1
     fi
 }
+
+export -f nft_query_snapshot

@@ -27,3 +27,5 @@ function query_channel() {
     echo $CHANNELS | eval $FILTER_CHANNEL_CMD
 
 }
+
+export -f query_channel

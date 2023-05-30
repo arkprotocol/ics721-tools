@@ -103,3 +103,5 @@ function query_tokens() {
         return 1
     fi
 }
+
+export -f query_tokens

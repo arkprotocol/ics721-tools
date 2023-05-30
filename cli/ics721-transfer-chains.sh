@@ -247,3 +247,5 @@ total_duration_height: \"$DURATION_HEIGHT\", \
     echo "Skip revert: $REVERT_BACK_CMD" >&2
     echo "$RESULT"
 }
+
+export -f ics721_transfer_chains

@@ -41,3 +41,5 @@ function query_channels() {
     CMD=`echo $QUERY_OUTPUT | jq -r ".cmd"`
     echo "{\"cmd\": \"$CMD\", \"data\": $ALL_CHANNELS}"
 }
+
+export -f query_channels

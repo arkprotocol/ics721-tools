@@ -48,3 +48,5 @@ function nft_query_approvals() {
 
     echo $QUERY_APPROVALS_OUTPUT
 }
+
+export -f nft_query_approvals

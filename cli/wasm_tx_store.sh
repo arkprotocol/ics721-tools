@@ -73,3 +73,5 @@ function wasm_tx_store() {
     fi
     return 0
 }
+
+export -f wasm_tx_store

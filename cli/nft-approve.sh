@@ -105,3 +105,5 @@ function nft_approve() {
     RESULT=`echo "{}" | jq "{ cmd: \"$INITIAL_CMD\", data: {tx: \"$TXHASH\", id: \"$TOKEN\", collection: \"$COLLECTION\", spender: \"$SPENDER\", duration: \"$DURATION\"}}"`
     echo $RESULT | jq
 }
+
+export -f nft_approve

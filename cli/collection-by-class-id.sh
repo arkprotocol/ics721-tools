@@ -124,3 +124,5 @@ function collection_by_class_id() {
         return 1
     fi
 }
+
+export -f collection_by_class_id

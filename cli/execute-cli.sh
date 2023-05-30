@@ -39,3 +39,5 @@ function execute_cli() {
         echo $DATA | jq "{ cmd: \"$ESCAPED_CMD\", data: .}"
     fi
 }
+
+export -f execute_cli
