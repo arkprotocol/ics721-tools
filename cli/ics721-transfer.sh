@@ -15,7 +15,7 @@ function ics721_transfer() {
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
-            --governed) GOVERNED="true";;
+            --fee) FEE="true";;
             --duration) DURATION="$2"; shift ;;
             --amount) AMOUNT="$2"; shift ;;
             --proxy) PROXY="$2"; shift ;;
@@ -149,14 +149,14 @@ function ics721_transfer() {
         echo "$RAW_MSG" | jq >&2
         # Base64 encode msg
         MSG=`echo "$RAW_MSG" | base64 | xargs | sed 's/ //g'` # xargs concats multiple lines into one (with spaces), sed removes spaces
-        # send nft either to (1) ICS721 or (2) via proxy, in case of proxy it may also be (3) governed
+        # send nft either to (1) ICS721 or (2) via proxy, in case of proxy it may also have (3) transfer fee
         # (1) send_nft: call from collection to ics721
         # (2) send_nft: call from collection to proxy
-        # (3) bridge_nft: call from proxy (which then sub calls send_nft from collection to proxy)
+        # (3) bridge_nft: call from proxy (which then sub calls transfer_nft from collection to proxy, and forwards cw721_receive_msg to ics721)
         ICS721_CONTRACT=${PORT#"wasm."} # remove 'wasm.' prefix
-        BRIDGE_OR_SEND_NFT=$( [ ! -z "$GOVERNED" ] && echo "bridge_nft" || echo "send_nft")
-        COLLECTION_OR_CONTRACT=$( [ ! -z "$GOVERNED" ] && echo "collection" || echo "contract")
-        COLLECTION_OR_CONTRACT_VALUE=$( [ ! -z "$GOVERNED" ] && echo "$COLLECTION" || echo "$ICS721_CONTRACT")
+        BRIDGE_OR_SEND_NFT=$( [ ! -z "$FEE" ] && echo "bridge_nft" || echo "send_nft")
+        COLLECTION_OR_CONTRACT=$( [ ! -z "$FEE" ] && echo "collection" || echo "contract")
+        COLLECTION_OR_CONTRACT_VALUE=$( [ ! -z "$FEE" ] && echo "$COLLECTION" || echo "$ICS721_CONTRACT")
         printf -v EXECUTE_MSG '{"%s": {
 "%s": "%s",
 "token_id": "%s",
@@ -168,7 +168,7 @@ function ics721_transfer() {
         "$MSG"
 
 
-        PROXY_OR_COLLECTION=$( [ ! -z "$GOVERNED" ] && echo "$PROXY" || echo "$COLLECTION")
+        PROXY_OR_COLLECTION=$( [ ! -z "$FEE" ] && echo "$PROXY" || echo "$COLLECTION")
         CMD="$CLI tx wasm execute '$PROXY_OR_COLLECTION' '$EXECUTE_MSG' \
 --from "$FROM" \
 --gas-prices "$GAS_PRICES" \
