@@ -45,7 +45,7 @@ function call_until_success() {
     printf "\n" >&2
 
     # add functions if not yet defined
-    source "$ARK_HOME_DIR"/execute-cli.sh >&2
+    source "$ARK_CLI_DIR"/execute-cli.sh >&2
 
     QUERY_OUTPUT=`execute_cli "$CMD"`
     EXIT_CODE=$?

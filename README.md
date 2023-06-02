@@ -26,10 +26,10 @@ Setup `ark` CLI:
 git clone https://github.com/arkprotocol/ics721-tools
 cd ics721-tools/cli
 export ARK_ENV_DIR=$(pwd)
-export ARK_HOME_DIR=$(pwd)
-export ARK_HERMES_DIR=$(pwd)/..
+export ARK_CLI_DIR=$(pwd)
+export HERMES_DIR=$(pwd)/..
 # load ark CLI
-source $ARK_HOME_DIR/ark-cli.sh
+source $ARK_CLI_DIR/ark-cli.sh
 # now working e.g. on juno chain will read config file from this repo in scripts folder
 ark select chain stargaze # reads juno.env file
 echo $WALLET_MINTER # test correct wallet is shown as defined in env file

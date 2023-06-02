@@ -1,8 +1,8 @@
 #!/bin/bash
 ARGS=$@
 
-source "$ARK_HOME_DIR"/execute-cli.sh
-source "$ARK_HOME_DIR"/query-tx.sh
+source "$ARK_CLI_DIR"/execute-cli.sh
+source "$ARK_CLI_DIR"/query-tx.sh
 
 function create_collection() {
     ARGS=$@
