@@ -70,7 +70,7 @@ function nft_approve() {
         echo "====> approving NFT $TOKEN for spender $SPENDER <====" >&2
         printf -v MSG '{"approve": {"spender": "%s", "token_id":"%s", "expires": {"at_time": "%s"}}}' \
 "$SPENDER" "$TOKEN" $(date -d "$DURATION" +%s%N) # approval for 2 minutes
-        APPROVAL_CMD="$CLI tx wasm execute $CW721_TEST '$MSG' --from $WALLET_MINTER --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT -b $BROADCAST_MODE --yes"
+        APPROVAL_CMD="$CLI tx wasm execute $COLLECTION '$MSG' --from $WALLET_MINTER --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT -b $BROADCAST_MODE --yes"
     else
         echo "Approve not supported for module $ICS721_MODULE" >&2
         return 1
