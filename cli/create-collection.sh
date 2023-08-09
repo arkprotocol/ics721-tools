@@ -93,9 +93,9 @@ function create_collection() {
             echo "$QUERY_OUTPUT" >&2
             return "$EXIT_CODE"
         fi
-        COLLECTION=`echo $QUERY_OUTPUT|jq -r '.data.logs[0].events[0].attributes[0].value'`
-        # $CLI query wasm contract-state smart $COLLECTION '{"contract_info": {}}' --output json | jq
-        # return contract
+        echo "retrieving collection address" >&2
+        COLLECTION=`echo $QUERY_OUTPUT| jq '.data.logs[0].events[] | select(.type == "instantiate") | .attributes[] | select(.key =="_contract_address")' | jq -r '.value'`
+        echo "collection address: $COLLECTION" >&2
         INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
         RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, id: \"$COLLECTION\"}"`
         echo $RESULT | jq
