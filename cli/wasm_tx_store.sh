@@ -38,7 +38,7 @@ function wasm_tx_store() {
     then
         # upload
         echo "====> $CHAIN: uploading $FILE)  <====" >&2
-        printf -v CMD "$CLI tx wasm store $FILE --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT -b $BROADCAST_MODE --from $WALLET_DEV --yes"
+        printf -v CMD "$CLI tx wasm store $FILE --fees $FEES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT -b $BROADCAST_MODE --from $WALLET_DEV --yes"
         CMD_OUTPUT=`execute_cli "$CMD"`
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]
