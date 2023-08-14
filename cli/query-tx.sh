@@ -40,6 +40,10 @@ function query_tx() {
 
     QUERY_CMD="$CLI query tx $TX"
     call_until_success --cmd "$QUERY_CMD" --max-call-limit "$MAX_CALL_LIMIT"
+    EXIT_CODE=$?
+    if [ "$EXIT_CODE" -ne 0 ]; then
+        return $EXIT_CODE;
+    fi
 }
 
 export -f query_tx
