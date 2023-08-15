@@ -118,7 +118,7 @@ function create_collection() {
 %s \
 --mint-restricted=true --update-restricted=true \
 --from "$FROM" \
---fees "$FEES" \
+--fees "$MAX_FEES" \
 -b "$BROADCAST_MODE" --yes" \
 "$( [ ! -z "$SYMBOL" ] && echo "--symbol \"$SYMBOL\"" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
@@ -166,7 +166,7 @@ function create_collection() {
 %s \
 --mint-restricted=true --update-restricted=true \
 --from $FROM \
---fees $FEES \
+--fees $MAX_FEES \
 -b $BROADCAST_MODE --yes" \
 "$( [ ! -z $SYMBOL ] && echo "--symbol $SYMBOL" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"
@@ -215,7 +215,7 @@ function create_collection() {
 %s \
 %s \
 --from "$FROM" \
---fees "$FEES" \
+--fees "$MAX_FEES" \
 -b "$BROADCAST_MODE" --yes" \
 "$( [ ! -z $URI ] && echo "--uri $URI" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \

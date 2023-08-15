@@ -73,7 +73,7 @@ function nft_transfer() {
     else
         printf -v TRANSFER_CMD "$CLI tx $ICS721_MODULE transfer '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from $FROM \
---fees $FEES \
+--fees $MAX_FEES \
 -b $BROADCAST_MODE --yes"
     fi
 

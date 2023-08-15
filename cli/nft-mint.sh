@@ -113,7 +113,7 @@ function nft_mint() {
 %s \
 %s \
 %s \
---fees $FEES \
+--fees $MAX_FEES \
 -b $BROADCAST_MODE --yes" \
 "$( [ ! -z "$URI" ] && echo "--uri '$URI'" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
@@ -164,7 +164,7 @@ function nft_mint() {
 --media-uri '$URI' \
 %s \
 %s \
---fees $FEES \
+--fees $MAX_FEES \
 -b $BROADCAST_MODE --yes" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"

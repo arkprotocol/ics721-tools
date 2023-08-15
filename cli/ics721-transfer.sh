@@ -181,7 +181,7 @@ function ics721_transfer() {
         TIMEOUT=`expr $(date -d "2000-01-01 $DURATION" +%s%N) - $(date -d "2000-01-01" +%s%N)` # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now
         CMD="$CLI tx nft-transfer transfer '$PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from "$FROM" \
---fees "$FEES" \
+--fees "$MAX_FEES" \
 --packet-timeout-timestamp $TIMEOUT \
 -b "$BROADCAST_MODE" \
 --yes"
