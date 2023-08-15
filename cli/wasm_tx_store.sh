@@ -44,7 +44,7 @@ function wasm_tx_store() {
         if [ $EXIT_CODE != 0 ]
         then
             echo "$CMD_OUTPUT" >&2
-            return "$EXIT_CODE" >&2
+            return "$EXIT_CODE"
         fi
         TXHASH=`echo $CMD_OUTPUT | jq -r '.data.txhash'`
         if [ -z "$TXHASH" ] && [ "$TXHASH" = null ]
