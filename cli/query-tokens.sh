@@ -37,7 +37,7 @@ function query_tokens() {
             # echo "query page $PAGE" >&2
             printf -v QUERY_CMD "$CLI query wasm contract-state smart \
 %s \
-'%s'" \
+'%s' --chain-id $CHAIN_ID --node $CHAIN_NODE" \
 "$COLLECTION" \
 "$QUERY_MSG"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
