@@ -161,7 +161,7 @@ function ark() {
                                 ;;
                         esac
                     else
-                        echo "selected chain: $CHAIN" >&2
+                        echo "selected chain: $CHAIN in $ARK_ENV_DIR" >&2
                     fi
                     ;;
                 select)
