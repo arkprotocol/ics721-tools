@@ -175,6 +175,7 @@ function ics721_transfer() {
 --gas "$GAS" \
 --gas-adjustment "$GAS_ADJUSTMENT" \
 -b "$BROADCAST_MODE" \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     else
         # ======== nft-transfer module
@@ -184,6 +185,7 @@ function ics721_transfer() {
 --fees "$MAX_FEES" \
 --packet-timeout-timestamp $TIMEOUT \
 -b "$BROADCAST_MODE" \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     fi
 

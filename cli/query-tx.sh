@@ -38,7 +38,7 @@ function query_tx() {
     # source in case not yet initialised
     source "$ARK_CLI_DIR"/call-until-success.sh >&2
 
-    QUERY_CMD="$CLI query tx $TX"
+    QUERY_CMD="$CLI query tx $TX --node $CHAIN_NODE --chain-id $CHAIN_ID"
     call_until_success --cmd "$QUERY_CMD" --max-call-limit "$MAX_CALL_LIMIT"
     EXIT_CODE=$?
     if [ "$EXIT_CODE" -ne 0 ]; then

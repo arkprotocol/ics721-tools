@@ -67,7 +67,8 @@ function create_collection() {
 --from $FROM --label '$LABEL' \
 %s \
 --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT \
--b $BROADCAST_MODE --yes" \
+-b $BROADCAST_MODE --yes \
+--node $CHAIN_NODE --chain-id $CHAIN_ID" \
 "$( [ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
 
         CMD_OUTPUT=`execute_cli "$CMD"`
