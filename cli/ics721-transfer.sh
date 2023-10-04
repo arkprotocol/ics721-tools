@@ -88,6 +88,7 @@ function ics721_transfer() {
     # let's query as pre-task for saving time, before transferring, this way we also check whether channel is correct
     echo "====> query channel and its counter part (for NFT retrieval on target chain) <====" >&2
     SOURCE_CHANNEL_CMD="ark query channel channel --chain $CHAIN --channel $SOURCE_CHANNEL"
+    echo "$SOURCE_CHANNEL_CMD" >&2
     SOURCE_CHANNEL_OUTPUT=$($SOURCE_CHANNEL_CMD 2>/dev/null)
     # - return in case of error
     ARK_QUERY_CHANNL_EXIT_CODE=$?
