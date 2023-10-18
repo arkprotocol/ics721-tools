@@ -66,8 +66,8 @@ function create_collection() {
         printf -v CMD "$CLI tx wasm instantiate $CODE_ID \'$INSTANTIATE_MSG\' \
 --from $FROM --label '$LABEL' \
 %s \
---gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT \
--b $BROADCAST_MODE --yes \
+--gas-prices $CLI_GAS_PRICES --gas $CLI_GAS --gas-adjustment $CLI_GAS_ADJUSTMENT \
+-b $CLI_BROADCAST_MODE --yes \
 --node $CHAIN_NODE --chain-id $CHAIN_ID" \
 "$( [ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
 
@@ -119,8 +119,8 @@ function create_collection() {
 %s \
 --mint-restricted=true --update-restricted=true \
 --from "$FROM" \
---fees "$MAX_FEES" \
--b "$BROADCAST_MODE" --yes" \
+--fees "$CLI_FEES" \
+-b "$CLI_BROADCAST_MODE" --yes" \
 "$( [ ! -z "$SYMBOL" ] && echo "--symbol \"$SYMBOL\"" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")" \
@@ -167,8 +167,8 @@ function create_collection() {
 %s \
 --mint-restricted=true --update-restricted=true \
 --from $FROM \
---fees $MAX_FEES \
--b $BROADCAST_MODE --yes" \
+--fees $CLI_MAX_FEES \
+-b $CLI_BROADCAST_MODE --yes" \
 "$( [ ! -z $SYMBOL ] && echo "--symbol $SYMBOL" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name \"$NAME\"" || echo "")"
 
@@ -216,8 +216,8 @@ function create_collection() {
 %s \
 %s \
 --from "$FROM" \
---fees "$MAX_FEES" \
--b "$BROADCAST_MODE" --yes" \
+--fees "$CLI_MAX_FEES" \
+-b "$CLI_BROADCAST_MODE" --yes" \
 "$( [ ! -z $URI ] && echo "--uri $URI" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$DESCRIPTION" ] && echo "--description=\"$DESCRIPTION\"" || echo "")" # --description not documented in CLI...

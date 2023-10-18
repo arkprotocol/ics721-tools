@@ -60,8 +60,8 @@ function nft_mint() {
             "$( [ ! -z $URI ] && echo ", \"token_uri\": \"$URI\"" || echo "")"
         printf -v CMD "$CLI tx wasm execute %s '$MINT_MSG'\
             --from $FROM\
-            --gas-prices $GAS_PRICES --gas $GAS --gas-adjustment $GAS_ADJUSTMENT\
-            -b $BROADCAST_MODE --chain-id $CHAIN_ID --node $CHAIN_NODE --yes"\
+            --gas-prices $CLI_GAS_PRICES --gas $CLI_GAS --gas-adjustment $CLI_GAS_ADJUSTMENT\
+            -b $CLI_BROADCAST_MODE --chain-id $CHAIN_ID --node $CHAIN_NODE --yes"\
             "$COLLECTION_ID"
         CMD_OUTPUT=`execute_cli "$CMD"`
         EXIT_CODE=$?
@@ -94,8 +94,8 @@ function nft_mint() {
     else
         if [ -z "$COLLECTION_ID" ]
         then
-            echo "--collection not defined, using $DENOM_ID" >&2
-            COLLECTION_ID="$DENOM_ID"
+            echo "--collection not defined, using $CLI_DENOM_ID" >&2
+            COLLECTION_ID="$CLI_DENOM_ID"
         fi
 
         if [ "$ICS721_MODULE" = nft ] || [ "$ICS721_MODULE" = collection ]
@@ -113,8 +113,8 @@ function nft_mint() {
 %s \
 %s \
 %s \
---fees $MAX_FEES \
--b $BROADCAST_MODE --yes \
+--fees $CLI_FEES \
+-b $CLI_BROADCAST_MODE --yes \
 --node $CHAIN_NODE --chain-id $CHAIN_ID" \
 "$( [ ! -z "$URI" ] && echo "--uri '$URI'" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
@@ -165,8 +165,8 @@ function nft_mint() {
 --media-uri '$URI' \
 %s \
 %s \
---fees $MAX_FEES \
--b $BROADCAST_MODE --yes \
+--fees $CLI_MAX_FEES \
+-b $CLI_BROADCAST_MODE --yes \
 --node $CHAIN_NODE --chain-id $CHAIN_ID" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"

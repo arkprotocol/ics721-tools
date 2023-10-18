@@ -66,17 +66,17 @@ function nft_transfer() {
 "$TOKEN" "$RECIPIENT"
         printf -v TRANSFER_CMD "$CLI tx wasm execute '$COLLECTION' '$TRANSFER_MSG' \
 --from $FROM \
---gas-prices $GAS_PRICES \
---gas $GAS \
---gas-adjustment $GAS_ADJUSTMENT \
+--gas-prices $CLI_GAS_PRICES \
+--gas $CLI_GAS \
+--gas-adjustment $CLI_GAS_ADJUSTMENT \
 --chain-id $CHAIN_ID --node $CHAIN_NODE \
--b $BROADCAST_MODE --yes"
+-b $CLI_BROADCAST_MODE --yes"
     else
         printf -v TRANSFER_CMD "$CLI tx $ICS721_MODULE transfer '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from $FROM \
---fees $MAX_FEES \
+--fees $CLI_FEES \
 --chain-id $CHAIN_ID --node $CHAIN_NODE \
--b $BROADCAST_MODE --yes"
+-b $CLI_BROADCAST_MODE --yes"
     fi
 
     # execute

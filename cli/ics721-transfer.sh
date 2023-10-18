@@ -172,10 +172,10 @@ function ics721_transfer() {
         PROXY_OR_COLLECTION=$( [ ! -z "$FEE" ] && echo "$PROXY" || echo "$COLLECTION")
         CMD="$CLI tx wasm execute '$PROXY_OR_COLLECTION' '$EXECUTE_MSG' \
 --from "$FROM" \
---gas-prices "$GAS_PRICES" \
---gas "$GAS" \
---gas-adjustment "$GAS_ADJUSTMENT" \
--b "$BROADCAST_MODE" \
+--gas-prices "$CLI_GAS_PRICES" \
+--gas "$CLI_GAS" \
+--gas-adjustment "$CLI_GAS_ADJUSTMENT" \
+-b "$CLI_BROADCAST_MODE" \
 --chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     else
@@ -183,9 +183,9 @@ function ics721_transfer() {
         TIMEOUT=`expr $(date -d "2000-01-01 $DURATION" +%s%N) - $(date -d "2000-01-01" +%s%N)` # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now
         CMD="$CLI tx nft-transfer transfer '$PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from "$FROM" \
---fees "$MAX_FEES" \
+--fees "$CLI_FEES" \
 --packet-timeout-timestamp $TIMEOUT \
--b "$BROADCAST_MODE" \
+-b "$CLI_BROADCAST_MODE" \
 --chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     fi
