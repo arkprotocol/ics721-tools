@@ -21,11 +21,11 @@ function execute_cli() {
 
     # evaluate code for success or fail
     CODE=`echo $DATA | jq '.code'`
-    if [ -n $CODE ] && [ $CODE != null ] && [ $CODE != 0 ]
+    if [ -n "$CODE" ] && [ "$CODE" != null ] && [ "$CODE" != 0 ]
     then
         RAW_LOG=`echo $DATA | jq -r '.raw_log'`
         CODE_SPACE=`echo $DATA | jq '.codespace'`
-        echo SDK code: $CODE, code space: $CODE_SPACE >&2
+        echo SDK code: "$CODE", code space: $CODE_SPACE >&2
         echo "$DATA" | jq >&2
         echo $RAW_LOG >&2
         return 1
