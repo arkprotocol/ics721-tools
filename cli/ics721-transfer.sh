@@ -172,7 +172,9 @@ function ics721_transfer() {
         PROXY_OR_COLLECTION=$( [ ! -z "$FEE" ] && echo "$PROXY" || echo "$COLLECTION")
         CMD="$CLI tx wasm execute '$PROXY_OR_COLLECTION' '$EXECUTE_MSG' \
 --from "$FROM" \
---fees "$CLI_FEES" \
+--gas-prices "$CLI_GAS_PRICES" \
+--gas "$CLI_GAS" \
+--gas-adjustment "$CLI_GAS_ADJUSTMENT" \
 -b "$CLI_BROADCAST_MODE" \
 --chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
