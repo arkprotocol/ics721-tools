@@ -60,7 +60,7 @@ function nft_mint() {
             "$( [ ! -z $URI ] && echo ", \"token_uri\": \"$URI\"" || echo "")"
         printf -v CMD "$CLI tx wasm execute %s '$MINT_MSG'\
             --from $FROM\
-            --gas-prices $CLI_GAS_PRICES --gas $CLI_GAS --gas-adjustment $CLI_GAS_ADJUSTMENT\
+            --fees $CLI_FEES\
             -b $CLI_BROADCAST_MODE --chain-id $CHAIN_ID --node $CHAIN_NODE --yes"\
             "$COLLECTION_ID"
         CMD_OUTPUT=`execute_cli "$CMD"`
