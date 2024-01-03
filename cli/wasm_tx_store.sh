@@ -6,11 +6,15 @@ source "$ARK_CLI_DIR"/query-tx.sh
 
 function wasm_tx_store() {
     ARGS=$@
+    unset FEE_GRANTER
+    unset FILE
+    unset FROM
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             --chain) CHAIN=""${2,,}""; shift ;; # lowercase
             --file) FILE="$2"; shift ;;
             --from) FROM="$2"; shift ;;
+            --fee-granter) FEE_GRANTER="$2"; shift ;;
             *) echo "Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
@@ -39,6 +43,10 @@ function wasm_tx_store() {
         # upload
         echo "====> $CHAIN: uploading $FILE)  <====" >&2
         printf -v CMD "$CLI tx wasm store $FILE --gas $CLI_GAS --gas-prices $CLI_GAS_PRICES --gas-adjustment $CLI_GAS_ADJUSTMENT -b $CLI_BROADCAST_MODE --from $WALLET_DEV --yes --node $CHAIN_NODE --chain-id $CHAIN_ID"
+        if [ ! -z "$FEE_GRANTER" ]
+        then
+            CMD+=" --fee-granter $FEE_GRANTER"
+        fi
         CMD_OUTPUT=`execute_cli "$CMD"`
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]
