@@ -113,14 +113,10 @@ function ics721_transfer() {
     echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
     echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
-    printf -v ASSERT_TOKEN_QUERY_CMD "ark assert nft token-owner \
---chain $CHAIN \
---collection $COLLECTION \
---token $TOKEN \
---owner $FROM \
---max-call-limit $MAX_CALL_LIMIT"
-    echo "$ASSERT_TOKEN_QUERY_CMD " >&2
-    ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
+    ASSERT_TOKEN_QUERY_CMD=("ark" "assert" "nft" "token-owner" "--chain" "$CHAIN" "--collection" "$COLLECTION" "--token" "$TOKEN" "--owner" "$FROM" "--max-call-limit" "$MAX_CALL_LIMIT")
+    echo "${ASSERT_TOKEN_QUERY_CMD[@]}" >&2
+    ASSERT_TOKEN_QUERY_OUTPUT=$("${ASSERT_TOKEN_QUERY_CMD[@]}")
+
     # return in case of error
     ASSERT_TOKEN_QUERY_EXIT_CODE=$?
     if [ $ASSERT_TOKEN_QUERY_EXIT_CODE != 0 ]; then
@@ -336,13 +332,10 @@ function ics721_transfer() {
     SOURCE_CHAIN=$CHAIN # backup
     ark select chain $TARGET_CHAIN
     TARGET_CHAIN_ID=$CHAIN_ID
-    printf -v ASSERT_TOKEN_QUERY_CMD "ark assert nft token-owner \
---collection $TARGET_COLLECTION \
---token $TOKEN \
---owner $RECIPIENT \
---max-call-limit $MAX_CALL_LIMIT"
-    echo "$ASSERT_TOKEN_QUERY_CMD " >&2
-    ASSERT_TOKEN_QUERY_OUTPUT=$($ASSERT_TOKEN_QUERY_CMD)
+    ASSERT_TOKEN_QUERY_CMD=("ark" "assert" "nft" "token-owner" "--chain" "$CHAIN" "--collection" "$TARGET_COLLECTION" "--token" "$TOKEN" "--owner" "$RECIPIENT" "--max-call-limit" "$MAX_CALL_LIMIT")
+    echo "${ASSERT_TOKEN_QUERY_CMD[@]}" >&2
+    ASSERT_TOKEN_QUERY_OUTPUT=$(${ASSERT_TOKEN_QUERY_CMD[@]})
+
     # return in case of error
     ASSERT_TOKEN_QUERY_EXIT_CODE=$?
     if [ $ASSERT_TOKEN_QUERY_EXIT_CODE != 0 ]; then

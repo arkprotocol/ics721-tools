@@ -2,6 +2,7 @@
 
 # Helper method, returns successful (exit code 0) when token is owned by recipient
 function nft_assert_token_owner() {
+    ARGS=$@ # backup args
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
             --chain) CHAIN="${2,,}"; shift ;; # lowercase
@@ -9,6 +10,7 @@ function nft_assert_token_owner() {
             --token) TOKEN="$2"; shift ;;
             --owner) OWNER="$2"; shift ;;
             --max-call-limit) MAX_CALL_LIMIT="$2"; shift ;;
+            *) echo ">>>Unknown parameter: $1, args passed: '$ARGS'" >&2; return 1 ;;
         esac
         shift
     done
@@ -57,7 +59,7 @@ function nft_assert_token_owner() {
         printf -v QUERY_TOKEN_CMD "ark query collection tokens --chain $CHAIN --collection $COLLECTION"
     fi
     CALL_COUNT="$MAX_CALL_LIMIT"
-    printf "$QUERY_TOKEN_CMD " >&2
+    printf "$QUERY_TOKEN_CMD" >&2
     while [[ $CALL_COUNT -gt 0 ]];do
         QUERY_TOKEN_OUTPUT=$(call_until_success \
 --cmd "$QUERY_TOKEN_CMD" \
@@ -66,7 +68,7 @@ function nft_assert_token_owner() {
         EXIT_CODE=$?
         if [ $EXIT_CODE != 0 ]; then
             printf "\n" >&2
-            echo "$QUERY_TOKEN_OUTPUT" >&2
+            echo "EXIT_CODE $EXIT_CODE: $QUERY_TOKEN_OUTPUT" >&2
             return $EXIT_CODE
         fi
         if [[ "$ICS721_MODULE" == wasm ]]
