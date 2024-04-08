@@ -72,6 +72,12 @@ function wasm_tx_store() {
         fi
         # retrieve code id
         CODE_ID=`echo $QUERY_OUTPUT|jq '.data.logs[0].events[] | select(.type == "store_code") | .attributes[] | select(.key =="code_id")' | jq -r '.value'`
+        # if CODE_ID is empty, query in data.events
+        if [ -z "$CODE_ID" ] || [ "$CODE_ID" = null ]
+        then
+            echo "CODE_ID is empty, trying to get it from data.events" >&2
+            CODE_ID=`echo $QUERY_OUTPUT|jq '.data.events[] | select(.type == "store_code") | .attributes[] | select(.key =="code_id")' | jq -r '.value'`
+        fi
         INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
         RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, code_id: \"$CODE_ID\"}"`
         echo $RESULT | jq
