@@ -37,7 +37,7 @@ function select_chain() {
         select SELECTED_CHAIN_NET in "testnet" "mainnet" "Exit"; do
             case $SELECTED_CHAIN_NET in
                 testnet|mainnet) echo "Selected chain net: $SELECTED_CHAIN_NET" >&2; break ;;
-                Exit) echo "Exiting..." >&2; exit 0 ;;
+                Exit) echo "Exiting..." >&2; return 0 ;;
                 *) echo "Invalid choice. Please try again." >&2 ;;
             esac
         done
@@ -48,7 +48,7 @@ function select_chain() {
         echo "Please select the chain:" >&2
         select SELECTED_CHAIN in "${CHAIN_CHOICES[@]}" "Exit"; do
             case $SELECTED_CHAIN in
-                "Exit") echo "Exiting..." >&2; exit 0 ;;
+                "Exit") echo "Exiting..." >&2; return 0 ;;
                 *) if [[ " ${CHAIN_CHOICES[*]} " =~ " ${SELECTED_CHAIN} " ]]; then
                         echo "Selected chain: $SELECTED_CHAIN" >&2
                         export CHAIN="$SELECTED_CHAIN"
