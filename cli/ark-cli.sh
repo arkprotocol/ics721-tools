@@ -45,6 +45,8 @@ source "$ARK_CLI_DIR"/wasm_tx_store.sh
 source "$ARK_CLI_DIR"/select-chain.sh
 source "$ARK_CLI_DIR"/get-contract-addr-by-tx.sh
 
+ARCH="$(uname -m)"
+
 function ark() {
     ARGS=$@ # backup args
 
@@ -167,7 +169,11 @@ function ark() {
                     fi
                     ;;
                 select)
-                    CHAIN=${1,,} # lowercase
+                    if [[ ARCH="arm64" ]]; then
+                        CHAIN=${1:l} # lowercase
+                    else
+                        CHAIN=${1,,} # lowercase
+                    fi
                     ARK_ENV_FILE="$ARK_ENV_DIR/"${CHAIN}.env
                     echo "reading $ARK_ENV_FILE" >&2
                     source "$ARK_ENV_FILE"

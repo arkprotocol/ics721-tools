@@ -35,6 +35,14 @@ ark select chain stargaze # reads juno.env file
 echo $WALLET_MINTER # test correct wallet is shown as defined in env file
 ```
 
+### NOTE:
+if using Mac OS X version after Catalina (re: Zsh replaced Bash as macOS's default terminal shell in macOS Catalina)
+switch to bash before setting up/sourcing CLI.
+```
+/bin/bash
+```
+
+
 ## Create a collection
 
 ```sh
