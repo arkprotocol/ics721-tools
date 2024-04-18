@@ -43,7 +43,7 @@ source "$ARK_CLI_DIR"/chain-query-height.sh
 source "$ARK_CLI_DIR"/nft-query-snapshot.sh
 source "$ARK_CLI_DIR"/wasm_tx_store.sh
 source "$ARK_CLI_DIR"/select-chain.sh
-source "$ARK_CLI_DIR"/get-contract-addr-by-tx.sh
+source "$ARK_CLI_DIR"/get-attribute-by-tx.sh
 
 function ark() {
     ARGS=$@ # backup args

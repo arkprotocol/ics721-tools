@@ -3,6 +3,12 @@
 # get function in case not yet initialised
 source "$ARK_CLI_DIR"/call-until-success.sh
 function ics721_transfer() {
+    if [ -z "$HERMES_DIR" ]
+    then
+        echo "\$HERMES_DIR not defined." >&2
+        return 1
+    fi
+
     ARGS=$@ # backup args
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
@@ -11,7 +17,7 @@ function ics721_transfer() {
             --token) TOKEN="$2"; shift ;;
             --from) FROM="$2"; shift ;;
             --recipient) RECIPIENT="$2"; shift ;;
-            --port) PORT="${2}"; shift ;;
+            --port) SOURCE_PORT="${2}"; shift ;;
             --target-chain) TARGET_CHAIN="${2,,}"; shift ;; # lowercase
             --source-channel) SOURCE_CHANNEL="${2}"; shift ;;
             --relay) RELAY="true";;
@@ -48,7 +54,7 @@ function ics721_transfer() {
         return 1
     fi
 
-    if [ -z "$PORT" ]
+    if [ -z "$SOURCE_PORT" ]
     then
         echo "--port is required" >&2
         return 1
@@ -86,31 +92,26 @@ function ics721_transfer() {
 
     # for checking NFT receival in collection on target chain, target channel and target port is needed
     # let's query as pre-task for saving time, before transferring, this way we also check whether channel is correct
-    echo "====> query channel and its counter part (for NFT retrieval on target chain) <====" >&2
-    SOURCE_CHANNEL_CMD="ark query channel channel --chain $CHAIN --channel $SOURCE_CHANNEL"
-    echo "$SOURCE_CHANNEL_CMD" >&2
-    SOURCE_CHANNEL_OUTPUT=$($SOURCE_CHANNEL_CMD 2>/dev/null)
+    echo "====> query counter part channel (for NFT retrieval on target chain) <====" >&2
+    TARGET_CHANNEL_CMD="$CLI query ibc channel end wasm.$ADDR_ICS721 $SOURCE_CHANNEL --chain-id $CHAIN_ID --node $CHAIN_NODE"
+    echo "$TARGET_CHANNEL_CMD" >&2
+    TARGET_CHANNEL_OUTPUT=$($TARGET_CHANNEL_CMD 2>/dev/null)
     # - return in case of error
     ARK_QUERY_CHANNL_EXIT_CODE=$?
     if [ $ARK_QUERY_CHANNL_EXIT_CODE != 0 ]; then
+        echo "error querying target channel $TARGET_CHANNEL_OUTPUT " >&2
         return $ARK_QUERY_CHANNL_EXIT_CODE
     fi
-    SOURCE_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.port_id'`
-    if [[ -z "$SOURCE_PORT" ]] || [[ "$SOURCE_PORT" = null ]];then
-        echo "missing port_id" >&2
-        return 1;
-    fi
-    TARGET_CHANNEL=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.channel_id'`
+    TARGET_CHANNEL=`echo "$TARGET_CHANNEL_OUTPUT" | jq -r '.channel.counterparty.channel_id'`
     if [[ -z "$TARGET_CHANNEL" ]] || [[ "$TARGET_CHANNEL" = null ]];then
-        echo "missing counterparty.channel_id" >&2
+        echo "missing counterparty.channel_id: $TARGET_CHANNEL_OUTPUT" >&2
         return 1;
     fi
-    TARGET_PORT=`echo "$SOURCE_CHANNEL_OUTPUT" | jq -r '.counterparty.port_id'`
+    TARGET_PORT=`echo "$TARGET_CHANNEL_OUTPUT" | jq -r '.channel.counterparty.port_id'`
     if [[ -z "$TARGET_PORT" ]] || [[ "$TARGET_PORT" = null ]];then
-        echo "missing counterparty.channel_id" >&2
+        echo "missing counterparty.channel_id: $TARGET_CHANNEL_OUTPUT" >&2
         return 1;
     fi
-    echo "$SOURCE_CHANNEL_OUTPUT" | jq >&2
 
     echo "====> wait for NFT $TOKEN is owned by $FROM <====" >&2
     ASSERT_TOKEN_QUERY_CMD=("ark" "assert" "nft" "token-owner" "--chain" "$CHAIN" "--collection" "$COLLECTION" "--token" "$TOKEN" "--owner" "$FROM" "--max-call-limit" "$MAX_CALL_LIMIT")
@@ -128,9 +129,9 @@ function ics721_transfer() {
     if [[ "$ICS721_MODULE" == wasm ]]
     then
         # ======== wasm module
-        if [[ ! "$PORT" == wasm.* ]]
+        if [[ ! "$SOURCE_PORT" == wasm.* ]]
         then
-            echo "Port does not start with 'wasm.': $PORT" >&2
+            echo "Port does not start with 'wasm.': $SOURCE_PORT" >&2
             return 1
         fi
         # ====== send token to ICS721 contract
@@ -186,7 +187,7 @@ function ics721_transfer() {
     else
         # ======== nft-transfer module
         TIMEOUT=`expr $(date -d "2000-01-01 $DURATION" +%s%N) - $(date -d "2000-01-01" +%s%N)` # --packet-timeout-timestamp: packet timeout timestamp in nanoseconds from now
-        CMD="$CLI tx nft-transfer transfer '$PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
+        CMD="$CLI tx nft-transfer transfer '$SOURCE_PORT' '$SOURCE_CHANNEL' '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from "$FROM" \
 --fees "$CLI_FEES" \
 --packet-timeout-timestamp $TIMEOUT \
@@ -224,14 +225,21 @@ function ics721_transfer() {
         return $TX_QUERY_EXIT_CODE
     fi
     TX_HEIGHT=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.height'`
+    if [ -z "$TX_HEIGHT" ] && [ "$TX_HEIGHT" = null ]
+    then
+        echo "ERROR no tx height found!" >&2
+        echo "$TX_QUERY_OUTPUT" >&2
+        return 1
+    fi
+    echo "TX $TXHASH found at height $TX_HEIGHT" >&2
 
-    HERMES_CMD="hermes --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT >&2"
+    HERMES_CMD="hermes --debug=rpc --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $SOURCE_PORT >&2"
     echo "====> manually relaying $SOURCE_CHANNEL on $CHAIN <====" >&2
     if [ "$RELAY" = "true" ]; then
-        echo "hermes --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
-        hermes --config $HERMES_DIR/config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$PORT" >&2
+        echo "hermes --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $SOURCE_PORT" >&2
+        hermes --config $HERMES_DIR/config.toml clear packets --chain "$CHAIN_ID" --channel "$SOURCE_CHANNEL" --port "$SOURCE_PORT" >&2
     else
-        echo "skip: hermes --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $PORT" >&2
+        echo "skip: hermes --config $HERMES_DIR/config.toml clear packets --chain $CHAIN_ID --channel $SOURCE_CHANNEL --port $SOURCE_PORT" >&2
     fi
 
     # ====== check receival on target chain
@@ -240,7 +248,7 @@ function ics721_transfer() {
     echo "====> retrieving target class id <====" >&2
     if [[ "$ICS721_MODULE" == wasm ]]
     then
-        SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq '.data.logs[0].events[] | select(.type == "wasm") | .attributes[] | select(.key =="class_id")' | jq -r '.value'`
+        SOURCE_CLASS_ID=$(get_attribute_by_tx $TXHASH --attribute-key class_id)
     else
         SOURCE_CLASS_ID=`echo "$TX_QUERY_OUTPUT" | jq -r '.data.tx.body.messages[0].class_id'`
         # ibc class is a hash like "ibc/hash", hash contains class id
@@ -271,7 +279,7 @@ function ics721_transfer() {
     fi
     echo "source class id: $SOURCE_CLASS_ID" >&2
     if [[ -z "$SOURCE_CLASS_ID" ]] || [[ "$SOURCE_CLASS_ID" = null ]];then
-        echo "missing class_id in tx $TXHASH" >&2
+        echo "missing class_id in output: $TX_QUERY_OUTPUT" | jq
         return 1;
     fi
 
