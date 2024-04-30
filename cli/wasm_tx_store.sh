@@ -78,6 +78,14 @@ function wasm_tx_store() {
             echo "CODE_ID is empty, trying to get it from data.events" >&2
             CODE_ID=`echo $QUERY_OUTPUT|jq '.data.events[] | select(.type == "store_code") | .attributes[] | select(.key =="code_id")' | jq -r '.value'`
         fi
+        if [ -z "$CODE_ID" ] || [ "$CODE_ID" = null ] # injective hides the code id in the events
+        then
+            echo "CODE_ID is empty, trying to get it from logs.attributes" >&2
+            CODE_ID=$(echo "$QUERY_OUTPUT" | jq -r '.data.logs[0].events[] | select(.type == "cosmwasm.wasm.v1.EventCodeStored").attributes[] | select(.key == "code_id").value')
+
+            # remove the extra quotes around it ""1234""
+            CODE_ID=$(echo "$CODE_ID" | sed 's/"//g')
+        fi
         INITIAL_CMD=`echo $CMD_OUTPUT | jq -r '.cmd' | sed 's/"/\\\\"/g'` # escape double quotes
         RESULT=`echo $QUERY_OUTPUT | jq "{ cmd: \"$INITIAL_CMD\", data: .data, code_id: \"$CODE_ID\"}"`
         echo $RESULT | jq
