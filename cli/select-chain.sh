@@ -9,10 +9,7 @@ function select_chain() {
     unset SKIP_CHAIN_NET
     unset SKIP_CHAIN
     # Read chains from the file into an array
-    CHAIN_CHOICES=()
-    while IFS= read -r line; do
-        CHAIN_CHOICES+=("$line")
-    done < "$ARK_CLI_DIR/chains.txt"
+    CHAIN_CHOICES=$(fn_get_all_chains)
     echo "Available chains: ${CHAIN_CHOICES[*]}" >&2
 
     for arg in "$@"; do
