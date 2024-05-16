@@ -455,6 +455,36 @@ terrad query bank balances $GON_TERRA_WALLET_MINTER
 terrad query bank balances $GON_TERRA_WALLET_RELAYER
 ```
 
+## Neutron
+
+### Faucet
+
+Telegram 
+https://t.me/+SyhWrlnwfCw2NGM6 
+
+```
+/request <NEUTRON-ADDRESS>
+```
+Discord
+https://discord.neutron.org/
+
+https://discord.com/channels/986573321023942708/1041694375702446170
+```
+$request <NEUTRON-ADDRESS>
+```
+
+## Injective 
+
+### Faucet
+https://bwarelabs.com/faucets/injective-testnet
+
+## Migaloo
+
+### Faucet
+
+https://discord.com/channels/908044702794801233/1069611287149039718
+
+
 # Relayer Setup
 
 Hermes:
