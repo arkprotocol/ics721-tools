@@ -5,3 +5,4 @@ juno
 aura
 migaloo
 injective
+neutron
