@@ -4,7 +4,7 @@
 # Parameters:
 # -
 function fn_select_chain_net() {
-  echo -e "1) mainnet (default)\n2) testnet" >&2
+  echo -e "Please select chain net:\n1) mainnet (default)\n2) testnet" >&2
   while true; do
     read -p "Select 1 (default) or 2: " choice
     if [[ $choice == "1" || $choice == "" ]]; then
