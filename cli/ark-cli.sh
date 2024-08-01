@@ -6,6 +6,7 @@
 if [[ -z "$ARK_CLI_DIR" ]] ; then
     ARK_CLI_DIR="$(dirname -- "${BASH_SOURCE[0]}")"            # relative
     ARK_CLI_DIR="$(cd -- "$MY_PATH" && pwd)"    # absolutized and normalized
+    ARK_CLI_FUNCTIONS_DIR="$ARK_CLI_DIR/functions"
 fi
 echo "ARK_CLI_DIR: $ARK_CLI_DIR"
 
@@ -22,7 +23,8 @@ echo "HERMES_DIR: $HERMES_DIR"
 
 source "$ARK_CLI_DIR"/cli.env
 
-source "$ARK_CLI_DIR"/fn_get-all-chains.sh
+source "$ARK_CLI_FUNCTIONS_DIR"/fn_get-all-chains.sh
+source "$ARK_CLI_FUNCTIONS_DIR"/fn_select-chain-net.sh
 source "$ARK_CLI_DIR"/exit-code.sh
 source "$ARK_CLI_DIR"/execute-cli.sh
 source "$ARK_CLI_DIR"/query-tx.sh
