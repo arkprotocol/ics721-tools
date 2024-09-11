@@ -9,7 +9,8 @@ function fn_get_all_chains() {
     while IFS= read -r line; do
         ALL_CHAINS+=("$line")
     done < "$ARK_CLI_DIR/chains.txt"
-    
+    ALL_CHAINS=($(printf '%s\n' "${ALL_CHAINS[@]}" | sort))
+
     echo "${ALL_CHAINS[@]}"
 }
 
