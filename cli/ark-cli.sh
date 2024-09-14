@@ -26,6 +26,7 @@ source "$ARK_CLI_DIR"/cli.env
 source "$ARK_CLI_DIR"/fn_get-all-chains.sh
 source "$ARK_CLI_FUNCTIONS_DIR"/fn_select_chain_net.sh
 source "$ARK_CLI_FUNCTIONS_DIR"/fn_select_chains.sh
+source "$ARK_CLI_FUNCTIONS_DIR"/fn_get_chain_from_address.sh
 source "$ARK_CLI_DIR"/exit-code.sh
 source "$ARK_CLI_DIR"/execute-cli.sh
 source "$ARK_CLI_DIR"/query-tx.sh
