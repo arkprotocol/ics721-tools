@@ -2,7 +2,6 @@ stargaze
 osmosis
 terra2
 juno
-aura
 migaloo
 injective
 neutron
