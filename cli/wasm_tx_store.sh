@@ -27,6 +27,10 @@ function wasm_tx_store() {
             FEE_GRANTER="$2"
             shift
             ;;
+        --instantiate-anyof-addresses)
+            INSTANTIATE_ANYOF_ADDRESSES="$2"
+            shift
+            ;;
         *)
             echo "Unknown parameter: $1, args passed: '$ARGS'" >&2
             return 1
@@ -57,6 +61,9 @@ function wasm_tx_store() {
         printf -v CMD "$CLI tx wasm store $FILE --gas $CLI_GAS --gas-prices $CLI_GAS_PRICES --gas-adjustment $CLI_GAS_ADJUSTMENT -b $CLI_BROADCAST_MODE --from $WALLET_DEV --yes --node $CHAIN_NODE --chain-id $CHAIN_ID"
         if [ ! -z "$FEE_GRANTER" ]; then
             CMD+=" --fee-granter $FEE_GRANTER"
+        fi
+        if [ ! -z "$INSTANTIATE_ANYOF_ADDRESSES" ]; then
+            CMD+=" --instantiate-anyof-addresses $INSTANTIATE_ANYOF_ADDRESSES"
         fi
         CMD_OUTPUT=$(execute_cli "$CMD")
         EXIT_CODE=$?
