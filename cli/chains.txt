@@ -1,7 +1,8 @@
+cosmoshub
 stargaze
+neutron
+injective
 osmosis
 terra2
 juno
 migaloo
-injective
-neutron
