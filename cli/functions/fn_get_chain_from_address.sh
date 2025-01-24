@@ -44,6 +44,12 @@ function fn_get_chain_from_address() {
       source "$ARK_ENV_DIR/aura.env"
       echo "$CHAIN"
     )"
+  elif fn_starts_with_prefix "cosmos" "$1"; then
+    echo "$(
+      # shellcheck source=/dev/null
+      source "$ARK_ENV_DIR/cosmoshub.env"
+      echo "$CHAIN"
+    )"
   elif fn_starts_with_prefix "inj" "$1"; then
     echo "$(
       # shellcheck source=/dev/null
