@@ -58,7 +58,7 @@ function wasm_tx_store() {
     if [ "$ICS721_MODULE" == wasm ]; then
         # upload
         echo "====> $CHAIN: uploading $FILE)  <====" >&2
-        printf -v CMD "$CLI tx wasm store $FILE --gas $CLI_GAS --gas-prices $CLI_GAS_PRICES --gas-adjustment $CLI_GAS_ADJUSTMENT -b $CLI_BROADCAST_MODE --from $WALLET_DEV --yes --node $CHAIN_NODE --chain-id $CHAIN_ID"
+        printf -v CMD "$CLI tx wasm store $FILE --gas $CLI_GAS --gas-prices $CLI_GAS_PRICES --gas-adjustment $CLI_GAS_ADJUSTMENT -b $CLI_BROADCAST_MODE --from $WALLET_DEV --yes --node $CHAIN_NODE"
         if [ ! -z "$FEE_GRANTER" ]; then
             CMD+=" --fee-granter $FEE_GRANTER"
         fi

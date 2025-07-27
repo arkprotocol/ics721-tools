@@ -40,7 +40,7 @@ function query_token() {
         printf -v QUERY_MSG '{"all_nft_info":{"token_id": "%s"}}' "$TOKEN_ID"
         printf -v QUERY_CMD "$CLI query wasm contract-state smart\
             %s\
-            '%s' --chain-id $CHAIN_ID --node $CHAIN_NODE"\
+            '%s' --node $CHAIN_NODE"\
             "$COLLECTION_ID"\
             "$QUERY_MSG"
         QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`

@@ -44,7 +44,7 @@ function nft_query_snapshot() {
             printf -v ALL_NFT_INFO_MSG '{"all_nft_info":{"token_id": "%s"}}' "$TOKEN_ID"
             printf -v ALL_NFT_INFO_CMD "$CLI query wasm contract-state smart \
 %s \
-'%s' --chain-id $CHAIN_ID --node $CHAIN_NODE" \
+'%s' --node $CHAIN_NODE" \
 "$COLLECTION" \
 "$ALL_NFT_INFO_MSG"
             ALL_NFT_INFO_OUTPUT=`execute_cli "$ALL_NFT_INFO_CMD" 2>/dev/null`

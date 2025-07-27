@@ -26,7 +26,7 @@ function query_channels() {
     QUERY_OUTPUT=
     while [[ $PAGE -gt 0 ]]; do
         # echo "query page $PAGE" >&2
-        printf -v QUERY_CMD "$CLI query ibc channel channels --page %s --chain-id $CHAIN_ID --node $CHAIN_NODE" "$PAGE"
+        printf -v QUERY_CMD "$CLI query ibc channel channels --page %s --node $CHAIN_NODE" "$PAGE"
         echo "$QUERY_CMD" >&2
         QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
         CHANNELS=`echo $QUERY_OUTPUT | jq ".data.channels"`

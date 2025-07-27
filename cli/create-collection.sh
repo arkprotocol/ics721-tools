@@ -98,7 +98,7 @@ function create_collection() {
 %s \
 --gas-prices $CLI_GAS_PRICES --gas $CLI_GAS --gas-adjustment $CLI_GAS_ADJUSTMENT \
 -b $CLI_BROADCAST_MODE --yes \
---node $CHAIN_NODE --chain-id $CHAIN_ID" \
+--node $CHAIN_NODE" \
             "$([ ! -z $ADMIN ] && echo "--admin $ADMIN" || echo "--no-admin")"
 
         CMD_OUTPUT=$(execute_cli "$CMD")

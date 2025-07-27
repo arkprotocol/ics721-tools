@@ -61,7 +61,7 @@ function nft_mint() {
         printf -v CMD "$CLI tx wasm execute %s '$MINT_MSG'\
             --from $FROM\
             --gas-prices $CLI_GAS_PRICES --gas $CLI_GAS --gas-adjustment $CLI_GAS_ADJUSTMENT\
-            -b $CLI_BROADCAST_MODE --chain-id $CHAIN_ID --node $CHAIN_NODE --yes"\
+            -b $CLI_BROADCAST_MODE --node $CHAIN_NODE --yes"\
             "$COLLECTION_ID"
         CMD_OUTPUT=`execute_cli "$CMD"`
         EXIT_CODE=$?
@@ -115,7 +115,7 @@ function nft_mint() {
 %s \
 --fees $CLI_FEES \
 -b $CLI_BROADCAST_MODE --yes \
---node $CHAIN_NODE --chain-id $CHAIN_ID" \
+--node $CHAIN_NODE" \
 "$( [ ! -z "$URI" ] && echo "--uri '$URI'" || echo "")" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
@@ -167,7 +167,7 @@ function nft_mint() {
 %s \
 --fees $CLI_MAX_FEES \
 -b $CLI_BROADCAST_MODE --yes \
---node $CHAIN_NODE --chain-id $CHAIN_ID" \
+--node $CHAIN_NODE" \
 "$( [ ! -z "$DATA" ] && echo "--data '$DATA'" || echo "")" \
 "$( [ ! -z "$NAME" ] && echo "--name '$NAME'")"
             CMD_OUTPUT=`execute_cli "$CMD"`

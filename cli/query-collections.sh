@@ -46,7 +46,7 @@ function query_collections() {
         QUERY_OUTPUT=
         while [[ $PAGE -gt 0 ]]; do
             # echo "query page $PAGE" >&2
-            printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s --chain-id $CHAIN_ID --node $CHAIN_NODE" "$CODE_ID" "$PAGE"
+            printf -v QUERY_CMD "$CLI query wasm list-contract-by-code %s --page %s --node $CHAIN_NODE" "$CODE_ID" "$PAGE"
             QUERY_OUTPUT=`execute_cli "$QUERY_CMD"`
             EXECUTE_CLI_EXIT_CODE=$?
             if [[ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]]; then
@@ -69,7 +69,7 @@ function query_collections() {
         OWNED_COLLECTIONS="[]"
         for CONTRACT in "${CONTRACTS[@]}"; do
             CONTRACT=`echo $CONTRACT|xargs` # remove double quotes
-            QUERY_CMD="$CLI query wasm contract $CONTRACT --chain-id $CHAIN_ID --node $CHAIN_NODE"
+            QUERY_CMD="$CLI query wasm contract $CONTRACT --node $CHAIN_NODE"
             CREATOR=`execute_cli "$QUERY_CMD"| jq '.data.contract_info.creator'`
             EXECUTE_CLI_EXIT_CODE=$?
             if [ "$EXECUTE_CLI_EXIT_CODE" -ne 0 ]; then

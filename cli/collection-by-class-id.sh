@@ -56,7 +56,7 @@ function collection_by_class_id() {
         printf -v QUERY_MSG '{"nft_contract":{"class_id":"%s"}}' "$CLASS_ID"
         printf -v QUERY_CMD "$CLI query wasm contract-state smart\
             %s\
-            '%s' --chain-id $CHAIN_ID --node $CHAIN_NODE"\
+            '%s' --node $CHAIN_NODE"\
             "$DEST_CONTRACT_ICS721"\
             "$QUERY_MSG"
         CALL_COUNT="$MAX_CALL_LIMIT"
