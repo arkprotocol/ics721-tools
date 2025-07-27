@@ -39,7 +39,7 @@ function nft_query_approvals() {
     then
         # owner_of query also contains approvals info
         printf -v QUERY_APPROVALS_MSG '{"owner_of": {"token_id": "%s"}}' "$TOKEN"
-        printf -v QUERY_APPROVALS_CMD "$CLI query wasm contract-state smart $COLLECTION '$QUERY_APPROVALS_MSG' --node $CHAIN_NODE"
+        printf -v QUERY_APPROVALS_CMD "$CLI query wasm contract-state smart $COLLECTION '$QUERY_APPROVALS_MSG' --chain-id $CHAIN_ID --node $CHAIN_NODE"
         QUERY_APPROVALS_OUTPUT=`execute_cli "$QUERY_APPROVALS_CMD"`
     else
         echo "Approvals not supported for module $ICS721_MODULE" >&2

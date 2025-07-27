@@ -69,13 +69,13 @@ function nft_transfer() {
 --gas-prices $CLI_GAS_PRICES \
 --gas $CLI_GAS \
 --gas-adjustment $CLI_GAS_ADJUSTMENT \
---node $CHAIN_NODE \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 -b $CLI_BROADCAST_MODE --yes"
     else
         printf -v TRANSFER_CMD "$CLI tx $ICS721_MODULE transfer '$RECIPIENT' '$COLLECTION' '$TOKEN' \
 --from $FROM \
 --fees $CLI_FEES \
---node $CHAIN_NODE \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 -b $CLI_BROADCAST_MODE --yes"
     fi
 

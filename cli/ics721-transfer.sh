@@ -93,7 +93,7 @@ function ics721_transfer() {
     # for checking NFT receival in collection on target chain, target channel and target port is needed
     # let's query as pre-task for saving time, before transferring, this way we also check whether channel is correct
     echo "====> query counter part channel (for NFT retrieval on target chain) <====" >&2
-    TARGET_CHANNEL_CMD="$CLI query ibc channel end wasm.$ADDR_ICS721 $SOURCE_CHANNEL --node $CHAIN_NODE"
+    TARGET_CHANNEL_CMD="$CLI query ibc channel end wasm.$ADDR_ICS721 $SOURCE_CHANNEL --chain-id $CHAIN_ID --node $CHAIN_NODE"
     echo "$TARGET_CHANNEL_CMD" >&2
     TARGET_CHANNEL_OUTPUT=$($TARGET_CHANNEL_CMD 2>/dev/null)
     # - return in case of error
@@ -182,7 +182,7 @@ function ics721_transfer() {
 --gas "$CLI_GAS" \
 --gas-adjustment "$CLI_GAS_ADJUSTMENT" \
 -b "$CLI_BROADCAST_MODE" \
---node $CHAIN_NODE \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     else
         # ======== nft-transfer module
@@ -192,7 +192,7 @@ function ics721_transfer() {
 --fees "$CLI_FEES" \
 --packet-timeout-timestamp $TIMEOUT \
 -b "$CLI_BROADCAST_MODE" \
---node $CHAIN_NODE \
+--chain-id $CHAIN_ID --node $CHAIN_NODE \
 --yes"
     fi
 
