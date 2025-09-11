@@ -478,13 +478,6 @@ $request <NEUTRON-ADDRESS>
 ### Faucet
 https://bwarelabs.com/faucets/injective-testnet
 
-## Migaloo
-
-### Faucet
-
-https://discord.com/channels/908044702794801233/1069611287149039718
-
-
 # Relayer Setup
 
 Hermes:

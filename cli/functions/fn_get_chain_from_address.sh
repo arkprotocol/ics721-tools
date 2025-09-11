@@ -62,12 +62,6 @@ function fn_get_chain_from_address() {
       source "$ARK_ENV_DIR/juno.env"
       echo "$CHAIN"
     )"
-  elif fn_starts_with_prefix "migaloo" "$1"; then
-    echo "$(
-      # shellcheck source=/dev/null
-      source "$ARK_ENV_DIR/migaloo.env"
-      echo "$CHAIN"
-    )"
   elif fn_starts_with_prefix "neutron" "$1"; then
     echo "$(
       # shellcheck source=/dev/null

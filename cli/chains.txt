@@ -1,7 +1,6 @@
 cosmoshub
 injective
 juno
-migaloo
 neutron
 osmosis
 stargaze
